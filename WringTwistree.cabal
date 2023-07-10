@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Cryptography.WringTwistree.Mix3
       Lib
   other-modules:
       Paths_WringTwistree
@@ -32,7 +33,9 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
+    , containers
   default-language: Haskell2010
 
 executable WringTwistree-exe

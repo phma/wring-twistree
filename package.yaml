@@ -35,6 +35,9 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - array
+  - containers
 
 executables:
   WringTwistree-exe:
