@@ -38,6 +38,7 @@ library:
   dependencies:
   - array
   - containers
+  - arithmoi
 
 executables:
   WringTwistree-exe:
