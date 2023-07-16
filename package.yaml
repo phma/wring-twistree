@@ -39,6 +39,7 @@ library:
   - array
   - containers
   - arithmoi
+  - mod
 
 executables:
   WringTwistree-exe:

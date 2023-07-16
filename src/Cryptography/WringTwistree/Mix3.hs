@@ -9,6 +9,7 @@ import Data.Word
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Math.NumberTheory.ArithmeticFunctions
+import Data.Mod.Word
 import Math.NumberTheory.Primes
 
 mix :: (Num t,Bits t) => t -> t -> t -> t

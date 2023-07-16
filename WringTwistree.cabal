@@ -37,6 +37,7 @@ library
     , array
     , base >=4.7 && <5
     , containers
+    , mod
   default-language: Haskell2010
 
 executable WringTwistree-exe
