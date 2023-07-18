@@ -1,8 +1,8 @@
-{-# LANGUAGE DataKinds #-}
 module Cryptography.WringTwistree.Mix3
   ( mix
   , fiboPair
   , searchDir
+  , isMaxOrder
   ) where
 
 import Data.Bits
@@ -10,7 +10,7 @@ import Data.Word
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Math.NumberTheory.ArithmeticFunctions
-import Data.Mod.Word
+import GHC.Natural
 import Math.NumberTheory.Primes
 
 mix :: (Num t,Bits t) => t -> t -> t -> t
@@ -31,3 +31,17 @@ searchDir n
   | otherwise = (q+1,(-1))
   where [num,den] = fiboPair (2*n)
 	(q,r) = (n*num) `divMod` den
+
+isMaxOrder :: Integral a => a -> a -> [a] -> a -> Bool
+-- isMaxOrder modl car fac n
+-- where modl is the modulus, car is its Carmichael function,
+-- fac is the set of prime factors of car (without multiplicities),
+-- and n is the number being tested.
+-- Returns true if n has maximum order, which implies it's a primitive root
+-- if modulus has any primitive roots.
+isMaxOrder modl car fac n = (powModNatural nn ncar nmodl) == 1 && allnot1
+  where nn = (fromIntegral n) :: Natural
+	ncar = (fromIntegral car) :: Natural
+	nmodl = (fromIntegral modl) :: Natural
+	powns = map ((\x -> powModNatural nn (fromIntegral x) nmodl) . (car `div`)) fac
+	allnot1 = foldl (&&) True (map (/= 1) powns)
