@@ -3,7 +3,7 @@ module Cryptography.WringTwistree.Mix3
   , fiboPair
   , searchDir
   , isMaxOrder
-  , searchSeq
+  , searchFrom
   ) where
 
 import Data.Bits
@@ -48,3 +48,6 @@ isMaxOrder modl car fac n = (powModNatural nn ncar nmodl) == 1 && allnot1
 	allnot1 = foldl (&&) True (map (/= 1) powns)
 
 searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
+
+searchFrom :: (Integer,Int) -> [Integer]
+searchFrom (start,dir) = map (\x -> x*(fromIntegral dir)+start) searchSeq
