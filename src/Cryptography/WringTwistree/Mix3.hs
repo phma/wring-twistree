@@ -4,6 +4,7 @@ module Cryptography.WringTwistree.Mix3
   , searchDir
   , isMaxOrder
   , searchFrom
+  , findMaxOrder
   ) where
 
 import Data.Bits
@@ -51,3 +52,12 @@ searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
 
 searchFrom :: (Integer,Int) -> [Integer]
 searchFrom (start,dir) = map (\x -> x*(fromIntegral dir)+start) searchSeq
+
+findMaxOrder :: Integer -> Integer
+-- n must be positive.
+-- Returns the number of maximum multiplicative order mod n closest to n/φ.
+-- n=1 is a special case, as (isMaxOrder 1 1 [] i) returns False for all i>=0.
+findMaxOrder 1 = 1
+findMaxOrder n = head $ filter (isMaxOrder n car fac) $ searchFrom $ searchDir n
+  where car = carmichael n
+	fac = map (unPrime . fst) $ factorise car
