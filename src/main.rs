@@ -1,4 +1,4 @@
-use wring_twistree::*;
+use wring_twistree::mix3::*;
 
 fn printvec(k:&[u8]) {
   for i in 0..k.len() {
