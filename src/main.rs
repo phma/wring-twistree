@@ -15,4 +15,12 @@ fn main() {
     buf.push(i*13);
   }
   printvec(&buf);
+  let a=0;
+  let b=9;
+  let c=10;
+  let (d,rest)=buf[a..].split_first_mut().unwrap();
+  let (e,rest)=rest[b-a-1..].split_first_mut().unwrap();
+  let (f,_)=rest[c-b-1..].split_first_mut().unwrap();
+  mix(d,e,f);
+  printvec(&buf);
 }
