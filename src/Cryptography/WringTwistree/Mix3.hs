@@ -7,6 +7,24 @@ module Cryptography.WringTwistree.Mix3
   , findMaxOrder
   ) where
 
+{- This module splits a buffer (an array of bytes) into three equal parts, with
+ - 0, 1, or 2 bytes left over, and mixes them as follows:
+ -
+ - The mix function takes three bytes and flips each bit which is not the same
+ - in all three bytes. This is a self-inverse, nonlinear operation.
+ -
+ - The 0th third is traversed forward, the 1st third is traversed backward,
+ - and the 2nd third is traversed by steps close to 1/φ the length of a third.
+ - Taking a 16-byte buffer as an example:
+ - 00 0d 1a 27 34|41 4e 5b 68 75|82 8f 9c a9 b6|c3
+ - <>            |            <>|<>            |
+ -    <>         |         <>   |         <>   |
+ -       <>      |      <>      |   <>         |
+ -          <>   |   <>         |            <>|
+ -             <>|<>            |      <>      |
+ - f7 e8 cf de c9|bc b7 8e 8d 82|75 5a 61 4c 4f|c3
+ -}
+
 import Data.Bits
 import Data.Word
 import qualified Data.Sequence as Seq
