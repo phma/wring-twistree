@@ -16,11 +16,25 @@
 //             <>|<>            |      <>      |
 // f7 e8 cf de c9|bc b7 8e 8d 82|75 5a 61 4c 4f|c3
 
+use num_bigint::BigUint;
+use num_traits::{Zero, One};
+use std::mem::replace;
+
 pub fn mix(a: &mut u8, b: &mut u8, c: &mut u8) {
   let mask:u8=(*a|*b|*c)-(*a&*b&*c);
   *a=*a^mask;
   *b=*b^mask;
   *c=*c^mask;
+}
+
+pub fn fibo_pair(n: BigUint) -> (BigUint,BigUint) {
+  let mut f0: BigUint = Zero::zero();
+  let mut f1: BigUint = One::one();
+  while f0<=n {
+    let f2 = f0 + &f1;
+    f0 = replace(&mut f1, f2);
+  }
+  (f0,f1)
 }
 
 pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {
