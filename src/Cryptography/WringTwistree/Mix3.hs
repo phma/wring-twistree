@@ -6,6 +6,7 @@ module Cryptography.WringTwistree.Mix3
   , searchFrom
   , findMaxOrder
   , mixOrder
+  , mix3Parts
   ) where
 
 {- This module splits a buffer (an array of bytes) into three equal parts, with
@@ -104,3 +105,8 @@ mixOrder len
 			 2*third-n-1,
 			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
+
+mix3Parts :: UArray Int Word8 -> [(Int,Int,Int)] -> UArray Int Word8
+-- The index of buf must start at 0.
+mix3Parts buf order = array (bounds buf) mixed
+  where mixed = map (\(a,b,c) -> (a, mix (buf ! a) (buf ! b) (buf ! c))) order
