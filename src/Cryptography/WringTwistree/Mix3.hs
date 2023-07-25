@@ -5,6 +5,7 @@ module Cryptography.WringTwistree.Mix3
   , isMaxOrder
   , searchFrom
   , findMaxOrder
+  , mixOrder
   ) where
 
 {- This module splits a buffer (an array of bytes) into three equal parts, with
@@ -27,6 +28,7 @@ module Cryptography.WringTwistree.Mix3
 
 import Data.Bits
 import Data.Word
+import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Math.NumberTheory.ArithmeticFunctions
@@ -79,3 +81,26 @@ findMaxOrder 1 = 1
 findMaxOrder n = head $ filter (isMaxOrder n car fac) $ searchFrom $ searchDir n
   where car = carmichael n
 	fac = map (unPrime . fst) $ factorise car
+
+triplicate :: [(Int,Int,Int)] -> [(Int,Int,Int)]
+triplicate [] = []
+triplicate ((a,b,c):xs) = (a,b,c):(b,c,a):(c,a,b):triplicate xs
+
+tailpiece :: Int -> [(Int,Int,Int)]
+tailpiece len
+  | (len `mod` 3 == 0) = []
+  | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
+
+mixOrder :: Int -> Int -> [(Int,Int,Int)]
+-- rprime is relatively prime to len `div` 3
+mixOrder len rprime
+  | len < 3 = tailpiece len
+  | otherwise = (tailpiece len) ++ (triplicate mixord)
+  where
+    rprimebig = (fromIntegral rprime) :: Integer
+    third = len `div` 3
+    thirdbig = (fromIntegral third) :: Integer
+    mixord = map (\n -> (n,
+			 2*third-n-1,
+			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprimebig) `mod` thirdbig))))
+      [0..third-1]
