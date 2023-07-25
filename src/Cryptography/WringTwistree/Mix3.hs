@@ -91,16 +91,16 @@ tailpiece len
   | (len `mod` 3 == 0) = []
   | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
 
-mixOrder :: Int -> Int -> [(Int,Int,Int)]
+mixOrder :: Int -> [(Int,Int,Int)]
 -- rprime is relatively prime to len `div` 3
-mixOrder len rprime
+mixOrder len
   | len < 3 = tailpiece len
   | otherwise = (tailpiece len) ++ (triplicate mixord)
   where
-    rprimebig = (fromIntegral rprime) :: Integer
     third = len `div` 3
     thirdbig = (fromIntegral third) :: Integer
+    rprime = findMaxOrder thirdbig
     mixord = map (\n -> (n,
 			 2*third-n-1,
-			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprimebig) `mod` thirdbig))))
+			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
