@@ -83,16 +83,16 @@ findMaxOrder n = head $ filter (isMaxOrder n car fac) $ searchFrom $ searchDir n
   where car = carmichael n
 	fac = map (unPrime . fst) $ factorise car
 
-triplicate :: [(Int,Int,Int)] -> [(Int,Int,Int)]
+triplicate :: [(a,a,a)] -> [(a,a,a)]
 triplicate [] = []
 triplicate ((a,b,c):xs) = (a,b,c):(b,c,a):(c,a,b):triplicate xs
 
-tailpiece :: Int -> [(Int,Int,Int)]
+tailpiece :: Integral a => a -> [(a,a,a)]
 tailpiece len
   | (len `mod` 3 == 0) = []
   | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
 
-mixOrder :: Int -> [(Int,Int,Int)]
+mixOrder :: Integral a => a -> [(a,a,a)]
 -- rprime is relatively prime to len `div` 3
 mixOrder len
   | len < 3 = tailpiece len
@@ -106,7 +106,7 @@ mixOrder len
 			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
 
-mix3Parts :: UArray Int Word8 -> [(Int,Int,Int)] -> UArray Int Word8
+mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> [(a,a,a)] -> UArray a Word8
 -- The index of buf must start at 0.
 mix3Parts buf order = array (bounds buf) mixed
   where mixed = map (\(a,b,c) -> (a, mix (buf ! a) (buf ! b) (buf ! c))) order
