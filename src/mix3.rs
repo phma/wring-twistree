@@ -20,7 +20,7 @@ use std::collections::BTreeMap; // factorize returns a Btree
 use num_bigint::BigUint;
 use num_traits::{Zero, One};
 use num_integer::{div_rem,gcd,lcm};
-//use num_prime::nt_funcs::factorize64;
+use num_prime::nt_funcs::factorize64;
 use std::mem::replace;
 
 pub fn mix(a: &mut u8, b: &mut u8, c: &mut u8) {
@@ -48,6 +48,20 @@ pub fn search_dir(n: BigUint) -> (BigUint,i8) {
   } else {
     (q+BigUint::from(1u8),-1)
   }
+}
+
+pub fn carmichael(n: usize) -> usize {
+  let facs = factorize64(n as u64);
+  let mut ret:usize=1;
+  for (p, ex) in facs.iter() {
+    let carfac=if *p==2u64 && *ex>=3usize {
+      p.pow((*ex as u32)-2)
+    } else {
+      p.pow((*ex as u32)-1)*(p-1)
+    };
+    ret=lcm(ret,carfac as usize);
+  }
+  ret
 }
 
 pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {

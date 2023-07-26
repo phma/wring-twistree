@@ -22,4 +22,5 @@ fn main() {
   sqfib.push(144);
   let fibos=fibo_pair(BigUint::new(sqfib));
   println!("{},{}",fibos.0,fibos.1);
+  println!("{}",carmichael(1016255020032000000));
 }
