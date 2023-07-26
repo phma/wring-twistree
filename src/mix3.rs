@@ -16,9 +16,11 @@
 //             <>|<>            |      <>      |
 // f7 e8 cf de c9|bc b7 8e 8d 82|75 5a 61 4c 4f|c3
 
+use std::collections::BTreeMap; // factorize returns a Btree
 use num_bigint::BigUint;
 use num_traits::{Zero, One};
-use num_integer::div_rem;
+use num_integer::{div_rem,gcd,lcm};
+//use num_prime::nt_funcs::factorize64;
 use std::mem::replace;
 
 pub fn mix(a: &mut u8, b: &mut u8, c: &mut u8) {
@@ -36,6 +38,16 @@ pub fn fibo_pair(n: BigUint) -> (BigUint,BigUint) {
     f0 = replace(&mut f1, f2);
   }
   (f0,f1)
+}
+
+pub fn search_dir(n: BigUint) -> (BigUint,i8) {
+  let (num,den)=fibo_pair(BigUint::from(2u8)*&n);
+  let (q,r)=div_rem(n*num,den.clone());
+  if r*BigUint::from(2u8)<den {
+    (q,1)
+  } else {
+    (q+BigUint::from(1u8),-1)
+  }
 }
 
 pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {
