@@ -21,6 +21,7 @@ use num_bigint::BigUint;
 use num_traits::{Zero, One};
 use num_integer::{div_rem,gcd,lcm};
 use num_prime::nt_funcs::factorize64;
+use mod_exp::*;
 use std::mem::replace;
 
 pub fn mix(a: &mut u8, b: &mut u8, c: &mut u8) {
