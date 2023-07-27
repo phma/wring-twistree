@@ -76,6 +76,20 @@ pub fn is_max_order(modl: u64, car: u64, fac: &BTreeMap<u64,usize>, n: u64) -> b
   ret
 }
 
+pub fn find_max_order(n: u64) -> u64 {
+  let car=carmichael(n as usize);
+  let fac=factorize64(car as u64);
+  let (start,dir)=search_dir(BigUint::from(n));
+  let start=start.to_u64_digits()[0] as i64;
+  for i in 0..n {
+    let m=start+(if (i&1)==1 {(i/2+1) as i64} else {-((i/2) as i64)})*dir as i64;
+    if is_max_order(n,car as u64,&fac,m as u64) || n==1 {
+      return m as u64;
+    }
+  }
+  1
+}
+
 pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {
   let mut a=0;
   let mut b=2*len-1;
