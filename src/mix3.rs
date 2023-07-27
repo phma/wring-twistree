@@ -63,6 +63,19 @@ pub fn carmichael(n: usize) -> usize {
   ret
 }
 
+pub fn is_max_order(modl: u64, car: u64, fac: &BTreeMap<u64,usize>, n: u64) -> bool {
+// modl is the modulus, car is its Carmichael function,
+// fac is the set of prime factors of car,
+// and n is the number being tested.
+// Returns true if n has maximum order, which implies it's a primitive root
+// if modulus has any primitive roots.
+  let mut ret:bool=mod_exp(n,car,modl)==1;
+  for (p,_) in fac.iter() {
+    ret=ret && mod_exp(n,car/p,modl)!=1;
+  }
+  ret
+}
+
 pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {
   let mut a=0;
   let mut b=2*len-1;
