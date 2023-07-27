@@ -1,4 +1,5 @@
 // Module mix3
+// This module is used in Wring.
 // This module splits a buffer (a slice of bytes) into three equal parts, with
 // 0, 1, or 2 bytes left over, and mixes them as follows:
 //
@@ -19,7 +20,7 @@
 use std::collections::BTreeMap; // factorize returns a Btree
 use num_bigint::BigUint;
 use num_traits::{Zero, One};
-use num_integer::{div_rem,gcd,lcm};
+use num_integer::{div_rem,lcm};
 use num_prime::nt_funcs::factorize64;
 use mod_exp::*;
 use std::mem::replace;

@@ -9,7 +9,8 @@ module Cryptography.WringTwistree.Mix3
   , mix3Parts
   ) where
 
-{- This module splits a buffer (an array of bytes) into three equal parts, with
+{- This module is used in Wring.
+ - This module splits a buffer (an array of bytes) into three equal parts, with
  - 0, 1, or 2 bytes left over, and mixes them as follows:
  -
  - The mix function takes three bytes and flips each bit which is not the same
