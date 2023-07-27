@@ -84,7 +84,7 @@ pub fn find_max_order(n: u64) -> u64 {
   let start=start.to_u64_digits()[0] as i64;
   for i in 0..n {
     let m=start+(if (i&1)==1 {(i/2+1) as i64} else {-((i/2) as i64)})*dir as i64;
-    if is_max_order(n,car as u64,&fac,m as u64) || n==1 {
+    if n==1 || is_max_order(n,car as u64,&fac,m as u64) {
       return m as u64;
     }
   }
@@ -107,4 +107,19 @@ pub fn mix3parts(buf: &mut[u8], len: usize, rprime: usize) {
       c=c-len;
     }
   }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_max_order() {
+        let result = find_max_order(85);
+        assert_eq!(result, 54);
+        let result = find_max_order(1618034);
+        assert_eq!(result, 1000001);
+        let result = find_max_order(1);
+        assert_eq!(result, 1);
+    }
 }
