@@ -4,7 +4,11 @@ module Cryptography.WringTwistree.RotBitcount
 
 {- This module is used in both Wring and Twistree.
  - It rotates an array of bytes by a multiple of its bitcount,
- - producing another array of the same size.
+ - producing another array of the same size. As long as the multiplier
+ - is relatively prime to the number of bits in the array, this
+ - operation satisfies the strict avalanche criterion. Changing *two*
+ - bits, however, has half a chance of changing only two bits in
+ - the output.
  -}
 
 import Data.Bits
@@ -12,7 +16,7 @@ import Data.Word
 import Data.Array.Unboxed
 
 rotBitcount :: (Integral a,Ix a,Bits a) => UArray a Word8 -> a -> UArray a Word8
--- The type a may be signed or unsigned, but the array index must begin at 9.
+-- The type a may be signed or unsigned, but the array index must begin at 0.
 -- a should hold the square of eight times the bounds; so if the bounds are
 -- (0..31), Word16 is adequate, but Int16 and Word8 are not.
 rotBitcount src mult = array bnd
