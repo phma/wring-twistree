@@ -1,4 +1,5 @@
 use wring_twistree::mix3::*;
+use wring_twistree::rotbitcount::*;
 use num_bigint::BigUint;
 
 fn printvec(k:&[u8]) {
@@ -12,6 +13,8 @@ fn printvec(k:&[u8]) {
 
 fn main() {
   let mut buf:Vec<u8> = Vec::new();
+  let mut src=vec!(0u8; 16);
+  let mut dst=vec!(0u8; 16);
   for i in 0..=15 {
     buf.push(i*13);
   }
@@ -21,4 +24,7 @@ fn main() {
   let fibos=fibo_pair(BigUint::from(144u32));
   println!("{},{}",fibos.0,fibos.1);
   println!("{}",carmichael(1016255020032000000));
+  src[0]=255;
+  rot_bitcount(&src,&mut dst,1);
+  printvec(&dst);
 }

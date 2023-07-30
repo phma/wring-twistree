@@ -14,8 +14,14 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   let rotcount = (bitcount*multmod)%(src.len()*8);
   let byte = rotcount>>3;
   let bit = rotcount&7;
-  for i in 0..dst.len() {
-    dst[i]=(src[(i+src.len()-byte)  %src.len()]<<bit) |
-	   (src[(i+src.len()-byte-1)%src.len()]<<(8-bit));
+  if bit>0 {
+    for i in 0..dst.len() {
+      dst[i]=(src[(i+src.len()-byte)  %src.len()]<<bit) |
+	    (src[(i+src.len()-byte-1)%src.len()]<<(8-bit));
+    }
+  } else {
+    for i in 0..dst.len() {
+      dst[i]=(src[(i+src.len()-byte)  %src.len()]);
+    }
   }
 }
