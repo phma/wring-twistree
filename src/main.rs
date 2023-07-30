@@ -12,15 +12,13 @@ fn printvec(k:&[u8]) {
 
 fn main() {
   let mut buf:Vec<u8> = Vec::new();
-  let mut sqfib:Vec<u32> = Vec::new();
   for i in 0..=15 {
     buf.push(i*13);
   }
   printvec(&buf);
   mix3parts(&mut buf,5,3);
   printvec(&buf);
-  sqfib.push(144);
-  let fibos=fibo_pair(BigUint::new(sqfib));
+  let fibos=fibo_pair(BigUint::from(144u32));
   println!("{},{}",fibos.0,fibos.1);
   println!("{}",carmichael(1016255020032000000));
 }
