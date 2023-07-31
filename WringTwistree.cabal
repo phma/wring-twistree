@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Cryptography.Wring
       Cryptography.WringTwistree.Mix3
       Cryptography.WringTwistree.RotBitcount
       Lib
