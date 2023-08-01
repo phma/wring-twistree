@@ -17,3 +17,10 @@ data Wring = Wring
 linearSbox = array ((0,0),(2,255))
   [ ((i,j),xor i j) | i <- [0..2], j <- [0..255] ]
   :: UArray (Word8,Word8) Word8
+
+{- A round of encryption consists of four steps:
+ - mix3parts
+ - sboxes (omitted)
+ - rotBitcount
+ - add byte index xor round number (omitted)
+ -}
