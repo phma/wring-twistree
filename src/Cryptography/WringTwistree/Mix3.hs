@@ -31,8 +31,6 @@ module Cryptography.WringTwistree.Mix3
 import Data.Bits
 import Data.Word
 import Data.Array.Unboxed
-import qualified Data.Sequence as Seq
-import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Math.NumberTheory.ArithmeticFunctions
 import GHC.Natural
 import Math.NumberTheory.Primes
