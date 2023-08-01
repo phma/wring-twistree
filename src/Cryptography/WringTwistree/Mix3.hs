@@ -104,10 +104,13 @@ mixOrder len rprime
 			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
 
-mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> a -> Integer -> UArray a Word8
+mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> Integer -> UArray a Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))
 -- and pass it to mix3Parts on every round.
-mix3Parts buf len rprime = array (bounds buf) mixed
-  where mixed = map (\(a,b,c) -> (a, mix (buf ! a) (buf ! b) (buf ! c))) order
-	order = mixOrder len rprime
+mix3Parts buf rprime = array (bounds buf) mixed
+  where
+    mixed = map (\(a,b,c) -> (a, mix (buf ! a) (buf ! b) (buf ! c))) order
+    order = mixOrder len rprime
+    bnd = bounds buf
+    len = (snd bnd) +1
