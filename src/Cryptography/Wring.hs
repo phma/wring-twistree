@@ -41,11 +41,19 @@ linearWring = Wring linearSbox linearInvSbox
 
 roundEncrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundEncrypt rprime sbox buf rond = rotBitcount (mix3Parts buf (fromIntegral rprime)) 1
+roundEncrypt rprime sbox buf rond = i4 where
+  i1 = mix3Parts buf (fromIntegral rprime)
+  i2 = i1
+  i3 = rotBitcount i2 1
+  i4 = i3
 
 roundDecrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundDecrypt rprime sbox buf rond = mix3Parts (rotBitcount buf (-1)) (fromIntegral rprime)
+roundDecrypt rprime sbox buf rond = i4 where
+  i1 = buf
+  i2 = rotBitcount i1 (-1)
+  i3 = i2
+  i4 = mix3Parts i3 (fromIntegral rprime)
 
 encrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
 encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring)) buf rounds
