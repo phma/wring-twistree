@@ -21,7 +21,7 @@ data Wring = Wring
 
 nRounds :: Integral a => a -> a
 nRounds len
-  | len < 3 = 1
+  | len < 3 = 3
   | otherwise = (nRounds (len `div` 3)) +1
 
 linearSbox = array ((0,0),(2,255))
