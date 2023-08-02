@@ -1,7 +1,6 @@
 module Cryptography.Wring
   ( Wring (..)
-  , linearSbox
-  , roundEncrypt
+  , linearWring
   , encrypt
   , decrypt
   ) where
@@ -24,8 +23,14 @@ nRounds len
   | otherwise = (nRounds (len `div` 3)) +1
 
 linearSbox = array ((0,0),(2,255))
-  [ ((i,j),xor i j) | i <- [0..2], j <- [0..255] ]
+  [ ((i,j),rotate i (fromIntegral (3*j+1))) | i <- [0..2], j <- [0..255] ]
   :: UArray (Word8,Word8) Word8
+
+linearInvSbox = array ((0,0),(2,255))
+  [ ((i,j),rotate i (fromIntegral (7-3*j))) | i <- [0..2], j <- [0..255] ]
+  :: UArray (Word8,Word8) Word8
+
+linearWring = Wring linearSbox linearInvSbox
 
 {- A round of encryption consists of four steps:
  - mix3Parts
@@ -50,7 +55,7 @@ encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring)) buf rounds
     rounds = [0 .. (fromIntegral (nRounds len) -1)]
 
 decrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
-decrypt wring buf = foldl' (roundDecrypt rprime (sbox wring)) buf rounds
+decrypt wring buf = foldl' (roundDecrypt rprime (invSbox wring)) buf rounds
   where
     len = fromIntegral $ snd (bounds buf) +1
     rprime = fromIntegral $ findMaxOrder (len `div` 3)
