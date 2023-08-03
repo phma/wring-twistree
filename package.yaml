@@ -51,6 +51,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - WringTwistree
+    - split
+    - array
 
 tests:
   WringTwistree-test:
