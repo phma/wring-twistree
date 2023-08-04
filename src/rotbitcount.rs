@@ -17,7 +17,7 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   if bit>0 {
     for i in 0..dst.len() {
       dst[i]=(src[(i+src.len()-byte)  %src.len()]<<bit) |
-	    (src[(i+src.len()-byte-1)%src.len()]<<(8-bit));
+	     (src[(i+src.len()-byte-1)%src.len()]>>(8-bit));
     }
   } else {
     for i in 0..dst.len() {
