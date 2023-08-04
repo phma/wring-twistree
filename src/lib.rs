@@ -10,7 +10,6 @@ pub mod wring {
 
 use crate::mix3::*;
 use crate::rotbitcount::*;
-use std::ptr::swap;
 
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;

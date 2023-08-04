@@ -11,3 +11,6 @@ num-prime = "0.4.3"
 num-traits = "0.2.16"
 num-integer = "0.1.44"
 mod_exp = "1.0.1"
+
+[profile.dev]
+overflow-checks = false

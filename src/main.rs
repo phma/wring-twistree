@@ -24,6 +24,10 @@ fn main() {
   printvec(&buf);
   mix3parts(&mut buf,5,3);
   printvec(&buf);
+  buf.clear();
+  buf.extend([0; 256]);
+  wring.encrypt(&mut buf);
+  printvec(&buf);
   let fibos=fibo_pair(BigUint::from(144u32));
   println!("{},{}",fibos.0,fibos.1);
   println!("{}",carmichael(1016255020032000000));
