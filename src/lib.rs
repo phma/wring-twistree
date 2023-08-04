@@ -1,3 +1,5 @@
+#![allow(arithmetic_overflow)]
+
 // Used by wring
 pub mod mix3;
 
@@ -45,6 +47,32 @@ impl Wring {
       }
     }
     self.set_inv_sbox();
+  }
+
+  fn round_encrypt(&self, src: &mut[u8], dst: &mut[u8], rprime: usize, rond: u32) {
+    assert_eq!(src.len(),dst.len());
+    let len=src.len()/3;
+    mix3parts(src,len,rprime); // this clobbers src
+    for i in 0..src.len() {
+      src[i]=self.sbox[((rond as usize)+i)%3][src[i] as usize];
+    }
+    rot_bitcount(src, dst, 1);
+    for i in 0..dst.len() {
+      dst[i]+=xorn((i^(rond as usize)) as u64);
+    }
+  }
+
+  fn round_decrypt(&self, src: &mut[u8], dst: &mut[u8], rprime: usize, rond: u32) {
+    assert_eq!(src.len(),dst.len());
+    let len=src.len()/3;
+    for i in 0..dst.len() { // this clobbers src
+      src[i]-=xorn((i^(rond as usize)) as u64);
+    }
+    rot_bitcount(src, dst, -1);
+    for i in 0..src.len() {
+      dst[i]=self.inv_sbox[((rond as usize)+i)%3][src[i] as usize];
+    }
+    mix3parts(dst,len,rprime);
   }
 }
 
