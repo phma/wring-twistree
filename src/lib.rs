@@ -10,6 +10,16 @@ pub mod wring {
 
 use crate::mix3::*;
 use crate::rotbitcount::*;
+use std::ptr::swap;
+
+fn n_rounds(n: usize) -> u32 {
+  let mut ret=3;
+  while n>=3 {
+    n/=3;
+    ret+=1;
+  }
+  ret
+}
 
 pub fn xorn(n: u64) -> u8 {
   let mut ret=0u8;
@@ -73,6 +83,24 @@ impl Wring {
       dst[i]=self.inv_sbox[((rond as usize)+i)%3][src[i] as usize];
     }
     mix3parts(dst,len,rprime);
+  }
+
+  pub fn encrypt(&self, buf: &mut[u8]) {
+    let mut tmp:Vec<u8> = Vec::new();
+    tmp.extend_from_slice(buf);
+    let nrond=n_rounds(buf.len());
+    let rprime=find_max_order((buf.len()/3) as u64) as usize;
+    let mut buf0=&buf;
+    let mut buf1=&tmp;
+    for i in 0..nrond {
+      self.round_encrypt(buf0,buf1,rprime,i);
+      swap(&mut buf0,&mut buf1);
+    }
+    if (nrond&1)>0 {
+      for i in 0..buf.len() {
+	buf[i]=tmp[i];
+      }
+    }
   }
 }
 
