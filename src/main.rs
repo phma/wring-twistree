@@ -1,5 +1,6 @@
 use wring_twistree::mix3::*;
 use wring_twistree::rotbitcount::*;
+use wring_twistree::wring::*;
 use num_bigint::BigUint;
 
 fn printvec(k:&[u8]) {
@@ -15,6 +16,8 @@ fn main() {
   let mut buf:Vec<u8> = Vec::new();
   let mut src=vec!(0u8; 16);
   let mut dst=vec!(0u8; 16);
+  let mut wring=Wring::new();
+  wring.set_key_linear();
   for i in 0..=15 {
     buf.push(i*13);
   }
