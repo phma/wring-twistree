@@ -14,8 +14,9 @@ use std::ptr::swap;
 
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;
-  while n>=3 {
-    n/=3;
+  let mut m=n;
+  while m>=3 {
+    m/=3;
     ret+=1;
   }
   ret
@@ -90,11 +91,31 @@ impl Wring {
     tmp.extend_from_slice(buf);
     let nrond=n_rounds(buf.len());
     let rprime=find_max_order((buf.len()/3) as u64) as usize;
-    let mut buf0=&buf;
-    let mut buf1=&tmp;
     for i in 0..nrond {
-      self.round_encrypt(buf0,buf1,rprime,i);
-      swap(&mut buf0,&mut buf1);
+      if (i&1)==0 {
+	self.round_encrypt(buf,&mut tmp,rprime,i);
+      } else {
+	self.round_encrypt(&mut tmp,buf,rprime,i);
+      }
+    }
+    if (nrond&1)>0 {
+      for i in 0..buf.len() {
+	buf[i]=tmp[i];
+      }
+    }
+  }
+
+  pub fn decrypt(&self, buf: &mut[u8]) {
+    let mut tmp:Vec<u8> = Vec::new();
+    tmp.extend_from_slice(buf);
+    let nrond=n_rounds(buf.len());
+    let rprime=find_max_order((buf.len()/3) as u64) as usize;
+    for i in (0..nrond).rev() {
+      if ((nrond-i)&1)==1 {
+	self.round_decrypt(buf,&mut tmp,rprime,i);
+      } else {
+	self.round_decrypt(&mut tmp,buf,rprime,i);
+      }
     }
     if (nrond&1)>0 {
       for i in 0..buf.len() {
