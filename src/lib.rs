@@ -75,12 +75,12 @@ impl Wring {
   fn round_decrypt(&self, src: &mut[u8], dst: &mut[u8], rprime: usize, rond: u32) {
     assert_eq!(src.len(),dst.len());
     let len=src.len()/3;
-    for i in 0..dst.len() { // this clobbers src
+    for i in 0..src.len() { // this clobbers src
       src[i]-=xorn((i^(rond as usize)) as u64);
     }
     rot_bitcount(src, dst, -1);
-    for i in 0..src.len() {
-      dst[i]=self.inv_sbox[((rond as usize)+i)%3][src[i] as usize];
+    for i in 0..dst.len() {
+      dst[i]=self.inv_sbox[((rond as usize)+i)%3][dst[i] as usize];
     }
     mix3parts(dst,len,rprime);
   }
