@@ -29,6 +29,7 @@ library
   exposed-modules:
       Cryptography.Wring
       Cryptography.WringTwistree.Mix3
+      Cryptography.WringTwistree.Permute
       Cryptography.WringTwistree.RotBitcount
   other-modules:
       Paths_WringTwistree
