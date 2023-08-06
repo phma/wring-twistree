@@ -1,5 +1,5 @@
 module Cryptography.WringTwistree.Permute
-  ( swapOrder
+  ( permut8
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -13,7 +13,7 @@ import Data.Bits
 import Data.Array.Unboxed
 import Data.Word
 import qualified Data.Sequence as Seq
-import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
+import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)), update)
 
 swapOrder :: Word16 -> [Int]
 swapOrder n = map fromIntegral [x2,x3,x4,x5,x6,x7,x8] where
@@ -27,3 +27,13 @@ swapOrder n = map fromIntegral [x2,x3,x4,x5,x6,x7,x8] where
   x35 = if x35' > 16 then x35' + 1 else x35'
   x5 = x35 `mod` 5
   x7 = x35 `div` 5
+
+swapmute :: Seq.Seq a -> [Int] -> Int -> Seq.Seq a
+swapmute ys [] _ = ys
+swapmute ys (x:xs) n = swapmute ys' xs (n+1) where
+  b = Seq.index ys x
+  c = Seq.index ys n
+  ys' = update x c (update n b ys)
+
+permut8 :: Seq.Seq a -> Word16 -> Seq.Seq a
+permut8 ys n = swapmute ys (swapOrder n) 1
