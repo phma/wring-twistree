@@ -1,7 +1,9 @@
 module Cryptography.WringTwistree.Permute
   ( permut8
+  , permut8x32
   , dealInx
   , invDealInx
+  , dealBytes
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -41,6 +43,15 @@ swapmute ys (x:xs) n = swapmute ys' xs (n+1) where
 permut8 :: Seq.Seq a -> Word16 -> Seq.Seq a
 permut8 ys n = swapmute ys (swapOrder n) 1
 
+permut8x32 :: Seq.Seq a -> Seq.Seq Word16 -> Seq.Seq a
+permut8x32 Seq.Empty _ = Seq.Empty
+permut8x32 sbox Seq.Empty = sbox -- this should never happen
+permut8x32 sbox key = permHead >< permTail where
+  permHead = permut8 (Seq.take 8 sbox) (Seq.index key 0)
+  permTail = permut8x32 (Seq.drop 8 sbox) (Seq.drop 1 key)
+
+-- 10 is a primitive root of 257; 180 is its inverse. The eight bytes in a group
+-- all go to and come from different groups of eight.
 dealInxA :: Int -> Int
 dealInxA n = ((n+1)*10) `mod` 257-1
 
@@ -59,3 +70,6 @@ invDealInxB n = ((n .&. 0xf8) `shiftR` 3) `xor` (invShift3 ! (n .&. 0x07))
 
 dealInx = dealInxB
 invDealInx = invDealInxB
+
+dealBytes :: Seq.Seq a -> Seq.Seq a -- must be 256 long
+dealBytes bs = Seq.fromList $ map (Seq.index bs) $ map invDealInx [0..255]
