@@ -38,9 +38,15 @@ fn test_permut8() {
   }
 }
 
-fn permut8x32(sbox: &mut [u8]; key: &[u16]) {
+fn permut8x32(sbox: &mut [u8], key: &[u16]) {
   assert_eq!(sbox.len(),8*key.len());
   for i in 0..key.len() {
     permut8(&mut sbox[8*i..8*i+7],key[i]);
   }
+}
+
+const SHIFT3: [u16;8]=[0x00,0x1d,0x3a,0x27,0x74,0x69,0x4e,0x53];
+
+fn deal_inx(n:usize) -> usize {
+  ((n<<3)&0xf8)^(SHIFT3[(n>>5)&7]) as usize
 }
