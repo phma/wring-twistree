@@ -37,3 +37,10 @@ fn test_permut8() {
     assert_ne!(&word,b"pantries");
   }
 }
+
+fn permut8x32(sbox: &mut [u8]; key: &[u16]) {
+  assert_eq!(sbox.len(),8*key.len());
+  for i in 0..key.len() {
+    permut8(&mut sbox[8*i..8*i+7],key[i]);
+  }
+}
