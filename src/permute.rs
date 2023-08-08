@@ -19,3 +19,21 @@ fn permut8(ys: &mut [u8], n: u16) {
     ys.swap(i+1,swap_order[i] as usize);
   }
 }
+
+#[test]
+fn test_permut8() {
+  let mut word:[u8; 8]=*b"calipers";
+  permut8(&mut word[..],0x3c45);
+  assert_eq!(&word,b"spiracle");
+  word=*b"recounts";
+  permut8(&mut word[..],0x595b);
+  assert_eq!(&word,b"construe");
+  word=*b"thousand";
+  permut8(&mut word[..],0x30da);
+  assert_eq!(&word,b"handouts");
+  for i in 0..0x8000 {
+    word=*b"repaints";
+    permut8(&mut word[..],i);
+    assert_ne!(&word,b"pantries");
+  }
+}
