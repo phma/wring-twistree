@@ -5,6 +5,7 @@ pub mod mix3;
 
 // Used by both wring and twistree
 pub mod rotbitcount;
+pub mod permute;
 
 pub mod wring {
 
