@@ -4,6 +4,7 @@ module Cryptography.WringTwistree.Permute
   , dealInx
   , invDealInx
   , dealBytes
+  , permute256
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -43,12 +44,12 @@ swapmute ys (x:xs) n = swapmute ys' xs (n+1) where
 permut8 :: Seq.Seq a -> Word16 -> Seq.Seq a
 permut8 ys n = swapmute ys (swapOrder n) 1
 
-permut8x32 :: Seq.Seq a -> Seq.Seq Word16 -> Seq.Seq a
-permut8x32 Seq.Empty _ = Seq.Empty
-permut8x32 sbox Seq.Empty = sbox -- this should never happen
-permut8x32 sbox key = permHead >< permTail where
+permut8x32 :: Seq.Seq Word16 -> Seq.Seq a -> Seq.Seq a
+permut8x32 _ Seq.Empty = Seq.Empty
+permut8x32 Seq.Empty sbox = sbox -- this should never happen
+permut8x32 key sbox = permHead >< permTail where
   permHead = permut8 (Seq.take 8 sbox) (Seq.index key 0)
-  permTail = permut8x32 (Seq.drop 8 sbox) (Seq.drop 1 key)
+  permTail = permut8x32 (Seq.drop 1 key) (Seq.drop 8 sbox)
 
 -- 10 is a primitive root of 257; 180 is its inverse. The eight bytes in a group
 -- all go to and come from different groups of eight.
@@ -73,3 +74,11 @@ invDealInx = invDealInxB
 
 dealBytes :: Seq.Seq a -> Seq.Seq a -- must be 256 long
 dealBytes bs = Seq.fromList $ map (Seq.index bs) $ map invDealInx [0..255]
+
+permute256 :: Seq.Seq Word16 -> Seq.Seq Word8
+permute256 k = dealBytes $ permut8x32 k2 $ dealBytes $ permut8x32 k1 $
+	       dealBytes $ permut8x32 k0 $ Seq.fromList [0..255] where
+  k012 = Seq.chunksOf 32 k
+  k0 = Seq.index k012 0
+  k1 = Seq.index k012 1
+  k2 = Seq.index k012 2
