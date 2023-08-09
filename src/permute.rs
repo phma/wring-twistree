@@ -50,3 +50,11 @@ const SHIFT3: [u16;8]=[0x00,0x1d,0x3a,0x27,0x74,0x69,0x4e,0x53];
 fn deal_inx(n:usize) -> usize {
   ((n<<3)&0xf8)^(SHIFT3[(n>>5)&7]) as usize
 }
+
+fn deal_bytes(sbox0: &[u8],sbox1: &mut [u8]) {
+  assert_eq!(sbox0.len(),256);
+  assert_eq!(sbox1.len(),256);
+  for i in 0..256 {
+    sbox1[deal_inx(i)]=sbox0[i];
+  }
+}
