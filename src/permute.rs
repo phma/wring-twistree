@@ -58,3 +58,16 @@ fn deal_bytes(sbox0: &[u8],sbox1: &mut [u8]) {
     sbox1[deal_inx(i)]=sbox0[i];
   }
 }
+
+pub fn permute256(sbox: &mut [u8],key: &[u16]) {
+  assert_eq!(sbox.len(),256);
+  assert_eq!(key.len(),96);
+  let mut sbox2:[u8;256]=[0;256];
+  let mut sbox3:[u8;256]=[0;256];
+  permut8x32(sbox,key);
+  deal_bytes(&sbox,&mut sbox2);
+  permut8x32(&mut sbox2,key);
+  deal_bytes(&sbox2,&mut sbox3);
+  permut8x32(&mut sbox3,key);
+  deal_bytes(&sbox3,sbox);
+}
