@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Cryptography.Wring
+      Cryptography.WringTwistree.KeySchedule
       Cryptography.WringTwistree.Mix3
       Cryptography.WringTwistree.Permute
       Cryptography.WringTwistree.RotBitcount
@@ -40,6 +41,7 @@ library
       arithmoi
     , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , mod
   default-language: Haskell2010
