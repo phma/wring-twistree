@@ -40,6 +40,7 @@ library:
   - containers
   - arithmoi
   - bytestring
+  - utf8-string
   - mod
 
 executables:

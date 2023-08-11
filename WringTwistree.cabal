@@ -44,6 +44,7 @@ library
     , bytestring
     , containers
     , mod
+    , utf8-string
   default-language: Haskell2010
 
 executable WringTwistree-exe
