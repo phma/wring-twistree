@@ -55,6 +55,7 @@ executables:
     - WringTwistree
     - split
     - array
+    - parallel
 
 tests:
   WringTwistree-test:
