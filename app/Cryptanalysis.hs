@@ -12,7 +12,7 @@ import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
 import Control.Parallel
 import Control.Parallel.Strategies
-import Data.ByteString as B
+import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Cryptography.WringTwistree.KeySchedule
 
@@ -22,5 +22,5 @@ key96_2 = "Водворетраванатраведрова,Нерубидров
 key96_3 = "Водворетраванатраведрова,Нерубидрованатраведвора "
 -- Russian tongue twister
 -- In the yard is grass, on the grass is wood.
--- Do not chop the wood on the grass in yard.
+-- Do not chop the wood on the grass of yard.
 -- 96 bytes in UTF-8 with single bit changes.

@@ -1,6 +1,8 @@
 module Cryptography.WringTwistree.KeySchedule
   ( swap13mult
   , extendKey
+  , keySchedule
+  , reschedule
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -16,6 +18,7 @@ module Cryptography.WringTwistree.KeySchedule
 import Data.Bits
 import Data.Word
 import Data.List
+import Data.Foldable (toList,foldl')
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)), update)
 import qualified Data.ByteString as B
@@ -35,3 +38,23 @@ extendKey :: B.ByteString -> [Word16]
 -- Extends the key, if it isn't empty, to be at least as long as 96 words.
 extendKey str = extendKey_ (B.unpack str) 0 n where
   n = if (B.length str)>0 then -((-96) `div` (B.length str)) else 0
+
+mul65537 :: Word16 -> Word16 -> Word16
+mul65537 a b = fromIntegral ((((fromIntegral a)+1) * ((fromIntegral b)+1)) `mod` 65537)
+
+alter :: Seq.Seq Word16 -> (Word16,Int) -> Seq.Seq Word16
+-- subkey is 96 long. Alters the element at position inx.
+alter subkey (keyWord,inx) = update inx newval subkey where
+  i1 = mul65537 (Seq.index subkey inx) keyWord
+  i2 = i1 + ((Seq.index subkey (mod (inx+59) 96)) `xor`
+	     (Seq.index subkey (mod (inx+36) 96)) `xor`
+	     (Seq.index subkey (mod (inx+62) 96)))
+  newval = rotate i2 8
+
+keySchedule :: B.ByteString -> Seq.Seq Word16
+keySchedule key = foldl' alter initial extended where
+  extended = zip (extendKey key) (map (`mod` 96) [0..])
+  initial = Seq.fromList (take 96 swap13mult)
+
+reschedule :: Seq.Seq Word16 -> Seq.Seq Word16
+reschedule subkey = foldl' alter subkey (zip (repeat 1) [0..95])
