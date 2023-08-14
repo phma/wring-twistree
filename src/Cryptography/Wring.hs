@@ -1,8 +1,7 @@
 module Cryptography.Wring
-  ( Wring (..)
-  , linearSbox
-  , linearInvSbox
+  ( Wring
   , linearWring
+  , keyedWring
   , xorn
   , encrypt
   , decrypt
@@ -15,6 +14,7 @@ import Data.Word
 import Data.Bits
 import Data.Array.Unboxed
 import Data.Foldable (toList,foldl')
+import qualified Data.ByteString as B
 
 data Wring = Wring
   { sbox    :: UArray (Word8,Word8) Word8
@@ -31,15 +31,11 @@ xorn 0 = 0
 xorn (-1) = error "xorn: negative"
 xorn a = (a .&. 255) `xor` (xorn (a `shiftR` 8))
 
-linearSbox = array ((0,0),(2,255))
-  [ ((i,j),rotate j (fromIntegral (3*i+1))) | i <- [0..2], j <- [0..255] ]
-  :: UArray (Word8,Word8) Word8
-
-linearInvSbox = array ((0,0),(2,255))
-  [ ((i,j),rotate j (fromIntegral (7-3*i))) | i <- [0..2], j <- [0..255] ]
-  :: UArray (Word8,Word8) Word8
-
 linearWring = Wring linearSbox linearInvSbox
+
+keyedWring :: B.ByteString -> Wring
+keyedWring key = Wring sbox (invert sbox) where
+  sbox = sboxes key
 
 {- A round of encryption consists of four steps:
  - mix3Parts

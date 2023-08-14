@@ -1,6 +1,8 @@
 module Cryptography.WringTwistree.Sboxes
   ( sboxes
   , invert
+  , linearSbox
+  , linearInvSbox
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -37,3 +39,11 @@ sboxes key = listArray ((0,0),(2,255)) (box0 ++ box1 ++ box2) where
 invert :: UArray (Word8,Word8) Word8 -> UArray (Word8,Word8) Word8
 invert sbox = array ((0,0),(2,255))
   [ ((i,sbox ! (i,j)),j) | i <- [0..2], j <- [0..255] ]
+
+linearSbox = array ((0,0),(2,255))
+  [ ((i,j),rotate j (fromIntegral (3*i+1))) | i <- [0..2], j <- [0..255] ]
+  :: UArray (Word8,Word8) Word8
+
+linearInvSbox = array ((0,0),(2,255))
+  [ ((i,j),rotate j (fromIntegral (7-3*i))) | i <- [0..2], j <- [0..255] ]
+  :: UArray (Word8,Word8) Word8
