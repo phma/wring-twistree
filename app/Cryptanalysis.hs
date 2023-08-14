@@ -24,3 +24,8 @@ key96_3 = "Водворетраванатраведрова,Нерубидров
 -- In the yard is grass, on the grass is wood.
 -- Do not chop the wood on the grass of yard.
 -- 96 bytes in UTF-8 with single bit changes.
+
+key6_0 = "aerate"
+key6_1 = "berate"
+key6_2 = "cerate"
+key6_3 = "derate"
