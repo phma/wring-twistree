@@ -3,6 +3,11 @@ module Cryptanalysis
   , key96_1
   , key96_2
   , key96_3
+  , key6_0
+  , key6_1
+  , key6_2
+  , key6_3
+  , thueMorse
   ) where
 
 import Data.Word
@@ -29,3 +34,18 @@ key6_0 = "aerate"
 key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
+
+log2 :: Integral a => a -> Int
+log2 0 = (-1)
+log2 (-1) = (-1771476585)
+log2 n = 1 + (log2 (n `div` 2))
+
+thueMorse_ :: Int -> Integer
+thueMorse_ 0 = 1
+thueMorse_ n = (shift ((shift 1 nbits) - 1 - (thueMorse_ (n-1))) nbits)
+	       + (thueMorse_ (n-1)) where
+  nbits = (shift 1 (n-1))
+
+thueMorse :: (Bits a,Integral a) => Int -> a
+-- Returns a Thue-Morse word of at least n bits ending in 1.
+thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
