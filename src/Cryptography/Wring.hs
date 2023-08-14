@@ -10,6 +10,7 @@ module Cryptography.Wring
 
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
+import Cryptography.WringTwistree.Sboxes
 import Data.Word
 import Data.Bits
 import Data.Array.Unboxed

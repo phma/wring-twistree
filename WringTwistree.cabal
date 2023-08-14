@@ -32,6 +32,7 @@ library
       Cryptography.WringTwistree.Mix3
       Cryptography.WringTwistree.Permute
       Cryptography.WringTwistree.RotBitcount
+      Cryptography.WringTwistree.Sboxes
   other-modules:
       Paths_WringTwistree
   hs-source-dirs:
