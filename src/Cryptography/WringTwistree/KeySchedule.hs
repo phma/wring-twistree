@@ -57,4 +57,5 @@ keySchedule key = foldl' alter initial extended where
   initial = Seq.fromList (take 96 swap13mult)
 
 reschedule :: Seq.Seq Word16 -> Seq.Seq Word16
-reschedule subkey = foldl' alter subkey (zip (repeat 1) [0..95])
+reschedule subkey = foldl' alter subkey (zip (repeat 40504) [0..95])
+-- 40505 is a primitive root near 65537/φ
