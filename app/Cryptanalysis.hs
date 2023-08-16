@@ -8,10 +8,12 @@ module Cryptanalysis
   , key6_2
   , key6_3
   , thueMorse
+  , byteArray
   ) where
 
 import Data.Word
 import Data.Bits
+import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
@@ -49,3 +51,7 @@ thueMorse_ n = (shift ((shift 1 nbits) - 1 - (thueMorse_ (n-1))) nbits)
 thueMorse :: (Bits a,Integral a) => Int -> a
 -- Returns a Thue-Morse word of at least n bits ending in 1.
 thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
+
+byteArray :: (Bits a,Integral a) => Int -> a -> UArray Int Word8
+byteArray len n = listArray (0,(len-1)) bytes where
+  bytes = map (\x -> (fromIntegral (n `shift` (-8*x)) .&. 255)) [0..(len-1)]
