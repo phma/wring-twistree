@@ -52,6 +52,7 @@ executable WringTwistree-exe
   main-is: Main.hs
   other-modules:
       Cryptanalysis
+      Stats
       Paths_WringTwistree
   hs-source-dirs:
       app
