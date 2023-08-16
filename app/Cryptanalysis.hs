@@ -3,6 +3,10 @@ module Cryptanalysis
   , key96_1
   , key96_2
   , key96_3
+  , key30_0
+  , key30_1
+  , key30_2
+  , key30_3
   , key6_0
   , key6_1
   , key6_2
@@ -31,6 +35,12 @@ key96_3 = "Водворетраванатраведрова,Нерубидров
 -- In the yard is grass, on the grass is wood.
 -- Do not chop the wood on the grass of yard.
 -- 96 bytes in UTF-8 with single bit changes.
+
+key30_0 = "Παντοτε χαιρετε!"
+key30_1 = "Πάντοτε χαιρετε!"
+key30_2 = "Παντοτε χαίρετε!"
+key30_3 = "Πάντοτε χαίρετε!"
+-- Always rejoice! 1 Thess. 5:16.
 
 key6_0 = "aerate"
 key6_1 = "berate"
