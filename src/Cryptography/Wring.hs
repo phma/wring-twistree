@@ -19,7 +19,7 @@ import Cryptography.WringTwistree.Sboxes
 import Data.Word
 import Data.Bits
 import Data.Array.Unboxed
-import Data.Foldable (toList,foldl')
+import Data.Foldable (foldl')
 import qualified Data.ByteString as B
 
 data Wring = Wring
@@ -50,6 +50,7 @@ keyedWring key = Wring sbox (invert sbox) where
  - add byte index xor round number
  -}
 
+cycle3 :: [Word8]
 cycle3 = 0 : 1 : 2 : cycle3
 
 roundEncrypt :: (Ix a,Integral a,Bits a) => 

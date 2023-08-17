@@ -19,6 +19,7 @@ block16str :: [Word8] -> String
 -- Takes a list of 256 bytes and formats them 16 to a line.
 block16str a = blockStr $ chunksOf 16 a
 
+wrungZeros :: UArray Int Word8
 wrungZeros = encrypt linearWring (listArray (0,255::Int) (replicate 256 0))
 
 dumpSbox :: UArray (Word8,Word8) Word8 -> IO ()

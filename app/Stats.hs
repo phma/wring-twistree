@@ -8,7 +8,6 @@ module Stats
   , sacStats
   ) where
 
-import Data.Word
 import Data.Bits
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
@@ -20,17 +19,11 @@ newtype Histo = Histo (Seq.Seq Word) deriving (Show)
 emptyHisto :: Int -> Histo
 emptyHisto n = Histo (Seq.replicate n 0)
 
-isNull :: Histo -> Bool
-isNull (Histo h) = Seq.null h
-
-total :: Histo -> Word
-total (Histo h) = sum h
-
 hCount :: Integral a => Histo -> a -> Histo
 hCount (Histo h) n = Histo (Seq.adjust' (+1) (fromIntegral n) h)
 
 χ² :: Histo -> Double
-χ² (Histo h) = sum $ map (\x -> ((fromIntegral x) - mean) ^2 / mean) (toList h)
+χ² (Histo h) = sum $ map (\x -> ((fromIntegral x) - mean) ^(2::Int) / mean) (toList h)
   where mean = fromIntegral (sum h) / fromIntegral (length h) :: Double
 
 squareWave :: Int -> [Int]
@@ -65,7 +58,7 @@ sacHistos' xs wid b
   | null bf   = []
   | otherwise = h:(sacHistos' xs wid (b+1))
   where bf = (bitFold xs b)
-	h = foldl' hCount (emptyHisto (shift 1 wid)) bf
+        h = foldl' hCount (emptyHisto (shift 1 wid)) bf
 
 sacHistos :: (Integral a,Bits a) => [a] -> Int -> [Histo]
 sacHistos xs wid = sacHistos' xs wid 0
