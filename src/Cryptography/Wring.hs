@@ -7,6 +7,12 @@ module Cryptography.Wring
   , decrypt
   ) where
 
+{- This cipher is intended to be used with short random keys (32 bytes or less,
+ - no hard limit) or long human-readable keys (up to 96 bytes). keyedWring
+ - takes arbitrarily long keys, but do not use keys longer than 96 bytes as they
+ - make the cipher more vulnerable to related-key attacks.
+ -}
+
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
 import Cryptography.WringTwistree.Sboxes
