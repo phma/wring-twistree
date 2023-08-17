@@ -35,9 +35,9 @@ extendKey_ str i n
 		++ (extendKey_ str (i+1) n)
 
 extendKey :: B.ByteString -> [Word16]
--- Extends the key, if it isn't empty, to be at least as long as 96 words.
+-- Extends the key, if it isn't empty, to be at least as long as 384 words.
 extendKey str = extendKey_ (B.unpack str) 0 n where
-  n = if (B.length str)>0 then -((-96) `div` (B.length str)) else 0
+  n = if (B.length str)>0 then -((-384) `div` (B.length str)) else 0
 
 mul65537 :: Word16 -> Word16 -> Word16
 mul65537 a b = fromIntegral ((((fromIntegral a)+1) * ((fromIntegral b)+1)) `mod` 65537)

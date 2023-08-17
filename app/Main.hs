@@ -21,5 +21,8 @@ block16str a = blockStr $ chunksOf 16 a
 
 wrungZeros = encrypt linearWring (listArray (0,255::Int) (replicate 256 0))
 
+dumpSbox :: UArray (Word8,Word8) Word8 -> IO ()
+dumpSbox sbox = putStr $ block16str $ take 256 (elems sbox)
+
 main :: IO ()
 main = putStr $ block16str $ elems wrungZeros
