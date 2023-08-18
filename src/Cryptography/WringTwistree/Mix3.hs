@@ -1,11 +1,5 @@
 module Cryptography.WringTwistree.Mix3
-  ( mix
-  , fiboPair
-  , searchDir
-  , isMaxOrder
-  , searchFrom
-  , findMaxOrder
-  , mixOrder
+  ( findMaxOrder
   , mix3Parts
   ) where
 

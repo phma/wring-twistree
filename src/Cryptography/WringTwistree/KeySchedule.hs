@@ -1,6 +1,5 @@
 module Cryptography.WringTwistree.KeySchedule
-  ( swap13mult
-  , extendKey
+  ( extendKey
   , keySchedule
   , reschedule
   ) where

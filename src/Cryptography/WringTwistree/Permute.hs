@@ -1,9 +1,5 @@
 module Cryptography.WringTwistree.Permute
   ( permut8
-  , permut8x32
-  , dealInx
-  , invDealInx
-  , dealBytes
   , permute256
   ) where
 

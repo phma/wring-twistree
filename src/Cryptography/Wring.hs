@@ -2,7 +2,6 @@ module Cryptography.Wring
   ( Wring
   , linearWring
   , keyedWring
-  , xorn
   , encrypt
   , decrypt
   ) where
