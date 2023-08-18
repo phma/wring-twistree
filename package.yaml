@@ -56,6 +56,9 @@ executables:
     - split
     - array
     - parallel
+    - containers
+    - bytestring
+    - utf8-string
 
 tests:
   WringTwistree-test:
