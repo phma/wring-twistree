@@ -8,11 +8,11 @@ module Cryptography.WringTwistree.Sboxes
 {- This module is used in both Wring and Twistree.
  - It is part of the keying algorithm, which turns a byte string
  - into three s-boxes. It takes a ByteString and returns a 3×256
- -- array of bytes.
- --
- -- To convert a String to a ByteString, put "- utf8-string" in your
- -- package.yaml dependencies, import Data.ByteString.UTF8, and use
- -- fromString.
+ - array of bytes.
+ -
+ - To convert a String to a ByteString, put "- utf8-string" in your
+ - package.yaml dependencies, import Data.ByteString.UTF8, and use
+ - fromString.
  -}
 
 import Data.Bits
