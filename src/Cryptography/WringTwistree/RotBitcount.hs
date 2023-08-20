@@ -9,6 +9,10 @@ module Cryptography.WringTwistree.RotBitcount
  - operation satisfies the strict avalanche criterion. Changing *two*
  - bits, however, has half a chance of changing only two bits in
  - the output.
+ -
+ - Bit 0 of byte 0 is bit 0 of the array. Bit 0 of byte 1 is bit 8 of the array.
+ - e1 00 00 00 00 00 00 00, rotated by its bitcount (4), becomes
+ - 10 0e 00 00 00 00 00 00.
  -}
 
 import Data.Bits
