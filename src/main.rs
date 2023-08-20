@@ -45,4 +45,6 @@ fn main() {
   printvec(&dst);
   let sched=extend_key("roygbiv".as_bytes());
   printvec16(&sched);
+  let sched=extend_key("aerate".as_bytes());
+  printvec16(&sched);
 }

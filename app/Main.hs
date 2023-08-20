@@ -41,4 +41,6 @@ dumpSbox :: UArray (Word8,Word8) Word8 -> IO ()
 dumpSbox sbox = putStr $ block16str $ take 256 (elems sbox)
 
 main :: IO ()
-main = putStr $ block16str16 $ toList $ extendKey $ fromString "roygbiv"
+main = do
+  putStr $ block16str16 $ toList $ extendKey $ fromString "roygbiv"
+  putStr $ block16str16 $ toList $ extendKey $ fromString "aerate"
