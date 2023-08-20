@@ -5,7 +5,10 @@
 
 pub fn extend_key(str:&[u8]) -> Vec<u16> {
   let mut ret:Vec<u16> = Vec::new();
-  let n:u16 = if str.len()>0 {(-(-384/str.len() as isize)) as u16} else {0};
+  let mut n:u16 = if str.len()>0 {(384/str.len() as isize) as u16} else {0};
+  if (n as usize)*str.len()<384 {
+    n+=1;
+  }
   for i in 0..n {
     for j in 0..str.len() {
       ret.push(256*i+(str[j] as u16));
