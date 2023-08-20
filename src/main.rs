@@ -1,11 +1,21 @@
 use wring_twistree::mix3::*;
 use wring_twistree::rotbitcount::*;
+use wring_twistree::keyschedule::*;
 use wring_twistree::wring::*;
 use num_bigint::BigUint;
 
 fn printvec(k:&[u8]) {
   for i in 0..k.len() {
     print!("{:02x} ",k[i]);
+    if i%16==15 || i+1==k.len() {
+      println!();
+    }
+  }
+}
+
+fn printvec16(k:&[u16]) {
+  for i in 0..k.len() {
+    print!("{:04x} ",k[i]);
     if i%16==15 || i+1==k.len() {
       println!();
     }
@@ -33,4 +43,6 @@ fn main() {
   src[0]=225;
   rot_bitcount(&src,&mut dst,1);
   printvec(&dst);
+  let sched=extend_key("roygbiv".as_bytes());
+  printvec16(&sched);
 }
