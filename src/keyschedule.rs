@@ -16,3 +16,7 @@ pub fn extend_key(str:&[u8]) -> Vec<u16> {
   }
   ret
 }
+
+fn mul65537(a:u16,b:u16) -> u16 {
+  ((((a as u32)+1)*((b as u32)+1))%65537-1) as u16
+}
