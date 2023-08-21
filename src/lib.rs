@@ -13,6 +13,7 @@ pub mod wring {
 
 use crate::mix3::*;
 use crate::rotbitcount::*;
+use crate::sboxes::*;
 
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;
@@ -59,6 +60,11 @@ impl Wring {
 	self.sbox[i][j]=(j as u8).rotate_left((3*i+1) as u32);
       }
     }
+    self.set_inv_sbox();
+  }
+
+  pub fn set_key(&mut self,str:&[u8]) {
+    sboxes(str,&mut self.sbox);
     self.set_inv_sbox();
   }
 
