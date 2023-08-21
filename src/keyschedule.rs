@@ -27,3 +27,22 @@ fn alter(subkey:&mut [u16],key_word: u16,inx: usize) {
   subkey[inx]+=subkey[(inx+59)%96]^subkey[(inx+36)%96]^subkey[(inx+62)%96];
   subkey[inx]=subkey[inx].rotate_left(8);
 }
+
+pub fn key_schedule(str:&[u8],subkey:&mut [u16]) {
+  subkey[0]=1;
+  for i in 1..96 {
+    // This sequence was used as the PRNG in an Apple implementation of Forth.
+    // Its cycle length is 64697.
+    subkey[i]=(subkey[i-1]*13).rotate_left(8);
+  }
+  let xkey=extend_key(str);
+  for i in 0..xkey.len() {
+    alter(subkey,xkey[i],i%96);
+  }
+}
+
+pub fn reschedule(subkey:&mut [u16]) {
+  for i in 1..96 {
+    alter(subkey,40504,i%96); // 40505 is a primitive root near 65537/φ
+  }
+}
