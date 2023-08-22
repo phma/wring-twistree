@@ -8,7 +8,10 @@ import Data.Word
 import Data.Bits
 import Data.Array.Unboxed
 import Data.Foldable (toList,foldl')
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 import Data.ByteString.UTF8 (fromString)
+import System.IO
 import Multiarg
 
 lineStr :: [Word8] -> String
@@ -40,6 +43,15 @@ wrungZeros = encrypt linearWring (listArray (0,255::Int) (replicate 256 0))
 
 dumpSbox :: UArray (Word8,Word8) Word8 -> IO ()
 dumpSbox sbox = putStr $ block16str $ take 256 (elems sbox)
+
+readFileEager :: String -> IO (UArray Int Word8)
+readFileEager fileName = do
+  h <- openBinaryFile fileName ReadMode
+  contents <- B.hGetContents h
+  let contArray = listArray (0,(B.length contents - 1)) (B.unpack contents)
+  return contArray
+
+--encryptFile :: String -> String -> String -> IO ()
 
 data WtOpt
   = Infile String
