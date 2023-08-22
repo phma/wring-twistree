@@ -48,7 +48,12 @@ data WtOpt
   | Hash
   | Key String
   | Outfile String
-    deriving (Show)
+    deriving (Show,Eq)
+
+doWhich :: [WtOpt] -> Maybe WtOpt
+-- Returns Just the action, if exactly one action is specified, else Nothing.
+doWhich lst = if (length actions == 1) then Just (head actions) else Nothing where
+  actions = filter (\x -> (x == Encrypt) || (x == Decrypt) || (x == Hash)) lst
 
 optSpecs :: [OptSpec WtOpt]
 optSpecs =
