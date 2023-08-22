@@ -63,6 +63,7 @@ executable WringTwistree-exe
     , base >=4.7 && <5
     , bytestring
     , containers
+    , multiarg
     , parallel
     , split
     , utf8-string

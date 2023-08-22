@@ -9,6 +9,7 @@ import Data.Bits
 import Data.Array.Unboxed
 import Data.Foldable (toList,foldl')
 import Data.ByteString.UTF8 (fromString)
+import Multiarg
 
 lineStr :: [Word8] -> String
 lineStr [] = ""

@@ -59,6 +59,7 @@ executables:
     - containers
     - bytestring
     - utf8-string
+    - multiarg
 
 tests:
   WringTwistree-test:
