@@ -142,7 +142,17 @@ testExtendKey = do
   putStr $ block16str16 $ toList $ extendKey $ fromString "roygbiv"
   putStr $ block16str16 $ toList $ extendKey $ fromString "aerate"
 
+doCommandLine :: [WtOpt] -> IO ()
+doCommandLine parse = case action of
+    Just Encrypt -> encryptFile key infile outfile
+    Just Decrypt -> decryptFile key infile outfile
+    Just Hash    -> putStrLn "Twistree hash is not yet implemented"
+    Nothing      -> putStrLn "Please specify one of -e, -d, and -H"
+  where
+    action = doWhich parse
+    (key,infile,outfile) = strings parse
+
 main :: IO ()
 main = do
   parse <- parseCommandLine help optSpecs Infile
-  putStrLn $ show parse
+  doCommandLine parse
