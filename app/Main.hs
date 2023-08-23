@@ -90,6 +90,26 @@ doWhich :: [WtOpt] -> Maybe WtOpt
 doWhich lst = if (length actions == 1) then Just (head actions) else Nothing where
   actions = filter (\x -> (x == Encrypt) || (x == Decrypt) || (x == Hash)) lst
 
+strings_ :: [WtOpt] -> (String,String,String)
+strings_ [] = ("","","")
+strings_ (Key s:ws)     = (s,infile,outfile)
+  where (key,infile,outfile) = strings_ ws
+strings_ (Infile s:ws)  = (key,s,outfile)
+  where (key,infile,outfile) = strings_ ws
+strings_ (Outfile s:ws) = (key,infile,s)
+  where (key,infile,outfile) = strings_ ws
+strings_ (_:ws)         = (key,infile,outfile)
+  where (key,infile,outfile) = strings_ ws
+
+strings :: [WtOpt] -> (String,String,String)
+-- If no outfile is specified, write encrypted or decrypted file back to input,
+-- but output hash to stdout.
+strings ws = (key,infile,outfile) where
+  (key,infile,outfile_) = strings_ ws
+  outfile = if (null outfile_) && (doWhich ws) /= Just Hash
+	    then infile
+	    else outfile_
+
 optSpecs :: [OptSpec WtOpt]
 optSpecs =
   [ optSpec "e" ["encrypt"] (ZeroArg Encrypt)
