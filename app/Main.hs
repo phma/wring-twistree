@@ -60,7 +60,7 @@ readFileLazy fileName = do
 writeFileArray :: String -> UArray Int Word8 -> IO ()
 writeFileArray fileName ary = do
   h <- openBinaryFile fileName WriteMode
-  BL.hPut h (BL.pack $ elems ary)
+  B.hPut h (B.pack $ elems ary)
 
 encryptFile :: String -> String -> String -> IO ()
 encryptFile key plainfile cipherfile = do
