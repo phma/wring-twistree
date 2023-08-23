@@ -51,7 +51,23 @@ readFileEager fileName = do
   let contArray = listArray (0,(B.length contents - 1)) (B.unpack contents)
   return contArray
 
---encryptFile :: String -> String -> String -> IO ()
+readFileLazy :: String -> IO (BL.ByteString)
+readFileLazy fileName = do
+  h <- openBinaryFile fileName ReadMode
+  contents <- BL.hGetContents h
+  return contents
+
+writeFileArray :: String -> UArray Int Word8 -> IO ()
+writeFileArray fileName ary = do
+  h <- openBinaryFile fileName WriteMode
+  BL.hPut h (BL.pack $ elems ary)
+
+encryptFile :: String -> String -> String -> IO ()
+encryptFile key plainfile cipherfile = do
+  let wring = keyedWring (fromString key)
+  plaintext <- readFileEager plainfile
+  let ciphertext = encrypt wring plaintext
+  writeFileArray cipherfile ciphertext
 
 data WtOpt
   = Infile String
