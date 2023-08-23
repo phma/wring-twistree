@@ -69,6 +69,13 @@ encryptFile key plainfile cipherfile = do
   let ciphertext = encrypt wring plaintext
   writeFileArray cipherfile ciphertext
 
+decryptFile :: String -> String -> String -> IO ()
+decryptFile key cipherfile plainfile = do
+  let wring = keyedWring (fromString key)
+  ciphertext <- readFileEager cipherfile
+  let plaintext = decrypt wring ciphertext
+  writeFileArray plainfile plaintext
+
 data WtOpt
   = Infile String
   | Encrypt
