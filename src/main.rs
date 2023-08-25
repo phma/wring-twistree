@@ -5,6 +5,17 @@ use wring_twistree::wring::*;
 use num_bigint::BigUint;
 use clap::Parser;
 
+#[derive(Parser)]
+struct Cli {
+  input: String,
+  #[clap(short,long,group="action")]
+  encrypt: bool,
+  #[clap(short,long,group="action")]
+  decrypt: bool,
+  #[clap(short,long)]
+  output: String,
+}
+
 fn printvec(k:&[u8]) {
   for i in 0..k.len() {
     print!("{:02x} ",k[i]);
