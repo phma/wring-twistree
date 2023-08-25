@@ -31,10 +31,10 @@ nRounds len
   | len < 3 = 3
   | otherwise = (nRounds (len `div` 3)) +1
 
-xorn :: (Integral a,Bits a) => a -> a
+xorn :: (Integral a,Bits a) => a -> Word8
 xorn 0 = 0
 xorn (-1) = error "xorn: negative"
-xorn a = (a .&. 255) `xor` (xorn (a `shiftR` 8))
+xorn a = (fromIntegral a .&. 255) `xor` (xorn (a `shiftR` 8))
 
 linearWring = Wring linearSbox linearInvSbox
 
@@ -60,18 +60,20 @@ roundEncrypt :: (Ix a,Integral a,Bits a) =>
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundEncrypt rprime sbox buf rond = i4 where
   bnd = bounds buf
+  xornrond = xorn rond
   i1 = mix3Parts buf (fromIntegral rprime)
   i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i1)
   i3 = rotBitcount i2 1
   i4 = listArray bnd $ zipWith (+) (elems i3)
-       (map (fromIntegral . xorn . (xor rond)) [0..snd bnd])
+       (map ((xor xornrond) . xorn) [0..snd bnd])
 
 roundDecrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundDecrypt rprime sbox buf rond = i4 where
   bnd = bounds buf
+  xornrond = xorn rond
   i1 = listArray bnd $ zipWith (-) (elems buf)
-       (map (fromIntegral . xorn . (xor rond)) [0..snd bnd])
+       (map ((xor xornrond) . xorn) [0..snd bnd])
   i2 = rotBitcount i1 (-1)
   i3 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i2)
   i4 = mix3Parts i3 (fromIntegral rprime)
