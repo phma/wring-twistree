@@ -36,6 +36,9 @@ xorn 0 = 0
 xorn (-1) = error "xorn: negative"
 xorn a = (fromIntegral a .&. 255) `xor` (xorn (a `shiftR` 8))
 
+xornArray :: (Integral a,Bits a,Ix a) => a -> UArray a Word8
+xornArray n = listArray (0,(n-1)) (map xorn [0..(n-1)])
+
 linearWring = Wring linearSbox linearInvSbox
 
 -- | Creates a Wring with the given key.
@@ -57,37 +60,39 @@ cycle3 :: [Word8]
 cycle3 = 0 : 1 : 2 : cycle3
 
 roundEncrypt :: (Ix a,Integral a,Bits a) => 
-  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundEncrypt rprime sbox buf rond = i4 where
+  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
+roundEncrypt rprime sbox xornary buf rond = i4 where
   bnd = bounds buf
   xornrond = xorn rond
   i1 = mix3Parts buf (fromIntegral rprime)
   i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i1)
   i3 = rotBitcount i2 1
   i4 = listArray bnd $ zipWith (+) (elems i3)
-       (map ((xor xornrond) . xorn) [0..snd bnd])
+       (map (xor xornrond) (elems xornary))
 
 roundDecrypt :: (Ix a,Integral a,Bits a) => 
-  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundDecrypt rprime sbox buf rond = i4 where
+  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
+roundDecrypt rprime sbox xornary buf rond = i4 where
   bnd = bounds buf
   xornrond = xorn rond
   i1 = listArray bnd $ zipWith (-) (elems buf)
-       (map ((xor xornrond) . xorn) [0..snd bnd])
+       (map (xor xornrond) (elems xornary))
   i2 = rotBitcount i1 (-1)
   i3 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i2)
   i4 = mix3Parts i3 (fromIntegral rprime)
 
 encrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
-encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring)) buf rounds
+encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring) xornary) buf rounds
   where
     len = fromIntegral $ snd (bounds buf) +1
+    xornary = xornArray (fromIntegral len)
     rprime = fromIntegral $ findMaxOrder (len `div` 3)
     rounds = [0 .. (fromIntegral (nRounds len) -1)]
 
 decrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
-decrypt wring buf = foldl' (roundDecrypt rprime (invSbox wring)) buf rounds
+decrypt wring buf = foldl' (roundDecrypt rprime (invSbox wring) xornary) buf rounds
   where
     len = fromIntegral $ snd (bounds buf) +1
+    xornary = xornArray (fromIntegral len)
     rprime = fromIntegral $ findMaxOrder (len `div` 3)
     rounds = reverse [0 .. (fromIntegral (nRounds len) -1)]
