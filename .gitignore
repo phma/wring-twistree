@@ -1,6 +1,10 @@
 .stack-work/
 *~
 debug
+*.aux
+*.hp
+*.prof
+*.ps
 
 # Added by cargo
 
