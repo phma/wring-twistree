@@ -3,6 +3,7 @@ use wring_twistree::rotbitcount::*;
 use wring_twistree::keyschedule::*;
 use wring_twistree::wring::*;
 use num_bigint::BigUint;
+use clap::Parser;
 
 fn printvec(k:&[u8]) {
   for i in 0..k.len() {
