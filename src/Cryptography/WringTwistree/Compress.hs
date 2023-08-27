@@ -32,6 +32,26 @@ exp4_2adic = listArray (0,31)
   , 0xca, 0x6d, 0x5c, 0xfe, 0x7f, 0x94, 0x14, 0x09
   ]
 
+exp4_base2 :: (Num a,Ix a) => UArray a Word8
+exp4_base2 = listArray (0,31)
+  [ 0xe8, 0xa7, 0x66, 0xce, 0x5b, 0x2e, 0x8a, 0x39
+  , 0x4b, 0xb7, 0x89, 0x2e, 0x0c, 0xd5, 0x94, 0x05
+  , 0xda, 0x72, 0x7b, 0x72, 0xfb, 0x77, 0xda, 0x1a
+  , 0xcf, 0xb0, 0x74, 0x4e, 0x5c, 0x20, 0x99, 0x36
+  ]
+
+{-
+                 01 =    1/1   = 01
+                 04 =    4/1   = 04
+                 08 =   16/2   = 08
+...5555555555555560 =   64/6   = 0a.aaaaaaaaaaaaaa...
+...5555555555555560 =  256/24  = 0a.aaaaaaaaaaaaaa...
+...7777777777777780 = 1024/120 = 08.88888888888888...
+...a4fa4fa4fa4fa500 = 4096/720 = 05.b05b05b05b05b0...
+   ----------------      ...     -----------------
+...eb3a1a72388e414d =  exp(4)  = 36.99205c4e74b0cf...
+-}
+
 binaryStr :: [Word8] -> String
 binaryStr [] = ""
 binaryStr (a:as) = (printf "%08b " a)++(binaryStr as)
