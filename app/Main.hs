@@ -5,9 +5,8 @@ import Cryptography.WringTwistree.KeySchedule
 import Text.Printf
 import Data.List.Split
 import Data.Word
-import Data.Bits
 import Data.Array.Unboxed
-import Data.Foldable (toList,foldl')
+import Data.Foldable (toList)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.ByteString.UTF8 (fromString)
@@ -107,8 +106,8 @@ strings :: [WtOpt] -> (String,String,String)
 strings ws = (key,infile,outfile) where
   (key,infile,outfile_) = strings_ ws
   outfile = if (null outfile_) && (doWhich ws) /= Just Hash
-	    then infile
-	    else outfile_
+            then infile
+            else outfile_
 
 optSpecs :: [OptSpec WtOpt]
 optSpecs =
@@ -148,6 +147,7 @@ doCommandLine parse = case action of
     Just Decrypt -> decryptFile key infile outfile
     Just Hash    -> putStrLn "Twistree hash is not yet implemented"
     Nothing      -> putStrLn "Please specify one of -e, -d, and -H"
+    _            -> error "can't happen"
   where
     action = doWhich parse
     (key,infile,outfile) = strings parse

@@ -13,7 +13,6 @@ module Cryptography.WringTwistree.Permute
 import Data.Bits
 import Data.Array.Unboxed
 import Data.Word
-import Data.List
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)), update)
 
@@ -73,7 +72,7 @@ dealBytes bs = Seq.fromList $ map (Seq.index bs) $ map invDealInx [0..255]
 
 permute256 :: Seq.Seq Word16 -> Seq.Seq Word8
 permute256 k = dealBytes $ permut8x32 k2 $ dealBytes $ permut8x32 k1 $
-	       dealBytes $ permut8x32 k0 $ Seq.fromList [0..255] where
+               dealBytes $ permut8x32 k0 $ Seq.fromList [0..255] where
   k012 = Seq.chunksOf 32 k
   k0 = Seq.index k012 0
   k1 = Seq.index k012 1

@@ -55,7 +55,7 @@ log2 n = 1 + (log2 (n `div` 2))
 thueMorse_ :: Int -> Integer
 thueMorse_ 0 = 1
 thueMorse_ n = (shift ((shift 1 nbits) - 1 - (thueMorse_ (n-1))) nbits)
-	       + (thueMorse_ (n-1)) where
+               + (thueMorse_ (n-1)) where
   nbits = (shift 1 (n-1))
 
 thueMorse :: (Bits a,Integral a) => Int -> a

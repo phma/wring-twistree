@@ -17,11 +17,8 @@ module Cryptography.WringTwistree.Sboxes
 
 import Data.Bits
 import Data.Word
-import Data.List
 import Data.Array.Unboxed
-import Data.Foldable (toList,foldl')
-import qualified Data.Sequence as Seq
-import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)), update)
+import Data.Foldable (toList)
 import qualified Data.ByteString as B
 import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule

@@ -46,7 +46,7 @@ searchDir n
   | r*2 < den = (q,1)
   | otherwise = (q+1,(-1))
   where [num,den] = fiboPair (2*n)
-	(q,r) = (n*num) `divMod` den
+        (q,r) = (n*num) `divMod` den
 
 isMaxOrder :: Integral a => a -> a -> [a] -> a -> Bool
 -- isMaxOrder modl car fac n
@@ -57,10 +57,10 @@ isMaxOrder :: Integral a => a -> a -> [a] -> a -> Bool
 -- if modulus has any primitive roots.
 isMaxOrder modl car fac n = (powModNatural nn ncar nmodl) == 1 && allnot1
   where nn = (fromIntegral n) :: Natural
-	ncar = (fromIntegral car) :: Natural
-	nmodl = (fromIntegral modl) :: Natural
-	powns = map ((\x -> powModNatural nn (fromIntegral x) nmodl) . (car `div`)) fac
-	allnot1 = foldl (&&) True (map (/= 1) powns)
+        ncar = (fromIntegral car) :: Natural
+        nmodl = (fromIntegral modl) :: Natural
+        powns = map ((\x -> powModNatural nn (fromIntegral x) nmodl) . (car `div`)) fac
+        allnot1 = foldl (&&) True (map (/= 1) powns)
 
 searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
 
@@ -74,7 +74,7 @@ findMaxOrder :: Integer -> Integer
 findMaxOrder 1 = 1
 findMaxOrder n = head $ filter (isMaxOrder n car fac) $ searchFrom $ searchDir n
   where car = carmichael n
-	fac = map (unPrime . fst) $ factorise car
+        fac = map (unPrime . fst) $ factorise car
 
 triplicate :: [(a,a,a)] -> [(a,a,a)]
 triplicate [] = []
@@ -94,8 +94,8 @@ mixOrder len rprime
     third = len `div` 3
     thirdbig = (fromIntegral third) :: Integer
     mixord = map (\n -> (n,
-			 2*third-n-1,
-			 fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
+                         2*third-n-1,
+                         fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
 
 mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> Integer -> UArray a Word8
