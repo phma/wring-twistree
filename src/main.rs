@@ -65,9 +65,9 @@ fn main() {
   buf.clear();
   buf.extend([0; 256]);
   wring.encrypt(&mut buf);
-  //printvec(&buf);
+  printvec(&buf);
   wring.decrypt(&mut buf);
-  //printvec(&buf);
+  printvec(&buf);
   src[0]=225;
   rot_bitcount(&src,&mut dst,1);
   printvec(&dst);
