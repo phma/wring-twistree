@@ -18,7 +18,7 @@ pub fn extend_key(str:&[u8]) -> Vec<u16> {
 }
 
 fn mul65537(a:u16,b:u16) -> u16 {
-  ((((a as u32)+1)*((b as u32)+1))%65537-1) as u16
+  ((((a as u64)+1)*((b as u64)+1))%65537-1) as u16
 }
 
 fn alter(subkey:&mut [u16],key_word: u16,inx: usize) {

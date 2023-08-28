@@ -39,7 +39,7 @@ extendKey str = extendKey_ (B.unpack str) 0 n where
   n = if (B.length str)>0 then -((-384) `div` (B.length str)) else 0
 
 mul65537 :: Word16 -> Word16 -> Word16
-mul65537 a b = fromIntegral ((((fromIntegral a)+1) * ((fromIntegral b)+1)) `mod` 65537)
+mul65537 a b = fromIntegral ((((fromIntegral a)+1) * ((fromIntegral b)+1)) `mod` 65537 - 1)
 
 alter :: Seq.Seq Word16 -> (Word16,Int) -> Seq.Seq Word16
 -- subkey is 96 long. Alters the element at position inx.
