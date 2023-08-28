@@ -54,6 +54,7 @@ fn main() {
   let mut buf:Vec<u8> = Vec::new();
   let mut src=vec!(0u8; 16);
   let mut dst=vec!(0u8; 16);
+  let mut sched=vec!(0u16; 96);
   let mut wring=Wring::new();
   wring.set_key_linear();
   for i in 0..=15 {
@@ -71,9 +72,9 @@ fn main() {
   src[0]=225;
   rot_bitcount(&src,&mut dst,1);
   printvec(&dst);
-  let sched=extend_key("roygbiv".as_bytes());
+  key_schedule("roygbiv".as_bytes(),&mut sched);
   printvec16(&sched);
-  let sched=extend_key("aerate".as_bytes());
+  key_schedule("aerate".as_bytes(),&mut sched);
   printvec16(&sched);
   encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
 }
