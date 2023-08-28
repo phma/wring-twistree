@@ -4,6 +4,22 @@ use wring_twistree::keyschedule::*;
 use wring_twistree::wring::*;
 use num_bigint::BigUint;
 use clap::Parser;
+use std::io;
+use std::io::*;
+use std::fs::File;
+
+fn encrypt_file(key:&str, plainname:&str, ciphername:&str) -> io::Result<()> {
+  let mut plainfile=File::open(plainname)?;
+  let mut buffer:Vec<u8> = Vec::new();
+  plainfile.read_to_end(&mut buffer);
+  plainfile.sync_all()?;
+  let mut wring=Wring::new();
+  wring.set_key(key.as_bytes());
+  wring.encrypt(&mut buffer);
+  let mut cipherfile=File::create(ciphername)?;
+  cipherfile.write_all(&buffer);
+  Ok(())
+}
 
 #[derive(Parser)]
 struct Cli {
@@ -59,4 +75,5 @@ fn main() {
   printvec16(&sched);
   let sched=extend_key("aerate".as_bytes());
   printvec16(&sched);
+  encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
 }
