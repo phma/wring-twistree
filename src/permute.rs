@@ -41,7 +41,7 @@ fn test_permut8() {
 fn permut8x32(sbox: &mut [u8], key: &[u16]) {
   assert_eq!(sbox.len(),8*key.len());
   for i in 0..key.len() {
-    permut8(&mut sbox[8*i..8*i+7],key[i]);
+    permut8(&mut sbox[8*i..8*i+8],key[i]);
   }
 }
 
@@ -64,10 +64,10 @@ pub fn permute256(sbox: &mut [u8],key: &[u16]) {
   assert_eq!(key.len(),96);
   let mut sbox2:[u8;256]=[0;256];
   let mut sbox3:[u8;256]=[0;256];
-  permut8x32(sbox,key);
+  permut8x32(sbox,&key[0..32]);
   deal_bytes(&sbox,&mut sbox2);
-  permut8x32(&mut sbox2,key);
+  permut8x32(&mut sbox2,&key[32..64]);
   deal_bytes(&sbox2,&mut sbox3);
-  permut8x32(&mut sbox3,key);
+  permut8x32(&mut sbox3,&key[64..96]);
   deal_bytes(&sbox3,sbox);
 }
