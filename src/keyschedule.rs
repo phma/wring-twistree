@@ -42,7 +42,7 @@ pub fn key_schedule(str:&[u8],subkey:&mut [u16]) {
 }
 
 pub fn reschedule(subkey:&mut [u16]) {
-  for i in 1..96 {
+  for i in 0..96 {
     alter(subkey,40504,i%96); // 40505 is a primitive root near 65537/φ
   }
 }
