@@ -36,15 +36,15 @@ fn decrypt_file(key:&str, ciphername:&str, plainname:&str) -> io::Result<()> {
 
 #[derive(Parser)]
 struct Cli {
-  input: String,
+  input: Option<String>,
   #[clap(short,long,group="action")]
   encrypt: bool,
   #[clap(short,long,group="action")]
   decrypt: bool,
   #[clap(short,long)]
-  key: String,
+  key: Option<String>,
   #[clap(short,long)]
-  output: String,
+  output: Option<String>,
 }
 
 fn printvec(k:&[u8]) {
@@ -93,23 +93,35 @@ fn main() {
   //printvec16(&sched);
   //encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
   let args=Cli::parse();
+  let input=match args.input {
+    Some(s) => s,
+    None => "".to_string(),
+  };
+  let output=match args.output {
+    Some(s) => s,
+    None => "".to_string(),
+  };
+  let key=match args.key {
+    Some(s) => s,
+    None => "".to_string(),
+  };
   if args.encrypt {
-    if args.input.len()>0 {
-      if args.output.len()>0 {
-	encrypt_file(&args.key,&args.input,&args.output);
+    if input.len()>0 {
+      if output.len()>0 {
+	encrypt_file(&key,&input,&output);
       } else {
-	encrypt_file(&args.key,&args.input,&args.input);
+	encrypt_file(&key,&input,&input);
       }
     } else {
       println!("Please specify file to encrypt");
     }
   }
   if args.decrypt {
-    if args.input.len()>0 {
-      if args.output.len()>0 {
-	decrypt_file(&args.key,&args.input,&args.output);
+    if input.len()>0 {
+      if output.len()>0 {
+	decrypt_file(&key,&input,&output);
       } else {
-	decrypt_file(&args.key,&args.input,&args.input);
+	decrypt_file(&key,&input,&input);
       }
     } else {
       println!("Please specify file to decrypt");
