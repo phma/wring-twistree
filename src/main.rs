@@ -21,6 +21,19 @@ fn encrypt_file(key:&str, plainname:&str, ciphername:&str) -> io::Result<()> {
   Ok(())
 }
 
+fn decrypt_file(key:&str, ciphername:&str, plainname:&str) -> io::Result<()> {
+  let mut cipherfile=File::open(ciphername)?;
+  let mut buffer:Vec<u8> = Vec::new();
+  cipherfile.read_to_end(&mut buffer);
+  cipherfile.sync_all()?;
+  let mut wring=Wring::new();
+  wring.set_key(key.as_bytes());
+  wring.decrypt(&mut buffer);
+  let mut plainfile=File::create(plainname)?;
+  plainfile.write_all(&buffer);
+  Ok(())
+}
+
 #[derive(Parser)]
 struct Cli {
   input: String,
@@ -28,6 +41,8 @@ struct Cli {
   encrypt: bool,
   #[clap(short,long,group="action")]
   decrypt: bool,
+  #[clap(short,long)]
+  key: String,
   #[clap(short,long)]
   output: String,
 }
@@ -73,8 +88,31 @@ fn main() {
   rot_bitcount(&src,&mut dst,1);
   printvec(&dst);
   key_schedule("roygbiv".as_bytes(),&mut sched);
-  printvec16(&sched);
+  //printvec16(&sched);
   key_schedule("aerate".as_bytes(),&mut sched);
-  printvec16(&sched);
-  encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
+  //printvec16(&sched);
+  //encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
+  let args=Cli::parse();
+  if args.encrypt {
+    if args.input.len()>0 {
+      if args.output.len()>0 {
+	encrypt_file(&args.key,&args.input,&args.output);
+      } else {
+	encrypt_file(&args.key,&args.input,&args.input);
+      }
+    } else {
+      println!("Please specify file to encrypt");
+    }
+  }
+  if args.decrypt {
+    if args.input.len()>0 {
+      if args.output.len()>0 {
+	decrypt_file(&args.key,&args.input,&args.output);
+      } else {
+	decrypt_file(&args.key,&args.input,&args.input);
+      }
+    } else {
+      println!("Please specify file to decrypt");
+    }
+  }
 }
