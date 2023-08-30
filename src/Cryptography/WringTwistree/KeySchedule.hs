@@ -1,5 +1,6 @@
 module Cryptography.WringTwistree.KeySchedule
   ( extendKey
+  , mul65537
   , keySchedule
   , reschedule
   ) where
@@ -39,7 +40,11 @@ extendKey str = extendKey_ (B.unpack str) 0 n where
   n = if (B.length str)>0 then -((-384) `div` (B.length str)) else 0
 
 mul65537 :: Word16 -> Word16 -> Word16
-mul65537 a b = fromIntegral ((((fromIntegral a)+1) * ((fromIntegral b)+1)) `mod` 65537 - 1)
+mul65537 a b = fromIntegral ((((fromIntegral a)+1) * 
+                              ((fromIntegral b)+1))
+			     `mod` (65537::Word64) - 1)
+-- 65537::Word32 gives the wrong answer for mul65537 65535 65535,
+-- since 65536*65536 overflows a Word32.
 
 alter :: Seq.Seq Word16 -> (Word16,Int) -> Seq.Seq Word16
 -- subkey is 96 long. Alters the element at position inx.
