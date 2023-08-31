@@ -3,6 +3,7 @@ module Cryptography.WringTwistree.Compress
   , binaryStr
   , relPrimes
   , lfsr
+  , backCrc1
   ) where
 
 {-
@@ -77,5 +78,8 @@ relPrimes = listArray (blockSize,3*blockSize)
 lfsr1 :: Word32 -> Word32
 lfsr1 n = xor ((n .&. 1) * 0x84802140) (shiftR n 1)
 
-lfsr :: UArray Word8 Word32
+lfsr :: UArray Word32 Word32
 lfsr = listArray (0,255) (map (\n -> (iterate lfsr1 (fromIntegral n)) !! 8) [0..255])
+
+backCrc1 :: Word32 -> Word32 -> Word32
+backCrc1 a b = (shiftR a 8) `xor` (lfsr ! (a .&. 255)) `xor` b
