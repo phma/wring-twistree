@@ -2,6 +2,7 @@ module Cryptography.WringTwistree.Compress
   ( exp4_2adic
   , binaryStr
   , relPrimes
+  , lfsr
   ) where
 
 {-
@@ -67,6 +68,14 @@ twistPrime = 37
 -- block sizes during compression.
 
 relPrimes :: UArray Word16 Word16
+-- 3/4 of this is waste. The numbers are Word16, because the last number is
+-- 19, and the program will multiply 31 by 19, which doesn't fit in Word8.
 relPrimes = listArray (blockSize,3*blockSize)
   (map (fromIntegral . findMaxOrder . fromIntegral . (`div` 3))
        [blockSize..3*blockSize])
+
+lfsr1 :: Word32 -> Word32
+lfsr1 n = xor ((n .&. 1) * 0x84802140) (shiftR n 1)
+
+lfsr :: UArray Word8 Word32
+lfsr = listArray (0,255) (map (\n -> (iterate lfsr1 (fromIntegral n)) !! 8) [0..255])
