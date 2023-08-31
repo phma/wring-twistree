@@ -3,7 +3,7 @@ module Cryptography.WringTwistree.Compress
   , binaryStr
   , relPrimes
   , lfsr
-  , backCrc1
+  , backCrc
   ) where
 
 {-
@@ -83,3 +83,10 @@ lfsr = listArray (0,255) (map (\n -> (iterate lfsr1 (fromIntegral n)) !! 8) [0..
 
 backCrc1 :: Word32 -> Word32 -> Word32
 backCrc1 a b = (shiftR a 8) `xor` (lfsr ! (a .&. 255)) `xor` b
+
+backCrcM :: Word32 -> Word8 -> (Word32,Word8)
+backCrcM a b = (c,(fromIntegral c)) where
+  c = backCrc1 a (fromIntegral b)
+
+backCrc :: [Word8] -> [Word8]
+backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
