@@ -1,6 +1,7 @@
 module Cryptography.WringTwistree.Compress
   ( exp4_2adic
   , binaryStr
+  , relPrimes
   ) where
 
 {-
@@ -19,6 +20,8 @@ import Data.Bits
 import Data.Word
 import Data.List
 import Data.Array.Unboxed
+import Cryptography.WringTwistree.Mix3
+import Cryptography.WringTwistree.RotBitcount
 import Text.Printf
 
 -- e⁴, in two binary representations, is prepended to the
@@ -55,3 +58,15 @@ exp4_base2 = listArray (0,31)
 binaryStr :: [Word8] -> String
 binaryStr [] = ""
 binaryStr (a:as) = (printf "%08b " a)++(binaryStr as)
+
+blockSize = 32
+twistPrime = 37
+-- blockSize must be a multiple of 4. Blocks in the process of compression
+-- can be any size from blockSize to 3*blockSize in steps of 4. twistPrime is
+-- the smallest prime greater than blockSize, which is relatively prime to all
+-- block sizes during compression.
+
+relPrimes :: UArray Word16 Word16
+relPrimes = listArray (blockSize,3*blockSize)
+  (map (fromIntegral . findMaxOrder . fromIntegral . (`div` 3))
+       [blockSize..3*blockSize])
