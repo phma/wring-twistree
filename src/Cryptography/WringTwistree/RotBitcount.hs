@@ -20,6 +20,7 @@ import Data.Word
 import Data.Array.Unboxed
 
 {-# INLINABLE rotBitcount #-}
+{-# SPECIALIZE rotBitcount :: UArray Int Word8 -> Int -> UArray Int Word8 #-}
 rotBitcount :: (Integral a,Ix a,Bits a) => UArray a Word8 -> a -> UArray a Word8
 -- The type a may be signed or unsigned, but the array index must begin at 0.
 -- a should hold the square of eight times the bounds; so if the bounds are

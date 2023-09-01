@@ -30,6 +30,7 @@ import GHC.Natural
 import Math.NumberTheory.Primes
 
 {-# INLINE mix #-}
+{-# SPECIALIZE mix :: Word8 -> Word8 -> Word8 -> Word8 #-}
 mix :: (Num t,Bits t) => t -> t -> t -> t
 mix a b c = xor a mask
   where mask = (a .|. b .|. c) - (a .&. b .&. c)
