@@ -29,6 +29,7 @@ import Math.NumberTheory.ArithmeticFunctions
 import GHC.Natural
 import Math.NumberTheory.Primes
 
+{-# INLINE mix #-}
 mix :: (Num t,Bits t) => t -> t -> t -> t
 mix a b c = xor a mask
   where mask = (a .|. b .|. c) - (a .&. b .&. c)
@@ -98,6 +99,7 @@ mixOrder len rprime
                          fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
       [0..third-1]
 
+{-# INLINABLE mix3Parts #-}
 mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> Integer -> UArray a Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))
