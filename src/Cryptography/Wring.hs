@@ -34,7 +34,7 @@ nRounds len
 xorn :: (Integral a,Bits a) => a -> Word8
 xorn 0 = 0
 xorn (-1) = error "xorn: negative"
-xorn a = (fromIntegral a .&. 255) `xor` (xorn (a `shiftR` 8))
+xorn a = (fromIntegral a) `xor` (xorn (a `shiftR` 8))
 
 xornArray :: (Integral a,Bits a,Ix a) => a -> UArray a Word8
 xornArray n = listArray (0,(n-1)) (map xorn [0..(n-1)])
