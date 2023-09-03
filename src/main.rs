@@ -11,26 +11,26 @@ use std::fs::File;
 fn encrypt_file(key:&str, plainname:&str, ciphername:&str) -> io::Result<()> {
   let mut plainfile=File::open(plainname)?;
   let mut buffer:Vec<u8> = Vec::new();
-  plainfile.read_to_end(&mut buffer);
+  plainfile.read_to_end(&mut buffer)?;
   plainfile.sync_all()?;
   let mut wring=Wring::new();
   wring.set_key(key.as_bytes());
   wring.encrypt(&mut buffer);
   let mut cipherfile=File::create(ciphername)?;
-  cipherfile.write_all(&buffer);
+  cipherfile.write_all(&buffer)?;
   Ok(())
 }
 
 fn decrypt_file(key:&str, ciphername:&str, plainname:&str) -> io::Result<()> {
   let mut cipherfile=File::open(ciphername)?;
   let mut buffer:Vec<u8> = Vec::new();
-  cipherfile.read_to_end(&mut buffer);
+  cipherfile.read_to_end(&mut buffer)?;
   cipherfile.sync_all()?;
   let mut wring=Wring::new();
   wring.set_key(key.as_bytes());
   wring.decrypt(&mut buffer);
   let mut plainfile=File::create(plainname)?;
-  plainfile.write_all(&buffer);
+  plainfile.write_all(&buffer)?;
   Ok(())
 }
 
@@ -108,9 +108,9 @@ fn main() {
   if args.encrypt {
     if input.len()>0 {
       if output.len()>0 {
-	encrypt_file(&key,&input,&output);
+	encrypt_file(&key,&input,&output).expect("Can't encrypt file");
       } else {
-	encrypt_file(&key,&input,&input);
+	encrypt_file(&key,&input,&input).expect("Can't encrypt file");
       }
     } else {
       println!("Please specify file to encrypt");
@@ -119,9 +119,9 @@ fn main() {
   if args.decrypt {
     if input.len()>0 {
       if output.len()>0 {
-	decrypt_file(&key,&input,&output);
+	decrypt_file(&key,&input,&output).expect("Can't decrypt file");
       } else {
-	decrypt_file(&key,&input,&input);
+	decrypt_file(&key,&input,&input).expect("Can't decrypt file");
       }
     } else {
       println!("Please specify file to decrypt");
