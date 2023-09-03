@@ -60,6 +60,7 @@ writeFileArray :: String -> UArray Int Word8 -> IO ()
 writeFileArray fileName ary = do
   h <- openBinaryFile fileName WriteMode
   B.hPut h (B.pack $ elems ary)
+  hClose h
 
 encryptFile :: String -> String -> String -> IO ()
 encryptFile key plainfile cipherfile = do
