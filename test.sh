@@ -22,7 +22,13 @@ do
   diff ${tn}orig ${tn}herd >/dev/null; same1=$?
   diff ${tn}orig ${tn}rehd >/dev/null; same2=$?
   diff ${tn}orig ${tn}rerd >/dev/null; same3=$?
-  same=$same0 && $same1 && $same2 && $same3
-  echo $same
-  rm ${tn}*
+  same=`expr $same0 \| $same1 \| $same2 \| $same3`
+  # expr says 1 is true, sh says 0 is true
+  if [ $same = 0 ]
+  then
+    echo Test $nbytes passed
+    rm ${tn}*
+  else
+    echo Test $nbytes failed
+  fi
 done
