@@ -98,7 +98,11 @@ impl Wring {
     let mut tmp:Vec<u8> = Vec::new();
     tmp.extend_from_slice(buf);
     let nrond=n_rounds(buf.len());
-    let rprime=find_max_order((buf.len()/3) as u64) as usize;
+    let rprime=if buf.len()<3 {
+      1 // in Haskell, laziness takes care of this
+    } else {
+      find_max_order((buf.len()/3) as u64)
+    } as usize;
     for i in 0..nrond {
       if (i&1)==0 {
 	self.round_encrypt(buf,&mut tmp,rprime,i);
@@ -117,7 +121,11 @@ impl Wring {
     let mut tmp:Vec<u8> = Vec::new();
     tmp.extend_from_slice(buf);
     let nrond=n_rounds(buf.len());
-    let rprime=find_max_order((buf.len()/3) as u64) as usize;
+    let rprime=if buf.len()<3 {
+      1 // in Haskell, laziness takes care of this
+    } else {
+      find_max_order((buf.len()/3) as u64)
+    } as usize;
     for i in (0..nrond).rev() {
       if ((nrond-i)&1)==1 {
 	self.round_decrypt(buf,&mut tmp,rprime,i);
