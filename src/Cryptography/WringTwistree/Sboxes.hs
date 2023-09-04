@@ -1,5 +1,6 @@
 module Cryptography.WringTwistree.Sboxes
-  ( sboxes
+  ( cycle3
+  , sboxes
   , invert
   , linearSbox
   , linearInvSbox
@@ -23,6 +24,8 @@ import qualified Data.ByteString as B
 import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule
 
+cycle3 :: [Word8]
+cycle3 = 0 : 1 : 2 : cycle3
 
 sboxes :: B.ByteString -> UArray (Word8,Word8) Word8
 sboxes key = listArray ((0,0),(2,255)) (box0 ++ box1 ++ box2) where

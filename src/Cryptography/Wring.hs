@@ -59,9 +59,6 @@ keyedWring key = Wring sbox (invert sbox) where
  - add byte index xor round number
  -}
 
-cycle3 :: [Word8]
-cycle3 = 0 : 1 : 2 : cycle3
-
 roundEncrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundEncrypt rprime sbox xornary buf rond = i4 where
