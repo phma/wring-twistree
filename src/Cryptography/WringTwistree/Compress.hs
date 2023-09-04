@@ -4,6 +4,7 @@ module Cryptography.WringTwistree.Compress
   , relPrimes
   , lfsr
   , backCrc
+  , roundCompress
   ) where
 
 {-
@@ -24,6 +25,7 @@ import Data.List
 import Data.Array.Unboxed
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
+import Cryptography.WringTwistree.Sboxes
 import Text.Printf
 
 -- e⁴, in two binary representations, is prepended to the
@@ -90,3 +92,14 @@ backCrcM a b = (c,(fromIntegral c)) where
 
 backCrc :: [Word8] -> [Word8]
 backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
+
+roundCompress :: (Ix a,Integral a,Bits a) => 
+  UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
+roundCompress sbox buf sboxalt = i4 where
+  bnd = bounds buf
+  len = snd bnd + 1
+  rprime = relPrimes ! (fromIntegral len)
+  i1 = mix3Parts buf (fromIntegral rprime)
+  i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral sboxalt) cycle3) (elems i1)
+  i3 = rotBitcount i2 1
+  i4 = listArray (0,len-5) $ backCrc (elems i3)
