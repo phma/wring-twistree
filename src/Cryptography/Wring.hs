@@ -10,6 +10,9 @@ module Cryptography.Wring
  - no hard limit) or long human-readable keys (up to 96 bytes). keyedWring
  - takes arbitrarily long keys, but do not use keys longer than 96 bytes as they
  - make the cipher more vulnerable to related-key attacks.
+ -
+ - The Haskell implementation needs four times as much RAM as the message size,
+ - plus a constant overhead.
  -}
 
 import Cryptography.WringTwistree.Mix3
