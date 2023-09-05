@@ -4,6 +4,7 @@
 
 tempname=temp$$.
 key="keyκλειςמפתחключ"
+allpass=0
 
 for nbytes in 8 9 11 16 25 27 32 49 64 81 121 125 128 243 256 343 512 625 729 \
 	      1024 1331 2048 2187 2401 3125 4096 6561 8192 14641 15625 16384 16807 \
@@ -30,5 +31,13 @@ do
     rm ${tn}*
   else
     echo Test $nbytes failed
+    allpass=1
   fi
 done
+
+if [ $allpass = 0 ]
+then
+  echo All tests passed
+else
+  echo Some test failed
+fi
