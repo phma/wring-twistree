@@ -1,10 +1,11 @@
 module Cryptography.WringTwistree.Compress
   ( exp4_2adic
   , binaryStr
+  , blockSize
   , relPrimes
   , lfsr
   , backCrc
-  , roundCompress
+  , compress
   ) where
 
 {-
@@ -63,7 +64,9 @@ binaryStr :: [Word8] -> String
 binaryStr [] = ""
 binaryStr (a:as) = (printf "%08b " a)++(binaryStr as)
 
+blockSize :: Integral a => a
 blockSize = 32
+twistPrime :: Integral a => a
 twistPrime = 37
 -- blockSize must be a multiple of 4. Blocks in the process of compression
 -- can be any size from blockSize to 3*blockSize in steps of 4. twistPrime is
@@ -93,7 +96,7 @@ backCrcM a b = (c,(fromIntegral c)) where
 backCrc :: [Word8] -> [Word8]
 backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
 
-roundCompress :: (Ix a,Integral a,Bits a) => 
+roundCompress :: (Ix a,Integral a,Bits a) =>
   UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundCompress sbox buf sboxalt = i4 where
   bnd = bounds buf
@@ -103,3 +106,11 @@ roundCompress sbox buf sboxalt = i4 where
   i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral sboxalt) cycle3) (elems i1)
   i3 = rotBitcount i2 1
   i4 = listArray (0,len-5) $ backCrc (elems i3)
+
+compress :: (Ix a,Integral a,Bits a) =>
+  UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
+compress sbox buf sboxalt
+  | len <= blockSize = buf
+  | len `mod` twistPrime == 0 = error "bad block size"
+  | otherwise = compress sbox (roundCompress sbox buf sboxalt) sboxalt
+  where len = snd (bounds buf) + 1
