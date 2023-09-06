@@ -6,6 +6,8 @@ module Cryptography.WringTwistree.Compress
   , lfsr
   , backCrc
   , compress
+  , compress2
+  , compress3
   ) where
 
 {-
@@ -114,3 +116,27 @@ compress sbox buf sboxalt
   | len `mod` twistPrime == 0 = error "bad block size"
   | otherwise = compress sbox (roundCompress sbox buf sboxalt) sboxalt
   where len = snd (bounds buf) + 1
+
+compress2 :: (Ix a,Integral a,Bits a) =>
+  UArray (Word8,Word8) Word8 ->
+  UArray a Word8 ->
+  UArray a Word8 ->
+  a -> UArray a Word8
+compress2 sbox buf0 buf1 sboxalt = compress sbox buf sboxalt where
+  (beg0,end0) = bounds buf0
+  (beg1,end1) = bounds buf1
+  len = end0 + end1 + 2 - beg0 - beg1
+  buf = listArray (0,len-1) (elems buf0 ++ elems buf1)
+
+compress3 :: (Ix a,Integral a,Bits a) =>
+  UArray (Word8,Word8) Word8 ->
+  UArray a Word8 ->
+  UArray a Word8 ->
+  UArray a Word8 ->
+  a -> UArray a Word8
+compress3 sbox buf0 buf1 buf2 sboxalt = compress sbox buf sboxalt where
+  (beg0,end0) = bounds buf0
+  (beg1,end1) = bounds buf1
+  (beg2,end2) = bounds buf2
+  len = end0 + end1 + end2 + 2 - beg0 - beg1 - beg2
+  buf = listArray (0,len-1) (elems buf0 ++ elems buf1 ++ elems buf2)
