@@ -41,6 +41,8 @@ struct Cli {
   encrypt: bool,
   #[clap(short,long,group="action")]
   decrypt: bool,
+  #[clap(short,long,group="action")]
+  test: bool,
   #[clap(short,long)]
   key: Option<String>,
   #[clap(short,long)]
@@ -65,7 +67,7 @@ fn printvec16(k:&[u16]) {
   }
 }
 
-fn main() {
+fn test_new_code() {
   let mut buf:Vec<u8> = Vec::new();
   let mut src=vec!(0u8; 16);
   let mut dst=vec!(0u8; 16);
@@ -92,6 +94,9 @@ fn main() {
   key_schedule("aerate".as_bytes(),&mut sched);
   //printvec16(&sched);
   //encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
+}
+
+fn main() {
   let args=Cli::parse();
   let input=match args.input {
     Some(s) => s,
@@ -126,5 +131,8 @@ fn main() {
     } else {
       println!("Please specify file to decrypt");
     }
+  }
+  if args.test {
+    test_new_code();
   }
 }
