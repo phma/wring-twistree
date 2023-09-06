@@ -9,6 +9,10 @@ pub mod permute;
 pub mod keyschedule;
 pub mod sboxes;
 
+// Used by twistree
+pub mod blockize;
+pub mod compress;
+
 pub mod wring {
 
 use crate::mix3::*;
