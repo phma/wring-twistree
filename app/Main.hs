@@ -3,6 +3,7 @@ module Main (main) where
 import Cryptography.Wring
 import Cryptography.WringTwistree.KeySchedule
 import Cryptography.WringTwistree.Compress
+import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
 import Text.Printf
 import Data.List.Split

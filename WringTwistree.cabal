@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Cryptography.Wring
+      Cryptography.WringTwistree.Blockize
       Cryptography.WringTwistree.Compress
       Cryptography.WringTwistree.KeySchedule
       Cryptography.WringTwistree.Mix3
