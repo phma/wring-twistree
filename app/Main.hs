@@ -81,6 +81,7 @@ data WtOpt
   | Encrypt
   | Decrypt
   | Hash
+  | Test
   | Key String
   | Outfile String
     deriving (Show,Eq)
@@ -88,7 +89,7 @@ data WtOpt
 doWhich :: [WtOpt] -> Maybe WtOpt
 -- Returns Just the action, if exactly one action is specified, else Nothing.
 doWhich lst = if (length actions == 1) then Just (head actions) else Nothing where
-  actions = filter (\x -> (x == Encrypt) || (x == Decrypt) || (x == Hash)) lst
+  actions = filter (\x -> (x == Encrypt) || (x == Decrypt) || (x == Hash) || (x == Test)) lst
 
 strings_ :: [WtOpt] -> (String,String,String)
 strings_ [] = ("","","")
@@ -115,6 +116,7 @@ optSpecs =
   [ optSpec "e" ["encrypt"] (ZeroArg Encrypt)
   , optSpec "d" ["decrypt"] (ZeroArg Decrypt)
   , optSpec "H" ["hash"] (ZeroArg Hash)
+  , optSpec "t" ["test"] (ZeroArg Test) -- for running code I'm testing
   , optSpec "k" ["key"] (OneArg Key)
   , optSpec "o" ["output"] (OneArg Outfile)
   ]
@@ -130,6 +132,7 @@ help progName = unlines
   , "--encrypt,     -e       Encrypt a file."
   , "--decrypt,     -d       Decrypt a file."
   , "--hash,        -H       Hash a file."
+  , "--test,        -t       Test the latest code."
   , "--output FILE, -o FILE  Output results to FILE."
   , ""
   , "At most one of -e, -d, and -H may be specified. If -o is not specified,"
@@ -146,6 +149,7 @@ doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt -> encryptFile key infile outfile
     Just Decrypt -> decryptFile key infile outfile
+    Just Test    -> testExtendKey
     Just Hash    -> putStrLn "Twistree hash is not yet implemented"
     Nothing      -> putStrLn "Please specify one of -e, -d, and -H"
     _            -> error "can't happen"
