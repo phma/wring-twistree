@@ -1,5 +1,6 @@
 module Cryptography.WringTwistree.Compress
   ( exp4_2adic
+  , exp4_base2
   , binaryStr
   , blockSize
   , relPrimes

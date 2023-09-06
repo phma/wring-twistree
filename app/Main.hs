@@ -2,6 +2,8 @@ module Main (main) where
 
 import Cryptography.Wring
 import Cryptography.WringTwistree.KeySchedule
+import Cryptography.WringTwistree.Compress
+import Cryptography.WringTwistree.Sboxes
 import Text.Printf
 import Data.List.Split
 import Data.Word
@@ -145,11 +147,16 @@ testExtendKey = do
   putStr $ block16str16 $ toList $ extendKey $ fromString "roygbiv"
   putStr $ block16str16 $ toList $ extendKey $ fromString "aerate"
 
+testCompress :: IO ()
+testCompress = do
+  putStr $ block16str $ elems $
+    compress2 linearSbox exp4_2adic (exp4_base2 :: UArray Int Word8) 0
+
 doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt -> encryptFile key infile outfile
     Just Decrypt -> decryptFile key infile outfile
-    Just Test    -> testExtendKey
+    Just Test    -> testCompress
     Just Hash    -> putStrLn "Twistree hash is not yet implemented"
     Nothing      -> putStrLn "Please specify one of -e, -d, and -H"
     _            -> error "can't happen"
