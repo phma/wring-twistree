@@ -27,8 +27,8 @@ rotBitcount :: (Integral a,Ix a,Bits a) => UArray a Word8 -> a -> UArray a Word8
 -- a should hold the square of eight times the bounds; so if the bounds are
 -- (0..31), Word16 is adequate, but Int16 and Word8 are not.
 rotBitcount src mult = listArray bnd
-  [ (src ! ((i+len-byte)   `mod` len) `shift` bit) .|.
-    (src ! ((i+len-byte-1) `mod` len) `shift` (bit-8)) | i <- [0..(len-1)]]
+  [ (src ! ((i+len-byte)   `mod` len) !<<. bit) .|.
+    (src ! ((i+len-byte-1) `mod` len) !>>. (8-bit)) | i <- [0..(len-1)]]
   where
     bnd = bounds src
     !len = (snd bnd) +1
