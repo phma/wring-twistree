@@ -59,6 +59,8 @@ keyedWring key = Wring sbox (invert sbox) where
  - add byte index xor round number
  -}
 
+{-# SPECIALIZE roundEncrypt :: Int -> UArray (Word8,Word8) Word8 ->
+    UArray Int Word8 -> UArray Int Word8 -> Int -> UArray Int Word8 #-}
 roundEncrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundEncrypt rprime sbox xornary buf rond = i4 where
@@ -70,6 +72,8 @@ roundEncrypt rprime sbox xornary buf rond = i4 where
   i4 = listArray bnd $ zipWith (+) (elems i3)
        (map (xor xornrond) (elems xornary))
 
+{-# SPECIALIZE roundDecrypt :: Int -> UArray (Word8,Word8) Word8 ->
+    UArray Int Word8 -> UArray Int Word8 -> Int -> UArray Int Word8 #-}
 roundDecrypt :: (Ix a,Integral a,Bits a) => 
   a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
 roundDecrypt rprime sbox xornary buf rond = i4 where
@@ -81,6 +85,7 @@ roundDecrypt rprime sbox xornary buf rond = i4 where
   i3 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i2)
   i4 = mix3Parts i3 (fromIntegral rprime)
 
+{-# SPECIALIZE encrypt :: Wring -> UArray Int Word8 -> UArray Int Word8 #-}
 encrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
 encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring) xornary) buf rounds
   where
@@ -89,6 +94,7 @@ encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring) xornary) buf rounds
     rprime = fromIntegral $ findMaxOrder (len `div` 3)
     rounds = [0 .. (fromIntegral (nRounds len) -1)]
 
+{-# SPECIALIZE decrypt :: Wring -> UArray Int Word8 -> UArray Int Word8 #-}
 decrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
 decrypt wring buf = foldl' (roundDecrypt rprime (invSbox wring) xornary) buf rounds
   where
