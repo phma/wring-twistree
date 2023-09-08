@@ -12,6 +12,7 @@ num-traits = "0.2.16"
 num-integer = "0.1.44"
 mod_exp = "1.0.1"
 clap = { version = "3.2.25", features = ["derive"] }
+lazy_static = "1.4.0"
 
 [profile.dev]
 overflow-checks = false
