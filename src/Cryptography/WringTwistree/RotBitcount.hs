@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Cryptography.WringTwistree.RotBitcount
   ( rotBitcount
   ) where
@@ -34,5 +35,5 @@ rotBitcount src mult = listArray bnd
     multmod = mult `mod` (len * 8)
     bitcount = fromIntegral $ sum $ map popCount $ elems src
     rotcount = (bitcount * multmod) `mod` (len * 8)
-    byte = rotcount `shift` (-3)
-    bit = fromIntegral (rotcount .&. 7)
+    !byte = rotcount `shift` (-3)
+    !bit = fromIntegral (rotcount .&. 7)
