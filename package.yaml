@@ -25,6 +25,7 @@ dependencies:
 ghc-options:
 #- -Wall
 - -O2
+- -fllvm
 - -Wcompat
 - -Widentities
 - -Wincomplete-record-updates
