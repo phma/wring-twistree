@@ -31,7 +31,7 @@ rotBitcount src mult = listArray bnd
     (src ! ((i+len-byte-1) `mod` len) `shift` (bit-8)) | i <- [0..(len-1)]]
   where
     bnd = bounds src
-    len = (snd bnd) +1
+    !len = (snd bnd) +1
     multmod = mult `mod` (len * 8)
     bitcount = fromIntegral $ sum $ map popCount $ elems src
     rotcount = (bitcount * multmod) `mod` (len * 8)
