@@ -10,12 +10,28 @@ const SZ: usize=(BLOCKSIZE/2+1) as usize;
 // the smallest prime greater than BLOCKSIZE, which is relatively prime to all
 // block sizes during compression.
 
+fn lfsr1(n:u32) -> u32 {
+  (n>>1) ^ ((n&1)*0x84802140)
+}
+
 lazy_static! {
   // RELPRIMES[0]=find_max_order(32), RELPRIMES[1]=find_max_order[36], etc.
   static ref RELPRIMES: [u16; SZ as usize] = {
     let mut m: [u16; SZ as usize]=[0;SZ as usize];
     for i in 0..SZ {
       m[i]=find_max_order(((BLOCKSIZE as usize)+4*i) as u64) as u16;
+    }
+    m
+  };
+
+  static ref LFSR: [u32; 256] = {
+    let mut m: [u32; 256]=[0;256];
+    for i in 0..256 {
+      let mut n=i as u32;
+      for _ in 0..8 {
+	n=lfsr1(n);
+      }
+      m[i]=n;
     }
     m
   };
