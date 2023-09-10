@@ -43,7 +43,7 @@ fn round_compress(sbox:&[[u8; 256]; 3], buf:&mut Vec<u8>, sboxalt:u32) {
   assert!(buf.len()&3==0);
   let mut tmp:Vec<u8> = Vec::new();
   tmp.extend_from_slice(buf);
-  let rprime=RELPRIMES[(buf.len()-BLOCKSIZE as usize)/4] as usize;
+  let rprime=RELPRIMES[(buf.len()-BLOCKSIZE)/4] as usize;
   let len=buf.len()/3;
   mix3parts(buf,len,rprime);
   for i in 0..buf.len() {
