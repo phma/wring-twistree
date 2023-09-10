@@ -59,7 +59,7 @@ roundCompress sbox buf sboxalt = i4 where
   rprime = relPrimes ! (fromIntegral len)
   i1 = mix3Parts buf (fromIntegral rprime)
   i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral sboxalt) cycle3) (elems i1)
-  i3 = rotBitcount i2 1
+  i3 = rotBitcount i2 twistPrime
   i4 = listArray (0,len-5) $ backCrc (elems i3)
 
 compress :: UArray (Word8,Word8) Word8 -> UArray Int Word8 -> Int -> UArray Int Word8
