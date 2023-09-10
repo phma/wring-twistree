@@ -57,3 +57,9 @@ fn round_compress(sbox:&[[u8; 256]; 3], buf:&mut Vec<u8>, sboxalt:u32) {
   }
   buf.truncate(buf.len()-4);
 }
+
+pub fn compress(sbox:&[[u8; 256]; 3], buf:&mut Vec<u8>, sboxalt:u32) {
+  while buf.len()>BLOCKSIZE {
+    round_compress(sbox,buf,sboxalt);
+  }
+}
