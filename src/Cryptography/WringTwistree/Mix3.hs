@@ -87,6 +87,7 @@ tailpiece len
   | (len `mod` 3 == 0) = []
   | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
 
+{-# SPECIALIZE mixOrder :: Int -> Int -> [(Int,Int,Int)] #-}
 mixOrder :: Integral a => a -> a -> [(a,a,a)]
 -- rprime is relatively prime to len `div` 3
 mixOrder len rprime
@@ -100,6 +101,7 @@ mixOrder len rprime
       (map ((2*third) +) (iterate (\x -> (x + rprime) `mod` third) 0))
 
 {-# INLINABLE mix3Parts #-}
+{-# SPECIALIZE mix3Parts :: UArray Int Word8 -> Int -> UArray Int Word8 #-}
 mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> a -> UArray a Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))
