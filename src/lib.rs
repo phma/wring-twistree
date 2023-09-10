@@ -41,8 +41,8 @@ pub fn xorn(n: u64) -> u8 {
 
 #[derive(Clone)]
 pub struct Wring {
-  sbox: [[u8; 256]; 3],
-  inv_sbox: [[u8; 256]; 3],
+  pub sbox: [[u8; 256]; 3],
+  pub inv_sbox: [[u8; 256]; 3],
 }
 
 impl Wring {

@@ -20,7 +20,7 @@ lazy_static! {
   static ref RELPRIMES: [u16; SZ] = {
     let mut m: [u16; SZ as usize]=[0;SZ];
     for i in 0..SZ {
-      m[i]=find_max_order(((BLOCKSIZE)+4*i) as u64) as u16;
+      m[i]=find_max_order(((BLOCKSIZE+4*i)/3) as u64) as u16;
     }
     m
   };
