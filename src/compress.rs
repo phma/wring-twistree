@@ -50,4 +50,10 @@ fn round_compress(sbox:&[[u8; 256]; 3], buf:&mut Vec<u8>, sboxalt:u32) {
     buf[i]=sbox[((sboxalt as usize)+i)%3][buf[i] as usize];
   }
   rot_bitcount(buf, &mut tmp, TWISTPRIME);
+  let mut acc:u32=0xdeadc0de;
+  for i in (0..buf.len()).rev() {
+    acc=(acc>>8)^LFSR[(acc&255) as usize]^tmp[i] as u32;
+    buf[i]=acc as u8;
+  }
+  buf.truncate(buf.len()-4);
 }
