@@ -48,8 +48,11 @@ backCrcM a b = (c,(fromIntegral c)) where
 backCrc :: [Word8] -> [Word8]
 backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
 
-roundCompress :: (Ix a,Integral a,Bits a) =>
-  UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
+roundCompress ::
+  UArray (Word8,Word8) Word8 ->
+  UArray Int Word8 ->
+  Int ->
+  UArray Int Word8
 roundCompress sbox buf sboxalt = i4 where
   bnd = bounds buf
   len = snd bnd + 1
@@ -59,31 +62,32 @@ roundCompress sbox buf sboxalt = i4 where
   i3 = rotBitcount i2 1
   i4 = listArray (0,len-5) $ backCrc (elems i3)
 
-compress :: (Ix a,Integral a,Bits a) =>
-  UArray (Word8,Word8) Word8 -> UArray a Word8 -> a -> UArray a Word8
+compress :: UArray (Word8,Word8) Word8 -> UArray Int Word8 -> Int -> UArray Int Word8
 compress sbox buf sboxalt
   | len <= blockSize = buf
   | len `mod` twistPrime == 0 = error "bad block size"
   | otherwise = compress sbox (roundCompress sbox buf sboxalt) sboxalt
   where len = snd (bounds buf) + 1
 
-compress2 :: (Ix a,Integral a,Bits a) =>
+compress2 ::
   UArray (Word8,Word8) Word8 ->
-  UArray a Word8 ->
-  UArray a Word8 ->
-  a -> UArray a Word8
+  UArray Int Word8 ->
+  UArray Int Word8 ->
+  Int ->
+  UArray Int Word8
 compress2 sbox buf0 buf1 sboxalt = compress sbox buf sboxalt where
   (beg0,end0) = bounds buf0
   (beg1,end1) = bounds buf1
   len = end0 + end1 + 2 - beg0 - beg1
   buf = listArray (0,len-1) (elems buf0 ++ elems buf1)
 
-compress3 :: (Ix a,Integral a,Bits a) =>
+compress3 ::
   UArray (Word8,Word8) Word8 ->
-  UArray a Word8 ->
-  UArray a Word8 ->
-  UArray a Word8 ->
-  a -> UArray a Word8
+  UArray Int Word8 ->
+  UArray Int Word8 ->
+  UArray Int Word8 ->
+  Int ->
+  UArray Int Word8
 compress3 sbox buf0 buf1 buf2 sboxalt = compress sbox buf sboxalt where
   (beg0,end0) = bounds buf0
   (beg1,end1) = bounds buf1
