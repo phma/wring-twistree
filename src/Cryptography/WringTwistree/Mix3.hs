@@ -87,21 +87,20 @@ tailpiece len
   | (len `mod` 3 == 0) = []
   | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
 
-mixOrder :: Integral a => a -> Integer -> [(a,a,a)]
+mixOrder :: Integral a => a -> a -> [(a,a,a)]
 -- rprime is relatively prime to len `div` 3
 mixOrder len rprime
   | len < 3 = tailpiece len
   | otherwise = (tailpiece len) ++ (triplicate mixord)
   where
     third = len `div` 3
-    thirdbig = (fromIntegral third) :: Integer
-    mixord = map (\n -> (n,
-                         2*third-n-1,
-                         fromIntegral (2*thirdbig+(((fromIntegral n)*rprime) `mod` thirdbig))))
-      [0..third-1]
+    mixord = take (fromIntegral third) $ zip3
+      [0..]
+      (map ((2*third-1) -) [0..])
+      (map ((2*third) +) (iterate (\x -> (x + rprime) `mod` third) 0))
 
 {-# INLINABLE mix3Parts #-}
-mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> Integer -> UArray a Word8
+mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> a -> UArray a Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))
 -- and pass it to mix3Parts on every round.
