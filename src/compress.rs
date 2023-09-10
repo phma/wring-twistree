@@ -37,8 +37,8 @@ lazy_static! {
   };
 }
 
-fn round_compress(sbox:&[[u8; 256]; 3], buf:&mut [u8], len:u32, sboxalt:u32) {
-  // len is the current number of bytes in buf, and is decreased by 4 per round.
+fn round_compress(sbox:&[[u8; 256]; 3], buf:&mut Vec<u8>, sboxalt:u32) {
+  // The number of bytes in buf is decreased by 4 per round.
   let mut tmp:Vec<u8> = Vec::new();
   tmp.extend_from_slice(buf);
 }
