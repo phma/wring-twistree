@@ -2,11 +2,14 @@ module Cryptography.WringTwistree.Blockize
   ( exp4_2adic
   , exp4_base2
   , binaryStr
+  , blockize
   ) where
 
 import Data.Bits
 import Data.Word
 import Data.Array.Unboxed
+import Data.List.Split (chunksOf)
+import qualified Data.ByteString.Lazy as BL
 import Cryptography.WringTwistree.Compress
 import Text.Printf
 
@@ -56,3 +59,12 @@ exp4_base2 = listArray (0,31)
 binaryStr :: [Word8] -> String
 binaryStr [] = ""
 binaryStr (a:as) = (printf "%08b " a)++(binaryStr as)
+
+pad :: BL.ByteString -> [Word8]
+pad bs = (BL.unpack bs) ++ [0..(blockSize-1)]
+
+-- Breaks into blocks of 32 bytes, padding the last one to 32 bytes.
+-- If the last block is already 32 bytes, adds another block of 32 bytes.
+blockize :: BL.ByteString -> [UArray Int Word8]
+blockize bs = map (listArray (0,(blockSize-1))) $ filter ((== blockSize) . length) $
+  chunksOf blockSize $ pad bs
