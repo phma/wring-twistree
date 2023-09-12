@@ -47,6 +47,7 @@ library
     , bytestring
     , containers
     , mod
+    , split
     , utf8-string
   default-language: Haskell2010
 

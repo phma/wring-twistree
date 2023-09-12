@@ -44,6 +44,7 @@ library:
   - bytestring
   - utf8-string
   - mod
+  - split
 
 executables:
   WringTwistree-exe:
