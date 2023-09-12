@@ -3,6 +3,7 @@ module Stats
   , emptyHisto
   , hCount
   , χ²
+  , χ²bit
   , sacCountBit
   , bitFold
   , sacStats
@@ -25,6 +26,12 @@ hCount (Histo h) n = Histo (Seq.adjust' (+1) (fromIntegral n) h)
 χ² :: Histo -> Double
 χ² (Histo h) = sum $ map (\x -> ((fromIntegral x) - mean) ^(2::Int) / mean) (toList h)
   where mean = fromIntegral (sum h) / fromIntegral (length h) :: Double
+
+-- Use this if the histo bars count one-bits and half of the n trials should
+-- yield one.
+χ²bit :: Histo -> Int -> Double
+χ²bit (Histo h) n = sum $ map (\x -> ((fromIntegral x) - mean) ^(2::Int) / mean) (toList h)
+  where mean = fromIntegral n / 2 :: Double
 
 squareWave :: Int -> [Int]
 squareWave n = map ((.&. (1::Int)) . (`shift` (-n))) [0..]
