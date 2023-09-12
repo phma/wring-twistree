@@ -79,8 +79,13 @@ decryptFile key cipherfile plainfile = do
   let plaintext = decrypt wring ciphertext
   writeFileArray plainfile plaintext
 
+cryptanalyze :: String -> IO ()
+cryptanalyze arg = case arg of
+  otherwise -> putStrLn "No cryptanalyses defined yet"
+
 data WtOpt
   = Infile String
+  | Analyze String
   | Encrypt
   | Decrypt
   | Hash
@@ -92,7 +97,15 @@ data WtOpt
 doWhich :: [WtOpt] -> Maybe WtOpt
 -- Returns Just the action, if exactly one action is specified, else Nothing.
 doWhich lst = if (length actions == 1) then Just (head actions) else Nothing where
-  actions = filter (\x -> (x == Encrypt) || (x == Decrypt) || (x == Hash) || (x == Test)) lst
+  actions = filter
+    (\x -> case x of
+      Encrypt -> True
+      Decrypt -> True
+      Hash -> True
+      Analyze _ -> True
+      Test -> True
+      otherwise -> False)
+    lst
 
 strings_ :: [WtOpt] -> (String,String,String)
 strings_ [] = ("","","")
@@ -118,6 +131,7 @@ optSpecs :: [OptSpec WtOpt]
 optSpecs =
   [ optSpec "e" ["encrypt"] (ZeroArg Encrypt)
   , optSpec "d" ["decrypt"] (ZeroArg Decrypt)
+  , optSpec "c" ["cryptanalyze"] (OneArg Analyze)
   , optSpec "H" ["hash"] (ZeroArg Hash)
   , optSpec "t" ["test"] (ZeroArg Test) -- for running code I'm testing
   , optSpec "k" ["key"] (OneArg Key)
@@ -132,13 +146,14 @@ help progName = unlines
   , ""
   , "Options:"
   , ""
-  , "--encrypt,     -e       Encrypt a file."
-  , "--decrypt,     -d       Decrypt a file."
-  , "--hash,        -H       Hash a file."
-  , "--test,        -t       Test the latest code."
-  , "--output FILE, -o FILE  Output results to FILE."
+  , "--encrypt,      -e       Encrypt a file."
+  , "--decrypt,      -d       Decrypt a file."
+  , "--cryptanalyze, -c NUM   Run cryptanalysis number NUM."
+  , "--hash,         -H       Hash a file."
+  , "--test,         -t       Test the latest code."
+  , "--output FILE,  -o FILE  Output results to FILE."
   , ""
-  , "At most one of -e, -d, and -H may be specified. If -o is not specified,"
+  , "At most one of -e, -d, -c, and -H may be specified. If -o is not specified,"
   , "the ciphertext or plaintext overwrites the original file, and the hash"
   , "is written to standard output."
   ]
@@ -155,12 +170,13 @@ testCompress = do
 
 doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
-    Just Encrypt -> encryptFile key infile outfile
-    Just Decrypt -> decryptFile key infile outfile
-    Just Test    -> testCompress
-    Just Hash    -> putStrLn "Twistree hash is not yet implemented"
-    Nothing      -> putStrLn "Please specify one of -e, -d, and -H"
-    _            -> error "can't happen"
+    Just Encrypt     -> encryptFile key infile outfile
+    Just Decrypt     -> decryptFile key infile outfile
+    Just Test        -> testCompress
+    Just (Analyze a) -> cryptanalyze a
+    Just Hash        -> putStrLn "Twistree hash is not yet implemented"
+    Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
+    _                -> error "can't happen"
   where
     action = doWhich parse
     (key,infile,outfile) = strings parse
