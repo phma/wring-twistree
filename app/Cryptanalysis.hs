@@ -13,6 +13,7 @@ module Cryptanalysis
   , key6_3
   , thueMorse
   , byteArray
+  , diff1Related
   ) where
 
 import Data.Word
@@ -25,7 +26,7 @@ import Control.Parallel
 import Control.Parallel.Strategies
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
-import Cryptography.WringTwistree.KeySchedule
+import Cryptography.Wring
 
 key96_0 = "Водворетраванатраведрова.Нерубидрованатраведвора!"
 key96_1 = "Водворетраванатраведрова.Нерубидрованатраведвора "
@@ -65,3 +66,18 @@ thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
 byteArray :: (Bits a,Integral a) => Int -> a -> UArray Int Word8
 byteArray len n = listArray (0,(len-1)) bytes where
   bytes = map (\x -> (fromIntegral (n `shift` (-8*x)) .&. 255)) [0..(len-1)]
+
+eightByteArray :: Word64 -> UArray Int Word8
+eightByteArray = byteArray 8
+
+makeListInt :: (Bits a,Integral a) => [Word8] -> a
+makeListInt [] = 0
+makeListInt (n:ns) = ((makeListInt ns) .<<. 8) .|. (fromIntegral n)
+
+makeArrayInt :: (Bits a,Integral a) => UArray Int Word8 -> a
+makeArrayInt = makeListInt . elems
+
+diff1Related :: Wring -> Wring -> Word64 -> Word64
+diff1Related w0 w1 pt = ct0 .^. ct1 where
+  ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
+  ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
