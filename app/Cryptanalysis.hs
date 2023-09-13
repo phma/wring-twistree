@@ -11,9 +11,22 @@ module Cryptanalysis
   , key6_1
   , key6_2
   , key6_3
+  , wring96_0
+  , wring96_1
+  , wring96_2
+  , wring96_3
+  , wring30_0
+  , wring30_1
+  , wring30_2
+  , wring30_3
+  , wring6_0
+  , wring6_1
+  , wring6_2
+  , wring6_3
   , thueMorse
   , byteArray
   , diff1Related
+  , diffRelated
   ) where
 
 import Data.Word
@@ -48,6 +61,19 @@ key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
 
+wring96_0 = keyedWring $ fromString key96_0
+wring96_1 = keyedWring $ fromString key96_1
+wring96_2 = keyedWring $ fromString key96_2
+wring96_3 = keyedWring $ fromString key96_3
+wring30_0 = keyedWring $ fromString key30_0
+wring30_1 = keyedWring $ fromString key30_1
+wring30_2 = keyedWring $ fromString key30_2
+wring30_3 = keyedWring $ fromString key30_3
+wring6_0 = keyedWring $ fromString key6_0
+wring6_1 = keyedWring $ fromString key6_1
+wring6_2 = keyedWring $ fromString key6_2
+wring6_3 = keyedWring $ fromString key6_3
+
 log2 :: Integral a => a -> Int
 log2 0 = (-1)
 log2 (-1) = (-1771476585)
@@ -81,3 +107,6 @@ diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
+
+diffRelated :: Wring -> Wring -> [Word64]
+diffRelated w0 w1 = map ((diff1Related w0 w1) . ((thueMorse 64) *)) [0..]
