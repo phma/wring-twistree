@@ -2,6 +2,7 @@ module Stats
   ( Histo (..)
   , emptyHisto
   , hCount
+  , hCountBits
   , χ²
   , χ²bit
   , sacCountBit
@@ -10,6 +11,7 @@ module Stats
   ) where
 
 import Data.Bits
+import Data.Word
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
@@ -22,6 +24,14 @@ emptyHisto n = Histo (Seq.replicate n 0)
 
 hCount :: Integral a => Histo -> a -> Histo
 hCount (Histo h) n = Histo (Seq.adjust' (+1) (fromIntegral n) h)
+
+listBits :: Word64 -> [Int]
+listBits 0 = []
+listBits n = b:listBits (clearBit n b) where
+  b = countTrailingZeros n
+
+hCountBits :: Histo -> Word64 -> Histo
+hCountBits h n = foldl' hCount h (listBits n)
 
 χ² :: Histo -> Double
 χ² (Histo h) = sum $ map (\x -> ((fromIntegral x) - mean) ^(2::Int) / mean) (toList h)
