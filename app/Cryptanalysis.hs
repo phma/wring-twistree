@@ -27,6 +27,8 @@ module Cryptanalysis
   , byteArray
   , diff1Related
   , diffRelated
+  , relatedKeyHisto
+  , plaintextHisto
   ) where
 
 import Data.Word
@@ -40,6 +42,7 @@ import Control.Parallel.Strategies
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Cryptography.Wring
+import Stats
 
 key96_0 = "Водворетраванатраведрова.Нерубидрованатраведвора!"
 key96_1 = "Водворетраванатраведрова.Нерубидрованатраведвора "
@@ -60,6 +63,8 @@ key6_0 = "aerate"
 key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
+
+samples = 256
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
@@ -110,3 +115,11 @@ diff1Related w0 w1 pt = ct0 .^. ct1 where
 
 diffRelated :: Wring -> Wring -> [Word64]
 diffRelated w0 w1 = map ((diff1Related w0 w1) . ((thueMorse 64) *)) [0..]
+
+plaintextHisto :: Histo
+plaintextHisto = foldl' hCountBits (emptyHisto 64)
+  (take samples (map ((thueMorse 64) *) [0..]))
+
+relatedKeyHisto :: Wring -> Wring -> Histo
+relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
+  (take samples (diffRelated w0 w1))
