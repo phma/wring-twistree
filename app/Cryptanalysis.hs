@@ -30,6 +30,7 @@ module Cryptanalysis
   , relatedKeyHisto
   , plaintextHisto
   , sixStats
+  , relatedKey
   ) where
 
 import Data.Word
@@ -137,3 +138,30 @@ sixStats w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
     s13 = relatedKeyStat w1 w3
     s03 = relatedKeyStat w0 w3
     s12 = relatedKeyStat w1 w2
+
+tellStat :: Double -> String
+-- 0.635 and 1.456 are 1% tails at 64 degrees of freedom, divided by 64.
+tellStat stat
+  | stat < 0.635 = "Too smooth. They look like a low-discrepancy sequence."
+  | stat < 1.456 = "The differences look random."
+  | otherwise    = "Too much variation. Check for outliers."
+
+relatedKey4 :: Wring -> Wring -> Wring -> Wring -> IO ()
+relatedKey4 w0 w1 w2 w3 = do
+  let sixS = sixStats w0 w1 w2 w3
+  putStrLn (show sixS)
+  putStrLn ("0,1: " ++ tellStat (sixS !! 0))
+  putStrLn ("2,3: " ++ tellStat (sixS !! 1))
+  putStrLn ("0,2: " ++ tellStat (sixS !! 2))
+  putStrLn ("1,3: " ++ tellStat (sixS !! 3))
+  putStrLn ("0,3: " ++ tellStat (sixS !! 4))
+  putStrLn ("1,2: " ++ tellStat (sixS !! 5))
+
+relatedKey :: IO ()
+relatedKey = do
+  putStrLn "96-byte key, 8-byte data:"
+  relatedKey4 wring96_0 wring96_1 wring96_2 wring96_3
+  putStrLn "30-byte key, 8-byte data:"
+  relatedKey4 wring30_0 wring30_1 wring30_2 wring30_3
+  putStrLn "6-byte key, 8-byte data:"
+  relatedKey4 wring6_0 wring6_1 wring6_2 wring6_3

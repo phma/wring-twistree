@@ -5,6 +5,7 @@ import Cryptography.WringTwistree.KeySchedule
 import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
+import Cryptanalysis
 import Text.Printf
 import Data.List.Split
 import Data.Word
@@ -81,7 +82,9 @@ decryptFile key cipherfile plainfile = do
 
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
-  otherwise -> putStrLn "No cryptanalyses defined yet"
+  "relkey"  -> relatedKey
+  otherwise -> putStrLn ("Available cryptanalyses are:\n" ++
+    "relkey  Related-key cryptanalysis")
 
 data WtOpt
   = Infile String
