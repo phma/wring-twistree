@@ -92,5 +92,5 @@ compress3 sbox buf0 buf1 buf2 sboxalt = compress sbox buf sboxalt where
   (beg0,end0) = bounds buf0
   (beg1,end1) = bounds buf1
   (beg2,end2) = bounds buf2
-  len = end0 + end1 + end2 + 2 - beg0 - beg1 - beg2
+  len = end0 + end1 + end2 + 3 - beg0 - beg1 - beg2
   buf = listArray (0,len-1) (elems buf0 ++ elems buf1 ++ elems buf2)
