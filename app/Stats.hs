@@ -4,7 +4,7 @@ module Stats
   , hCount
   , hCountBits
   , χ²
-  , χ²bit
+  , binomial
   , sacCountBit
   , bitFold
   , sacStats
@@ -39,9 +39,16 @@ hCountBits h n = foldl' hCount h (listBits n)
 
 -- Use this if the histo bars count one-bits and half of the n trials should
 -- yield one.
-χ²bit :: Histo -> Int -> Double
-χ²bit (Histo h) n = sum $ map (\x -> ((fromIntegral x) - mean) ^(2::Int) / mean) (toList h)
-  where mean = fromIntegral n / 2 :: Double
+-- Each bar is a binomial random variable with p=q=1/2. The mean is half the
+-- number of trials, and the variance is half the mean. Returns what should be
+-- a nearly normal random number with μ=0 and σ=1.
+binomial :: Histo -> Int -> Double
+binomial (Histo h) n = (sum $ map
+  (\x -> ((fromIntegral x) - mean) ^(2::Int) / sdev) (toList h))
+  / fromIntegral (length h)
+  where
+    mean = fromIntegral n / 2 :: Double
+    sdev = mean/2
 
 squareWave :: Int -> [Int]
 squareWave n = map ((.&. (1::Int)) . (`shift` (-n))) [0..]
