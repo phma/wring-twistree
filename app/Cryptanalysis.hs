@@ -29,6 +29,7 @@ module Cryptanalysis
   , diffRelated
   , relatedKeyHisto
   , plaintextHisto
+  , sixStats
   ) where
 
 import Data.Word
@@ -64,7 +65,7 @@ key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
 
-samples = 256
+samples = 4096
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
@@ -123,3 +124,16 @@ plaintextHisto = foldl' hCountBits (emptyHisto 64)
 relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
   (take samples (diffRelated w0 w1))
+
+relatedKeyStat :: Wring -> Wring -> Double
+relatedKeyStat w0 w1 = binomial (relatedKeyHisto w0 w1) samples
+
+sixStats :: Wring -> Wring -> Wring -> Wring -> [Double]
+sixStats w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
+  [s01,s23,s02,s13,s03,s12] where
+    s01 = relatedKeyStat w0 w1
+    s23 = relatedKeyStat w2 w3
+    s02 = relatedKeyStat w0 w2
+    s13 = relatedKeyStat w1 w3
+    s03 = relatedKeyStat w0 w3
+    s12 = relatedKeyStat w1 w2
