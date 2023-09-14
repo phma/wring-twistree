@@ -47,7 +47,7 @@ library:
   - split
 
 executables:
-  WringTwistree-exe:
+  WringTwistree:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
