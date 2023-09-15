@@ -3,6 +3,34 @@ module Cryptography.Twistree
   , hashTriples
   ) where
 
+{-
+This hash function uses a double-tree construction, as shown in this drawing:
+
+                                                  2
+                               -------------------+-------------------
+               ----------------+---------------                      |
+       --------+--------               -------+---------             |
+   ----+----       ----+----       ----+----       ----+----       --+---
+ --+--   --+--   --+--   --+--   --+--   --+--   --+--   --+--   --+--  |
+-+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- -+- |
+4 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+--+-- --+-- --+-- --+-- --+-- --+-- --+-- --+-- --+-- --+-- --+-- --+-- |
+  ------+------     ------+------     ------+------     ------+------   |
+        ------------------+------------------                 -----+-----
+                          ---------------------+--------------------
+                                               3
+2 3
+-+-
+ H
+
+*   A block of the message to be hashed, including padding at the end.
+4   Binary representation of exp(4). One is used in the binary tree and the
+    other in the ternary tree.
+3   Output of the ternary tree
+2   Output of the binary tree
+H   Final hash output
+-}
+
 import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
