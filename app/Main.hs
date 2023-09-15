@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Cryptography.Wring
+import Cryptography.Twistree
 import Cryptography.WringTwistree.KeySchedule
 import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
@@ -79,6 +80,15 @@ decryptFile key cipherfile plainfile = do
   ciphertext <- readFileEager cipherfile
   let plaintext = decrypt wring ciphertext
   writeFileArray plainfile plaintext
+
+hashFile :: String -> String -> String -> IO ()
+hashFile key plainfile outfile = do
+  let twistree = keyedTwistree (fromString key)
+  plaintext <- readFileLazy plainfile
+  let hashtext = hash twistree plaintext
+  if null outfile
+    then putStrLn $ block16str $ elems hashtext
+    else writeFileArray outfile hashtext
 
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
@@ -177,7 +187,7 @@ doCommandLine parse = case action of
     Just Decrypt     -> decryptFile key infile outfile
     Just Test        -> testCompress
     Just (Analyze a) -> cryptanalyze a
-    Just Hash        -> putStrLn "Twistree hash is not yet implemented"
+    Just Hash        -> hashFile key infile outfile
     Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
     _                -> error "can't happen"
   where

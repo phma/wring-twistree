@@ -43,6 +43,7 @@ library:
   - arithmoi
   - bytestring
   - utf8-string
+  - parallel
   - mod
   - split
 
