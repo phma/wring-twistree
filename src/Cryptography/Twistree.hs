@@ -1,6 +1,10 @@
 module Cryptography.Twistree
-  ( hashPairs
+  ( Twistree
+  , linearTwistree
+  , keyedTwistree
+  , hashPairs
   , hashTriples
+  , hash
   ) where
 
 {-
@@ -34,11 +38,17 @@ H   Final hash output
 import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
+import Control.Parallel
 import Data.Word
 import Data.Bits
 import Data.Array.Unboxed
 import Data.Foldable (foldl')
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+
+data Twistree = Twistree
+  { sbox    :: UArray (Word8,Word8) Word8
+  } deriving Show
 
 compressPairs :: UArray (Word8,Word8) Word8 -> [UArray Int Word8] -> [UArray Int Word8]
 compressPairs _ [] = []
@@ -60,3 +70,19 @@ hashTriples :: UArray (Word8,Word8) Word8 -> [UArray Int Word8] -> UArray Int Wo
 hashTriples _ [] = undefined -- can't happen, there's always at least exp(4)
 hashTriples _ [x] = x
 hashTriples sbox x = hashTriples sbox (compressTriples sbox x)
+
+linearTwistree = Twistree linearSbox
+
+-- | Creates a Twistree with the given key.
+-- To convert a String to a ByteString, put "- utf8-string" in your
+-- package.yaml dependencies, import Data.ByteString.UTF8, and use
+-- fromString.
+keyedTwistree :: B.ByteString -> Twistree
+keyedTwistree key = Twistree sbox where
+  sbox = sboxes key
+
+hash :: Twistree -> BL.ByteString -> UArray Int Word8
+hash twistree stream = par h2 $ par h3 $ compress2 (sbox twistree) h2 h3 2 where
+  blocks = blockize stream
+  h2 = hashPairs (sbox twistree) (exp4_2adic : blocks)
+  h3 = hashTriples (sbox twistree) (exp4_base2 : blocks)
