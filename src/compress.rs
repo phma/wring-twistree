@@ -1,3 +1,8 @@
+// Module compress
+// This module is used in Twistree.
+// It compresses a vector of 64 or 96 bytes into 32, using three s-boxes in
+// an order specified by the sboxalt argument.
+
 extern crate lazy_static;
 use lazy_static::lazy_static;
 use crate::mix3::*;

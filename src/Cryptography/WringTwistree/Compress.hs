@@ -8,6 +8,11 @@ module Cryptography.WringTwistree.Compress
   , compress3
   ) where
 
+{- This module is used in Twistree.
+ - It compresses two or three 32-byte blocks into one, using three s-boxes in
+ - an order specified by the sboxalt argument.
+ -}
+
 import Data.Bits
 import Data.Word
 import Data.List (mapAccumR)

@@ -5,6 +5,11 @@ module Cryptography.WringTwistree.Blockize
   , blockize
   ) where
 
+{- This module is used in Twistree.
+ - It splits a lazy ByteString into blocks of 32 bytes, padding the last one
+ - with 0,1,2,... .
+ -}
+
 import Data.Bits
 import Data.Word
 import Data.Array.Unboxed

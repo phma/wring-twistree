@@ -1,3 +1,8 @@
+// Module blockize
+// This module is used in Twistree.
+// It splits a slice of bytes into 32-byte blocks, using part to hold the
+// partial block, and pads it with 0,1,2,... at the end.
+
 use crate::compress::*;
 
 // e⁴, in two binary representations, is prepended to the
