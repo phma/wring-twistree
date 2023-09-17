@@ -59,10 +59,10 @@ shift3    = listArray (0,7) [0x00,0x1d,0x3a,0x27,0x74,0x69,0x4e,0x53] :: UArray 
 invShift3 = listArray (0,7) [0x00,0xad,0x47,0xea,0x8e,0x23,0xc9,0x64] :: UArray Int Int
 
 dealInxB :: Int -> Int
-dealInxB n = ((n .&. 0x1f) `shiftL` 3) `xor` (shift3 ! ((n .&. 0xe0) `shiftR` 5))
+dealInxB n = ((n .&. 0x1f) .<<. 3) `xor` (shift3 ! ((n .&. 0xe0) .>>. 5))
 
 invDealInxB :: Int -> Int
-invDealInxB n = ((n .&. 0xf8) `shiftR` 3) `xor` (invShift3 ! (n .&. 0x07))
+invDealInxB n = ((n .&. 0xf8) .>>. 3) `xor` (invShift3 ! (n .&. 0x07))
 
 dealInx = dealInxB
 invDealInx = invDealInxB

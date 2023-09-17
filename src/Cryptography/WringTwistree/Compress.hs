@@ -33,13 +33,13 @@ relPrimes = listArray (blockSize,3*blockSize)
        [blockSize..3*blockSize])
 
 lfsr1 :: Word32 -> Word32
-lfsr1 n = xor ((n .&. 1) * 0x84802140) (shiftR n 1)
+lfsr1 n = xor ((n .&. 1) * 0x84802140) (n .>>. 1)
 
 lfsr :: UArray Word32 Word32
 lfsr = listArray (0,255) (map (\n -> (iterate lfsr1 (fromIntegral n)) !! 8) [0..255])
 
 backCrc1 :: Word32 -> Word32 -> Word32
-backCrc1 a b = (shiftR a 8) `xor` (lfsr ! (a .&. 255)) `xor` b
+backCrc1 a b = (a .>>. 8) `xor` (lfsr ! (a .&. 255)) `xor` b
 
 backCrcM :: Word32 -> Word8 -> (Word32,Word8)
 backCrcM a b = (c,(fromIntegral c)) where

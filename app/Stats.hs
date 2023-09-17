@@ -51,7 +51,7 @@ binomial (Histo h) n = (sum $ map
     sdev = mean/2
 
 squareWave :: Int -> [Int]
-squareWave n = map ((.&. (1::Int)) . (`shift` (-n))) [0..]
+squareWave n = map ((.&. (1::Int)) . (.>>. n)) [0..]
 
 squareWaveInt :: Int -> [Int]
 squareWaveInt n = map ((-1) ^) (squareWave n)
@@ -82,7 +82,7 @@ sacHistos' xs wid b
   | null bf   = []
   | otherwise = h:(sacHistos' xs wid (b+1))
   where bf = (bitFold xs b)
-        h = foldl' hCount (emptyHisto (shift 1 wid)) bf
+        h = foldl' hCount (emptyHisto (1 .<<. wid)) bf
 
 sacHistos :: (Integral a,Bits a) => [a] -> Int -> [Histo]
 sacHistos xs wid = sacHistos' xs wid 0

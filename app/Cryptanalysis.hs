@@ -88,9 +88,9 @@ log2 n = 1 + (log2 (n `div` 2))
 
 thueMorse_ :: Int -> Integer
 thueMorse_ 0 = 1
-thueMorse_ n = (shift ((shift 1 nbits) - 1 - (thueMorse_ (n-1))) nbits)
+thueMorse_ n = (((1 .<<. nbits) - 1 - (thueMorse_ (n-1))) .<<. nbits)
                + (thueMorse_ (n-1)) where
-  nbits = (shift 1 (n-1))
+  nbits = (1 .<<. (n-1))
 
 thueMorse :: Integral a => Int -> a
 -- Returns a Thue-Morse word of at least n bits ending in 1.
@@ -98,7 +98,7 @@ thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
 
 byteArray :: (Bits a,Integral a) => Int -> a -> UArray Int Word8
 byteArray len n = listArray (0,(len-1)) bytes where
-  bytes = map (\x -> (fromIntegral (n `shift` (-8*x)) .&. 255)) [0..(len-1)]
+  bytes = map (\x -> (fromIntegral (n .>>. (8*x)) .&. 255)) [0..(len-1)]
 
 eightByteArray :: Word64 -> UArray Int Word8
 eightByteArray = byteArray 8
