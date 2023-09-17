@@ -1,3 +1,5 @@
+use crate::compress::*;
+
 // e⁴, in two binary representations, is prepended to the
 // blocks being hashed, so that if the message is only one block,
 // two different compressed blocks are combined at the end.
@@ -25,3 +27,22 @@ pub const EXP4_BASE2: [u8;32]=
 // ...a4fa4fa4fa4fa500 = 4096/720 = 05.b05b05b05b05b0...
 //    ----------------      ...     -----------------
 // ...eb3a1a72388e414d =  exp(4)  = 36.99205c4e74b0cf...
+
+pub fn blockize(bs:&[u8], part:&mut Vec<u8>) -> Vec<Vec<u8>> {
+  let mut ret:Vec<Vec<u8>> = Vec::new();
+  let mut i:usize=0;
+  if part.len()+bs.len()>=BLOCKSIZE {
+    i=BLOCKSIZE-part.len();
+    part.extend_from_slice(&bs[0..i]);
+    ret.push(part.clone());
+    part.clear();
+  }
+  while bs.len()-i>=BLOCKSIZE {
+    part.extend_from_slice(&bs[i..i+BLOCKSIZE]);
+    ret.push(part.clone());
+    part.clear();
+    i+=BLOCKSIZE;
+  }
+  part.extend_from_slice(&bs[i..bs.len()]);
+  ret
+}
