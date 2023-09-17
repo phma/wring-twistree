@@ -66,7 +66,7 @@ roundEncrypt :: (Ix a,Integral a,Bits a) =>
 roundEncrypt rprime sbox xornary buf rond = i4 where
   bnd = bounds buf
   xornrond = xorn rond
-  i1 = mix3Parts buf (fromIntegral rprime)
+  i1 = mix3Parts buf rprime
   i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i1)
   i3 = rotBitcount i2 1
   i4 = listArray bnd $ zipWith (+) (elems i3)
@@ -83,7 +83,7 @@ roundDecrypt rprime sbox xornary buf rond = i4 where
        (map (xor xornrond) (elems xornary))
   i2 = rotBitcount i1 (-1)
   i3 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i2)
-  i4 = mix3Parts i3 (fromIntegral rprime)
+  i4 = mix3Parts i3 rprime
 
 {-# SPECIALIZE encrypt :: Wring -> UArray Int Word8 -> UArray Int Word8 #-}
 encrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8

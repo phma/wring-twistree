@@ -10,7 +10,7 @@ module Cryptography.WringTwistree.Compress
 
 import Data.Bits
 import Data.Word
-import Data.List
+import Data.List (mapAccumR)
 import Data.Array.Unboxed
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
@@ -29,7 +29,7 @@ relPrimes :: UArray Word16 Word16
 -- 3/4 of this is waste. The numbers are Word16, because the last number is
 -- 19, and the program will multiply 31 by 19, which doesn't fit in Word8.
 relPrimes = listArray (blockSize,3*blockSize)
-  (map (fromIntegral . findMaxOrder . fromIntegral . (`div` 3))
+  (map (fromIntegral . findMaxOrder . (`div` 3))
        [blockSize..3*blockSize])
 
 lfsr1 :: Word32 -> Word32
@@ -58,7 +58,7 @@ roundCompress sbox buf sboxalt = i4 where
   len = snd bnd + 1
   rprime = relPrimes ! (fromIntegral len)
   i1 = mix3Parts buf (fromIntegral rprime)
-  i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral sboxalt) cycle3) (elems i1)
+  i2 = listArray bnd $ map (sbox !) $ zip (drop sboxalt cycle3) (elems i1)
   i3 = rotBitcount i2 twistPrime
   i4 = listArray (0,len-5) $ backCrc (elems i3)
 

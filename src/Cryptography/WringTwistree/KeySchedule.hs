@@ -17,7 +17,6 @@ module Cryptography.WringTwistree.KeySchedule
 
 import Data.Bits
 import Data.Word
-import Data.List
 import Data.Foldable (toList,foldl')
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)), update)
@@ -32,7 +31,7 @@ extendKey_ :: [Word8] -> Int -> Int -> [Word16]
 extendKey_ str i n
   | i >= n = []
   | otherwise = (map (+ (fromIntegral (256*i))) $ map fromIntegral str)
-		++ (extendKey_ str (i+1) n)
+                ++ (extendKey_ str (i+1) n)
 
 extendKey :: B.ByteString -> [Word16]
 -- Extends the key, if it isn't empty, to be at least as long as 384 words.
@@ -42,7 +41,7 @@ extendKey str = extendKey_ (B.unpack str) 0 n where
 mul65537 :: Word16 -> Word16 -> Word16
 mul65537 a b = fromIntegral ((((fromIntegral a)+1) * 
                               ((fromIntegral b)+1))
-			     `mod` (65537::Word64) - 1)
+                             `mod` (65537::Word64) - 1)
 -- 65537::Word32 gives the wrong answer for mul65537 65535 65535,
 -- since 65536*65536 overflows a Word32.
 
@@ -51,8 +50,8 @@ alter :: Seq.Seq Word16 -> (Word16,Int) -> Seq.Seq Word16
 alter subkey (keyWord,inx) = update inx newval subkey where
   i1 = mul65537 (Seq.index subkey inx) keyWord
   i2 = i1 + ((Seq.index subkey (mod (inx+59) 96)) `xor`
-	     (Seq.index subkey (mod (inx+36) 96)) `xor`
-	     (Seq.index subkey (mod (inx+62) 96)))
+             (Seq.index subkey (mod (inx+36) 96)) `xor`
+             (Seq.index subkey (mod (inx+62) 96)))
   newval = rotate i2 8
 
 keySchedule :: B.ByteString -> Seq.Seq Word16

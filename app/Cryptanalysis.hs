@@ -92,7 +92,7 @@ thueMorse_ n = (shift ((shift 1 nbits) - 1 - (thueMorse_ (n-1))) nbits)
                + (thueMorse_ (n-1)) where
   nbits = (shift 1 (n-1))
 
-thueMorse :: (Bits a,Integral a) => Int -> a
+thueMorse :: Integral a => Int -> a
 -- Returns a Thue-Morse word of at least n bits ending in 1.
 thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
 
