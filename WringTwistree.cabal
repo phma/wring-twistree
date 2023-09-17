@@ -84,9 +84,12 @@ test-suite WringTwistree-test
   ghc-options: -O2 -fllvm -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       WringTwistree
+    , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , utf8-string
   default-language: Haskell2010

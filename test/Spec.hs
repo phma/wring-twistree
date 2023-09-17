@@ -5,13 +5,19 @@ import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
 import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule
+import Cryptography.Wring
+import Cryptography.Twistree
 import qualified Data.Sequence as Seq
 import Data.Foldable (toList)
+import Data.Array.Unboxed
+import Data.ByteString.UTF8 (fromString)
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [properties, unitTests]
+tests = testGroup "Tests" [properties, unitTests, testVectors]
 
 properties :: TestTree
 properties = testGroup "Properties" [qcProps]
@@ -39,4 +45,10 @@ unitTests = testGroup "Unit tests"
       (length $ takeWhile (/= 0) $ tail seq40504) @?= 65535
   , testCase "mul65537 65535" $
       (mul65537 65535 65535) @?= 0
+  ]
+
+testVectors = testGroup "Test vectors"
+  [ testCase "lin8nulls" $
+      (encrypt linearWring (listArray (0,7) [0,0,0,0,0,0,0,0]))
+      @?= listArray (0,7::Int) [0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc]
   ]

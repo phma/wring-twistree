@@ -145,4 +145,22 @@ impl Wring {
   }
 }
 
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_vectors() {
+    let zero8=[0u8; 8];
+    let mut zero8lin:Vec<u8> = Vec::new();
+    zero8lin.extend_from_slice(&zero8);
+    let zero8lin_ref=[0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc];
+    let mut linear_wring=Wring::new();
+    linear_wring.set_key_linear();
+    linear_wring.encrypt(&mut zero8lin);
+    assert_eq!(&zero8lin,&zero8lin_ref);
+    }
+
+}
+
 }

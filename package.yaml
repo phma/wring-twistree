@@ -78,4 +78,7 @@ tests:
     - tasty
     - tasty-hunit
     - tasty-quickcheck
+    - array
     - containers
+    - bytestring
+    - utf8-string
