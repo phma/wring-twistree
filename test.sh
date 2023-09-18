@@ -6,10 +6,16 @@ tempname=temp$$.
 key="keyκλειςמפתחключ"
 allpass=0
 
-for nbytes in 8 9 11 16 25 27 32 49 64 81 121 125 128 243 256 343 512 625 729 \
-	      1024 1331 2048 2187 2401 3125 4096 6561 8192 14641 15625 16384 16807 \
-	      19683 32768 59049 65536 78125 117649 131072 161051 177147 262144 \
-	      390625 524288 531441
+# This list of numbers consists of powers of primes. It includes
+# * numbers congruent to 0, 1, and 2 mod 3, to test all numbers of leftover bytes
+#   in mix3Bytes;
+# * powers of 3, at which the number of rounds increments; and
+# * numbers congruent to -1, 0, and 1 mod 32, to test off-by-one conditions
+#   in Twistree.
+for nbytes in 8 9 11 16 25 27 31 32 49 64 81 121 125 128 243 256 343 512 625 729 \
+	      961 1024 1331 2048 2187 2401 3125 4096 6561 8192 14641 15625 16384 \
+	      16807 19683 29791 32768 59049 65536 78125 117649 131072 161051 \
+	      177147 262144 390625 524288 531441
 do
   tn=${tempname}${nbytes}.
   dd if=/dev/urandom of=${tn}orig bs=1 count=$nbytes
