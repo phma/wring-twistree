@@ -81,8 +81,8 @@ So it spends 100 ms in compress2 for every 132 ms in compress3, or 43% and 57%.
 Profiling shows 42.5% and 56.0%, with the rest being blockize.
 Hashing 1 MiB takes 12.5 s on my box, using two threads, one for the 2-tree and
 one for the 3-tree. The 3-tree takes longer, so that's 16384 compress3 calls
-(ignoring the few compress2 calls in the 3-tree) in 12.5 s, or 763 ms for compress3
-and 289 ms for compress2.
+(ignoring the few compress2 calls in the 3-tree) in 12.5 s, or 763 µs for compress3
+and 289 µs for compress2.
 -}
 
 compress2 ::
