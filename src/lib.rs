@@ -177,4 +177,66 @@ pub struct Twistree {
   tree3: Vec<Vec<u8>>,
 } // Methods: initialize, update, finalize
 
+impl Twistree {
+  pub fn new() -> Twistree {
+    Twistree { sbox: [[0u8; 256]; 3], tree2: Vec::new(), tree3: Vec::new() }
+  }
+
+  pub fn set_key_linear(&mut self) {
+    for i in 0..3 {
+      for j in 0..256 {
+	self.sbox[i][j]=(j as u8).rotate_left((3*i+1) as u32);
+      }
+    }
+  }
+
+  pub fn set_key(&mut self,str:&[u8]) {
+    sboxes(str,&mut self.sbox);
+  }
+
+  pub fn initialize(&mut self) {
+    // Check that the Twistree has been keyed
+    let mut sum:u32=0;
+    for i in 0..3 {
+      for j in 0..256 {
+	sum+=self.sbox[i][j] as u32;
+      }
+    }
+    if sum!=3*255*128 {
+      panic!("call set_key before initialize");
+    }
+    // Check that the Twistree is empty
+    if self.tree2.len()>0 || self.tree3.len()>0 {
+      panic!("call finalize before calling initialize again");
+    }
+    self.tree2.push(Vec::new());
+    self.tree3.push(Vec::new());
+    self.tree2[0].extend_from_slice(&EXP4_2ADIC[..]);
+    self.tree3[0].extend_from_slice(&EXP4_BASE2[..]);
+  }
+
+  fn compress_pairs_triples(&mut self) {
+    let mut i:usize=0;
+    while self.tree2[i].len()>1 {
+      if i+1==self.tree2.len() {
+	self.tree2.push(Vec::new());
+      }
+      compress(&self.sbox,&mut self.tree2[i],0);
+      let (extend_from, mut to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
+      to_extend[0].extend_from_slice(&*extend_from[0]);
+      self.tree2[i].clear();
+    }
+    i=0;
+    while self.tree3[i].len()>2 {
+      if i+1==self.tree3.len() {
+	self.tree3.push(Vec::new());
+      }
+      compress(&self.sbox,&mut self.tree3[i],1);
+      let (extend_from, mut to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
+      to_extend[0].extend_from_slice(&*extend_from[0]);
+      self.tree3[i].clear();
+    }
+  }
+}
+
 }
