@@ -175,11 +175,15 @@ pub struct Twistree {
   pub sbox: [[u8; 256]; 3],
   tree2: Vec<Vec<u8>>,
   tree3: Vec<Vec<u8>>,
+  partial_block: Vec<u8>,
 } // Methods: initialize, update, finalize
 
 impl Twistree {
   pub fn new() -> Twistree {
-    Twistree { sbox: [[0u8; 256]; 3], tree2: Vec::new(), tree3: Vec::new() }
+    Twistree { sbox: [[0u8; 256]; 3],
+	       tree2: Vec::new(),
+	       tree3: Vec::new(),
+	       partial_block: Vec::new() }
   }
 
   pub fn set_key_linear(&mut self) {
@@ -206,7 +210,7 @@ impl Twistree {
       panic!("call set_key before initialize");
     }
     // Check that the Twistree is empty
-    if self.tree2.len()>0 || self.tree3.len()>0 {
+    if self.tree2.len()>0 || self.tree3.len()>0 || self.partial_block.len()>0 {
       panic!("call finalize before calling initialize again");
     }
     self.tree2.push(Vec::new());
@@ -222,7 +226,7 @@ impl Twistree {
 	self.tree2.push(Vec::new());
       }
       compress(&self.sbox,&mut self.tree2[i],0);
-      let (extend_from, mut to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
+      let (extend_from, to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree2[i].clear();
     }
@@ -232,9 +236,22 @@ impl Twistree {
 	self.tree3.push(Vec::new());
       }
       compress(&self.sbox,&mut self.tree3[i],1);
-      let (extend_from, mut to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
+      let (extend_from, to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree3[i].clear();
+    }
+  }
+
+  pub fn update(&mut self,data:&[u8]) {
+    // Check that the Twistree has been initialized
+    if self.tree2.len()==0 || self.tree3.len()==0 {
+      panic!("call initialize before update");
+    }
+    let blocks=blockize(data,&mut self.partial_block);
+    for i in 0..blocks.len() {
+      self.tree2[0].extend(&blocks[i]);
+      self.tree3[0].extend(&blocks[i]);
+      self.compress_pairs_triples();
     }
   }
 }
