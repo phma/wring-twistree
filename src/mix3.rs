@@ -1,5 +1,5 @@
 // Module mix3
-// This module is used in Wring.
+// This module is used in Wring and Twistree.
 // This module splits a buffer (a slice of bytes) into three equal parts, with
 // 0, 1, or 2 bytes left over, and mixes them as follows:
 //

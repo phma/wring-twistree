@@ -1,9 +1,7 @@
 #![allow(arithmetic_overflow)]
 
-// Used by wring
-pub mod mix3;
-
 // Used by both wring and twistree
+pub mod mix3;
 pub mod rotbitcount;
 pub mod permute;
 pub mod keyschedule;
@@ -11,13 +9,13 @@ pub mod sboxes;
 
 // Used by twistree
 pub mod blockize;
-pub mod compress;
+pub mod compress; // uses mix3 and rotbitcount
 
 pub mod wring {
 
 use crate::mix3::*;
 use crate::rotbitcount::*;
-use crate::sboxes::*;
+use crate::sboxes::*; // uses keyschedule and permute
 
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;
@@ -162,5 +160,21 @@ mod tests {
     }
 
 }
+
+}
+
+pub mod twistree {
+
+use crate::sboxes::*; // uses keyschedule and permute
+use crate::blockize::*;
+use crate::compress::*; // uses mix3 and rot_bitcount
+
+
+#[derive(Clone)]
+pub struct Twistree {
+  pub sbox: [[u8; 256]; 3],
+  tree2: Vec<Vec<u8>>,
+  tree3: Vec<Vec<u8>>,
+} // Methods: initialize, update, finalize
 
 }
