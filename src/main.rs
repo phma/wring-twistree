@@ -2,6 +2,7 @@ use wring_twistree::mix3::*;
 use wring_twistree::rotbitcount::*;
 use wring_twistree::keyschedule::*;
 use wring_twistree::wring::*;
+use wring_twistree::twistree::*;
 use wring_twistree::blockize::*;
 use wring_twistree::compress::*;
 use num_bigint::BigUint;
@@ -79,6 +80,17 @@ fn test_compress() {
   printvec(&buf);
 }
 
+fn test_hash() {
+  let part0=[105;8];
+  let part1=[150;9];
+  let mut twistree:Twistree=Twistree::new();
+  twistree.set_key(&[]);
+  twistree.initialize();
+  twistree.update(&part0);
+  twistree.update(&part1);
+  printvec(&twistree.finalize());
+}
+
 fn test_new_code() {
   let mut buf:Vec<u8> = Vec::new();
   let mut src=vec!(0u8; 16);
@@ -106,7 +118,7 @@ fn test_new_code() {
   key_schedule("aerate".as_bytes(),&mut sched);
   //printvec16(&sched);
   //encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
-  test_compress();
+  test_hash();
 }
 
 fn main() {

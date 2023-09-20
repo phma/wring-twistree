@@ -90,6 +90,13 @@ hashFile key plainfile outfile = do
     then putStrLn $ block16str $ elems hashtext
     else writeFileArray outfile hashtext
 
+testHash :: IO ()
+testHash = do
+  let twistree = keyedTwistree (fromString "")
+  let plaintext = (take 8 (repeat 105)) ++ (take 9 (repeat 150))
+  let hashtext = hash twistree $ BL.pack plaintext
+  putStrLn $ block16str $ elems hashtext
+
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
   "relkey"  -> relatedKey
@@ -185,7 +192,7 @@ doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt     -> encryptFile key infile outfile
     Just Decrypt     -> decryptFile key infile outfile
-    Just Test        -> testCompress
+    Just Test        -> testHash
     Just (Analyze a) -> cryptanalyze a
     Just Hash        -> hashFile key infile outfile
     Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
