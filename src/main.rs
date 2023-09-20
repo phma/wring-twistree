@@ -81,8 +81,8 @@ fn test_compress() {
 }
 
 fn test_hash() {
-  let part0=[105;8];
-  let part1=[150;9];
+  let part0=[105;105];
+  let part1=[150;150];
   let mut twistree:Twistree=Twistree::new();
   twistree.set_key(&[]);
   twistree.initialize();

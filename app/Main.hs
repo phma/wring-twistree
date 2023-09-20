@@ -93,7 +93,7 @@ hashFile key plainfile outfile = do
 testHash :: IO ()
 testHash = do
   let twistree = keyedTwistree (fromString "")
-  let plaintext = (take 8 (repeat 105)) ++ (take 9 (repeat 150))
+  let plaintext = (take 105 (repeat 105)) ++ (take 150 (repeat 150))
   let hashtext = hash twistree $ BL.pack plaintext
   putStrLn $ block16str $ elems hashtext
 
