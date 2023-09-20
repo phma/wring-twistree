@@ -221,23 +221,23 @@ impl Twistree {
 
   fn compress_pairs_triples(&mut self) {
     let mut i:usize=0;
-    while self.tree2[i].len()>1 {
+    while self.tree2[i].len()>BLOCKSIZE {
       if i+1==self.tree2.len() {
 	self.tree2.push(Vec::new());
       }
       compress(&self.sbox,&mut self.tree2[i],0);
-      let (extend_from, to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
+      let (extend_from, to_extend) = self.tree2[i..(i+2)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree2[i].clear();
       i=i+1;
     }
     i=0;
-    while self.tree3[i].len()>2 {
+    while self.tree3[i].len()>2*BLOCKSIZE {
       if i+1==self.tree3.len() {
 	self.tree3.push(Vec::new());
       }
       compress(&self.sbox,&mut self.tree3[i],1);
-      let (extend_from, to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
+      let (extend_from, to_extend) = self.tree3[i..(i+2)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree3[i].clear();
       i=i+1;
@@ -247,16 +247,16 @@ impl Twistree {
   fn finalize_pairs_triples(&mut self) {
     for i in 0..self.tree2.len() {
       compress(&self.sbox,&mut self.tree2[i],0);
-      if i+1==self.tree2.len() {
-	let (extend_from, to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
+      if i+1<self.tree2.len() {
+	let (extend_from, to_extend) = self.tree2[i..(i+2)].split_at_mut(1);
 	to_extend[0].extend_from_slice(&*extend_from[0]);
 	self.tree2[i].clear();
       }
     }
     for i in 0..self.tree3.len() {
       compress(&self.sbox,&mut self.tree3[i],1);
-      if i+1==self.tree2.len() {
-	let (extend_from, to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
+      if i+1<self.tree3.len() {
+	let (extend_from, to_extend) = self.tree3[i..(i+2)].split_at_mut(1);
 	to_extend[0].extend_from_slice(&*extend_from[0]);
 	self.tree3[i].clear();
       }
