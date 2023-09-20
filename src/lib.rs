@@ -176,7 +176,7 @@ pub struct Twistree {
   tree2: Vec<Vec<u8>>,
   tree3: Vec<Vec<u8>>,
   partial_block: Vec<u8>,
-} // Methods: initialize, update, finalize
+}
 
 impl Twistree {
   pub fn new() -> Twistree {
@@ -229,6 +229,7 @@ impl Twistree {
       let (extend_from, to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree2[i].clear();
+      i=i+1;
     }
     i=0;
     while self.tree3[i].len()>2 {
@@ -239,6 +240,26 @@ impl Twistree {
       let (extend_from, to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
       to_extend[0].extend_from_slice(&*extend_from[0]);
       self.tree3[i].clear();
+      i=i+1;
+    }
+  }
+
+  fn finalize_pairs_triples(&mut self) {
+    for i in 0..self.tree2.len() {
+      compress(&self.sbox,&mut self.tree2[i],0);
+      if i+1==self.tree2.len() {
+	let (extend_from, to_extend) = self.tree2[i..(i+1)].split_at_mut(1);
+	to_extend[0].extend_from_slice(&*extend_from[0]);
+	self.tree2[i].clear();
+      }
+    }
+    for i in 0..self.tree3.len() {
+      compress(&self.sbox,&mut self.tree3[i],1);
+      if i+1==self.tree2.len() {
+	let (extend_from, to_extend) = self.tree3[i..(i+1)].split_at_mut(1);
+	to_extend[0].extend_from_slice(&*extend_from[0]);
+	self.tree3[i].clear();
+      }
     }
   }
 
@@ -253,6 +274,24 @@ impl Twistree {
       self.tree3[0].extend(&blocks[i]);
       self.compress_pairs_triples();
     }
+  }
+
+  pub fn finalize(&mut self) -> Vec<u8> {
+    // Check that the Twistree has been initialized
+    if self.tree2.len()==0 || self.tree3.len()==0 {
+      panic!("call initialize before update");
+    }
+    let last_block=pad(&mut self.partial_block);
+    self.tree2[0].extend(&last_block);
+    self.tree3[0].extend(&last_block);
+    self.compress_pairs_triples();
+    self.finalize_pairs_triples();
+    let mut fruit=self.tree2.swap_remove(self.tree2.len()-1);
+    fruit.extend(self.tree3.swap_remove(self.tree3.len()-1));
+    self.tree2.clear();
+    self.tree3.clear();
+    compress(&self.sbox,&mut fruit,2);
+    fruit
   }
 }
 
