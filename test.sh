@@ -21,6 +21,8 @@ do
   dd if=/dev/urandom of=${tn}orig bs=1 count=$nbytes
   stack run -- -k $key -e ${tn}orig -o ${tn}he
   cargo run -- -k $key -e ${tn}orig -o ${tn}re
+  stack run -- -k $key -H ${tn}orig -o ${tn}hh
+  cargo run -- -k $key -h ${tn}orig -o ${tn}rh
   stack run -- -k $key -d ${tn}he -o ${tn}hehd
   cargo run -- -k $key -d ${tn}he -o ${tn}herd
   stack run -- -k $key -d ${tn}re -o ${tn}rehd
@@ -29,7 +31,8 @@ do
   diff ${tn}orig ${tn}herd >/dev/null; same1=$?
   diff ${tn}orig ${tn}rehd >/dev/null; same2=$?
   diff ${tn}orig ${tn}rerd >/dev/null; same3=$?
-  same=`expr $same0 \| $same1 \| $same2 \| $same3`
+  diff ${tn}hh ${tn}rh >/dev/null; same4=$?
+  same=`expr $same0 \| $same1 \| $same2 \| $same3 \| $same4`
   # expr says 1 is true, sh says 0 is true
   if [ $same = 0 ]
   then
