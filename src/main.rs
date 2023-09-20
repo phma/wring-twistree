@@ -46,6 +46,8 @@ struct Cli {
   decrypt: bool,
   #[clap(short,long,group="action")]
   test: bool,
+  #[clap(short,long,group="action")]
+  hash: bool,
   #[clap(short,long)]
   key: Option<String>,
   #[clap(short,long)]
@@ -89,6 +91,28 @@ fn test_hash() {
   twistree.update(&part0);
   twistree.update(&part1);
   printvec(&twistree.finalize());
+}
+
+fn hash_file(key:&str, plainname:&str, outname:&str) -> io::Result<()> {
+  let mut plainfile=File::open(plainname)?;
+  let mut buffer:[u8;1024]=[0;1024];
+  let mut twistree=Twistree::new();
+  twistree.set_key(key.as_bytes());
+  twistree.initialize();
+  loop {
+    let nread=plainfile.read(&mut buffer)?;
+    if nread==0 {break;}
+    twistree.update(&buffer[0..nread]);
+  }
+  plainfile.sync_all()?;
+  let hash=twistree.finalize();
+  if outname.len()==0 {
+    printvec(&hash);
+  } else {
+    let mut outfile=File::create(outname)?;
+    outfile.write_all(&hash)?;
+  }
+  Ok(())
 }
 
 fn test_new_code() {
@@ -155,6 +179,17 @@ fn main() {
       }
     } else {
       println!("Please specify file to decrypt");
+    }
+  }
+  if args.hash {
+    if input.len()>0 {
+      if output.len()>0 {
+	hash_file(&key,&input,&output).expect("Can't hash file");
+      } else {
+	hash_file(&key,&input,&"").expect("Can't hash file");
+      }
+    } else {
+      println!("Please specify file to hash");
     }
   }
   if args.test {
