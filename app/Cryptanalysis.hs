@@ -120,14 +120,14 @@ diffRelated w0 w1 = map ((diff1Related w0 w1) . ((thueMorse 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
-  (take samples (map ((thueMorse 64) *) [0..]))
+  (take (div samples 2) (map ((thueMorse 64) *) [0..]))
 
 relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
-  (take samples (diffRelated w0 w1))
+  (take (div samples 2) (diffRelated w0 w1))
 
 relatedKeyStat :: Wring -> Wring -> Double
-relatedKeyStat w0 w1 = binomial (relatedKeyHisto w0 w1) samples
+relatedKeyStat w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
 
 sixStats :: Wring -> Wring -> Wring -> Wring -> [Double]
 sixStats w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
