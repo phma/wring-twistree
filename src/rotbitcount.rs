@@ -18,6 +18,16 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   let rotcount = (bitcount*multmod)%(src.len()*8);
   let byte = rotcount>>3;
   let bit = rotcount&7;
+  // The number of bit patterns where bit==0 tends to 1/8 of them:
+  // 1/128, 1609/8192, 45967/524288, ...
+  // This if-statement is vulnerable to a timing attack that can leak 0.192645
+  // bit for each round where bit>0 and 3 bits for each round where bit==0,
+  // for an average of 0.543564 bit per round. The leaked info is probably
+  // not of much use to Eve, and for large messages is tiny compared to the
+  // size of the message.
+  //
+  // This leak may be present in the Haskell code, depending on the processor
+  // and the LLVM or C-- compiler.
   if bit>0 {
     for i in 0..dst.len() {
       dst[i]=(src[(i+src.len()-byte)  %src.len()]<<bit) |

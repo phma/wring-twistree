@@ -26,6 +26,7 @@ rotBitcount :: (Integral a,Ix a,Bits a) => UArray a Word8 -> a -> UArray a Word8
 -- The type a may be signed or unsigned, but the array index must begin at 0.
 -- a should hold the square of eight times the bounds; so if the bounds are
 -- (0..31), Word16 is adequate, but Int16 and Word8 are not.
+-- See Rust code for a timing leak which may be present in (.>>.).
 rotBitcount src mult = listArray bnd
   [ (src ! ((i+len-byte)   `mod` len) .<<. bit) .|.
     (src ! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
