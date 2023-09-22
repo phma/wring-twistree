@@ -58,7 +58,8 @@ compressPairs sbox (x:y:xs) = ((compress2 sbox x y 0) : compressPairs sbox xs)
 hashPairs :: UArray (Word8,Word8) Word8 -> [UArray Int Word8] -> UArray Int Word8
 hashPairs _ [] = undefined -- can't happen, there's always at least exp(4)
 hashPairs _ [x] = x
-hashPairs sbox x = hashPairs sbox (compressPairs sbox x)
+hashPairs sbox x = par (compressPairs sbox x) $
+  hashPairs sbox (compressPairs sbox x)
 
 compressTriples :: UArray (Word8,Word8) Word8 -> [UArray Int Word8] -> [UArray Int Word8]
 compressTriples _ [] = []
@@ -69,7 +70,8 @@ compressTriples sbox (x:y:z:xs) = ((compress3 sbox x y z 1) : compressTriples sb
 hashTriples :: UArray (Word8,Word8) Word8 -> [UArray Int Word8] -> UArray Int Word8
 hashTriples _ [] = undefined -- can't happen, there's always at least exp(4)
 hashTriples _ [x] = x
-hashTriples sbox x = hashTriples sbox (compressTriples sbox x)
+hashTriples sbox x = par (compressTriples sbox x) $
+  hashTriples sbox (compressTriples sbox x)
 
 linearTwistree = Twistree linearSbox
 
@@ -82,7 +84,8 @@ keyedTwistree key = Twistree sbox where
   sbox = sboxes key
 
 hash :: Twistree -> BL.ByteString -> UArray Int Word8
-hash twistree stream = par h2 $ par h3 $ compress2 (sbox twistree) h2 h3 2 where
-  blocks = blockize stream
-  h2 = hashPairs (sbox twistree) (exp4_2adic : blocks)
-  h3 = hashTriples (sbox twistree) (exp4_base2 : blocks)
+hash twistree stream = par blocks $ par h2 $ par h3 $
+  compress2 (sbox twistree) h2 h3 2 where
+    blocks = blockize stream
+    h2 = hashPairs (sbox twistree) (exp4_2adic : blocks)
+    h3 = hashTriples (sbox twistree) (exp4_base2 : blocks)
