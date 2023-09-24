@@ -76,4 +76,22 @@ testVectors = testGroup "Test vectors"
   , testCase "lin9AllOrNone" $
       (encrypt linearWring (listArray (0,8) $ stringToBytes "AllOrNone"))
       @?= listArray (0,8::Int) [0x53,0x28,0xe7,0xc7,0xe0,0x71,0xa5,0x2e,0x8c]
+  , testCase "aerate8nulls" $
+      (encrypt wring6 (listArray (0,7) [0,0,0,0,0,0,0,0]))
+      @?= listArray (0,7::Int) [0x23,0x44,0x2e,0x6e,0xf3,0xd7,0xa0,0x7e]
+  , testCase "aerate8ff" $
+      (encrypt wring6 (listArray (0,7) [255,255,255,255,255,255,255,255]))
+      @?= listArray (0,7::Int) [0x7e,0x05,0xae,0x5c,0x64,0xdd,0xf4,0xeb]
+  , testCase "aerate8Twistree" $
+      (encrypt wring6 (listArray (0,7) $ stringToBytes "Twistree"))
+      @?= listArray (0,7::Int) [0x36,0x39,0x14,0x22,0x40,0x7f,0xc3,0x79]
+  , testCase "aerate9nulls" $
+      (encrypt wring6 (listArray (0,8) [0,0,0,0,0,0,0,0,0]))
+      @?= listArray (0,8::Int) [0x41,0xc1,0x44,0x0f,0x07,0x2d,0x92,0xbf,0x43]
+  , testCase "aerate9ff" $
+      (encrypt wring6 (listArray (0,8) [255,255,255,255,255,255,255,255,255]))
+      @?= listArray (0,8::Int) [0x46,0xb0,0x57,0x43,0xfb,0xdb,0x9d,0x32,0x88]
+  , testCase "aerate9AllOrNone" $
+      (encrypt wring6 (listArray (0,8) $ stringToBytes "AllOrNone"))
+      @?= listArray (0,8::Int) [0x5e,0x3b,0x49,0xd4,0xb8,0x70,0xdd,0x07,0xac]
   ]
