@@ -1,6 +1,8 @@
+{-# LANGUAGE BangPatterns #-}
 module Cryptography.WringTwistree.Mix3
   ( findMaxOrder
   , mix3Parts
+  , mix3Parts'
   ) where
 
 {- This module is used in Wring.
@@ -28,6 +30,10 @@ import Data.Array.Unboxed
 import Math.NumberTheory.ArithmeticFunctions
 import GHC.Natural
 import Math.NumberTheory.Primes
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad
 
 {-# INLINE mix #-}
 mix :: Word8 -> Word8 -> Word8 -> Word8
@@ -36,10 +42,10 @@ mix a b c = xor a mask
 
 fibonacci = 0 : 1 : zipWith (+) fibonacci (tail fibonacci)
 
-fiboPair :: Integer -> [Integer]
+fiboPair :: Int -> [Int]
 fiboPair n = take 2 $ dropWhile (<= n) fibonacci
 
-searchDir :: Integer -> (Integer,Int)
+searchDir :: Int -> (Int,Int)
 -- fst=n/φ rounded to nearest. snd=+1 or -1, indicating search direction.
 -- e.g. if n=89, returns (55,1). Search 55,56,54,57,53...
 -- if n=144, returns (89,(-1)). Search 89,88,90,87,91...
@@ -65,10 +71,10 @@ isMaxOrder modl car fac n = (powModNatural nn ncar nmodl) == 1 && allnot1
 
 searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
 
-searchFrom :: (Integer,Int) -> [Integer]
+searchFrom :: (Int,Int) -> [Int]
 searchFrom (start,dir) = map (\x -> x*(fromIntegral dir)+start) searchSeq
 
-findMaxOrder :: Integer -> Integer
+findMaxOrder :: Int -> Int
 -- n must be positive.
 -- Returns the number of maximum multiplicative order mod n closest to n/φ.
 -- n=1 is a special case, as (isMaxOrder 1 1 [] i) returns False for all i>=0.
@@ -81,33 +87,40 @@ triplicate :: [(a,a,a)] -> [(a,a,a)]
 triplicate [] = []
 triplicate ((a,b,c):xs) = (a,b,c):(b,c,a):(c,a,b):triplicate xs
 
-tailpiece :: Integral a => a -> [(a,a,a)]
-tailpiece len
-  | (len `mod` 3 == 0) = []
-  | otherwise = (len-1,len-1,len-1) : (tailpiece (len-1))
-
-{-# SPECIALIZE mixOrder :: Int -> Int -> [(Int,Int,Int)] #-}
-mixOrder :: Integral a => a -> a -> [(a,a,a)]
+mixOrder :: Int -> Int -> [(Int,Int,Int)]
 -- rprime is relatively prime to len `div` 3
 mixOrder len rprime
-  | len < 3 = tailpiece len
-  | otherwise = (tailpiece len) ++ (triplicate mixord)
+  | len < 3 = []
+  | otherwise = triplicate mixord
   where
     third = len `div` 3
-    mixord = take (fromIntegral third) $ zip3
-      [0..]
+    mixord = zip3
+      [0..third-1]
       (map ((2*third-1) -) [0..])
       (map ((2*third) +) (iterate (\x -> (x + rprime) `mod` third) 0))
 
-{-# INLINABLE mix3Parts #-}
-{-# SPECIALIZE mix3Parts :: UArray Int Word8 -> Int -> UArray Int Word8 #-}
-mix3Parts :: (Ix a,Integral a) => UArray a Word8 -> a -> UArray a Word8
+mix3Parts :: V.Vector Word8 -> Int -> V.Vector Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))
 -- and pass it to mix3Parts on every round.
-mix3Parts buf rprime = array (bounds buf) mixed
+mix3Parts buf rprime = buf V.// mixed
   where
-    mixed = map (\(a,b,c) -> (a, mix (buf ! a) (buf ! b) (buf ! c))) order
+    mixed = map (\(a,b,c) -> (a, mix (buf V.! a) (buf V.! b) (buf V.! c))) order
     order = mixOrder len rprime
-    bnd = bounds buf
-    len = (snd bnd) +1
+    len = V.length buf
+
+mix3Parts' :: MV.MVector s Word8 -> Int -> ST s ()
+mix3Parts' buf rprime = do
+    let third = MV.length buf `quot` 3
+        go _  _  _  0 = pure ()
+        go !a !b !c n = do
+            x <- MV.read buf a
+            y <- MV.read buf b
+            z <- MV.read buf c
+            let mask = (x .|. y .|. z) - (x .&. y .&. z)
+            MV.write buf a (x `xor` mask)
+            MV.write buf b (y `xor` mask)
+            MV.write buf c (z `xor` mask)
+            let c' = c + rprime
+            go (a+1) (b-1) (if c' >= 3*third then c' - third else c') (n-1)
+    go 0 (2*third - 1) (2*third) third

@@ -20,6 +20,7 @@ import Data.Array.Unboxed
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
 import Cryptography.WringTwistree.Sboxes
+import qualified Data.Vector.Unboxed as V
 
 blockSize :: Integral a => a
 blockSize = 32
@@ -53,26 +54,21 @@ backCrcM a b = (c,(fromIntegral c)) where
 backCrc :: [Word8] -> [Word8]
 backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
 
-roundCompress ::
-  UArray (Word8,Word8) Word8 ->
-  UArray Int Word8 ->
-  Int ->
-  UArray Int Word8
+roundCompress :: SBox -> V.Vector Word8 -> Int -> V.Vector Word8
 roundCompress sbox buf sboxalt = i4 where
-  bnd = bounds buf
-  len = snd bnd + 1
+  len = V.length buf
   rprime = relPrimes ! (fromIntegral len)
   i1 = mix3Parts buf (fromIntegral rprime)
-  i2 = listArray bnd $ map (sbox !) $ zip (drop sboxalt cycle3) (elems i1)
+  i2 = V.fromListN len $ map (sbox V.!) $ zipWith (\y x -> fromIntegral y*256 + fromIntegral x) (drop sboxalt cycle3) (V.toList i1)
   i3 = rotBitcount i2 twistPrime
-  i4 = listArray (0,len-5) $ backCrc (elems i3)
+  i4 = V.fromListN (len-4) $ backCrc (V.toList i3)
 
-compress :: UArray (Word8,Word8) Word8 -> UArray Int Word8 -> Int -> UArray Int Word8
+compress :: V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
 compress sbox buf sboxalt
   | len <= blockSize = buf
   | len `mod` twistPrime == 0 = error "bad block size"
   | otherwise = compress sbox (roundCompress sbox buf sboxalt) sboxalt
-  where len = snd (bounds buf) + 1
+  where len = V.length buf
 
 {-
 compress2 takes 100x operations, compress3 takes 264x operations.
@@ -86,27 +82,20 @@ and 289 µs for compress2.
 -}
 
 compress2 ::
-  UArray (Word8,Word8) Word8 ->
-  UArray Int Word8 ->
-  UArray Int Word8 ->
+  SBox ->
+  V.Vector Word8 ->
+  V.Vector Word8 ->
   Int ->
-  UArray Int Word8
+  V.Vector Word8
 compress2 sbox buf0 buf1 sboxalt = compress sbox buf sboxalt where
-  (beg0,end0) = bounds buf0
-  (beg1,end1) = bounds buf1
-  len = end0 + end1 + 2 - beg0 - beg1
-  buf = listArray (0,len-1) (elems buf0 ++ elems buf1)
+  buf = buf0 <> buf1
 
 compress3 ::
-  UArray (Word8,Word8) Word8 ->
-  UArray Int Word8 ->
-  UArray Int Word8 ->
-  UArray Int Word8 ->
+  SBox ->
+  V.Vector Word8 ->
+  V.Vector Word8 ->
+  V.Vector Word8 ->
   Int ->
-  UArray Int Word8
+  V.Vector Word8
 compress3 sbox buf0 buf1 buf2 sboxalt = compress sbox buf sboxalt where
-  (beg0,end0) = bounds buf0
-  (beg1,end1) = bounds buf1
-  (beg2,end2) = bounds buf2
-  len = end0 + end1 + end2 + 3 - beg0 - beg1 - beg2
-  buf = listArray (0,len-1) (elems buf0 ++ elems buf1 ++ elems buf2)
+  buf = buf0 <> buf1 <> buf2

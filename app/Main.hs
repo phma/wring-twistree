@@ -10,13 +10,13 @@ import Cryptanalysis
 import Text.Printf
 import Data.List.Split
 import Data.Word
-import Data.Array.Unboxed
 import Data.Foldable (toList)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.ByteString.UTF8 (fromString)
 import System.IO
 import Multiarg
+import qualified Data.Vector.Unboxed as V
 
 lineStr :: [Word8] -> String
 lineStr [] = ""
@@ -42,17 +42,17 @@ block16str16 :: [Word16] -> String
 -- Takes a list of 96 words and formats them 16 to a line.
 block16str16 a = blockStr16 $ chunksOf 16 a
 
-wrungZeros :: UArray Int Word8
-wrungZeros = encrypt linearWring (listArray (0,255::Int) (replicate 256 0))
+wrungZeros :: V.Vector Word8
+wrungZeros = encrypt linearWring (V.replicate 256 0)
 
-dumpSbox :: UArray (Word8,Word8) Word8 -> IO ()
-dumpSbox sbox = putStr $ block16str $ take 256 (elems sbox)
+dumpSbox :: SBox -> IO ()
+dumpSbox sbox = putStr $ block16str $ take 256 (V.toList sbox)
 
-readFileEager :: String -> IO (UArray Int Word8)
+readFileEager :: String -> IO (V.Vector Word8)
 readFileEager fileName = do
   h <- openBinaryFile fileName ReadMode
   contents <- B.hGetContents h
-  let contArray = listArray (0,(B.length contents - 1)) (B.unpack contents)
+  let contArray = V.fromListN (B.length contents) (B.unpack contents)
   return contArray
 
 readFileLazy :: String -> IO (BL.ByteString)
@@ -61,10 +61,10 @@ readFileLazy fileName = do
   contents <- BL.hGetContents h
   return contents
 
-writeFileArray :: String -> UArray Int Word8 -> IO ()
+writeFileArray :: String -> V.Vector Word8 -> IO ()
 writeFileArray fileName ary = do
   h <- openBinaryFile fileName WriteMode
-  BL.hPut h (BL.pack $ elems ary)
+  BL.hPut h (BL.pack $ V.toList ary)
   hClose h
 
 encryptFile :: String -> String -> String -> IO ()
@@ -87,7 +87,7 @@ hashFile key plainfile outfile = do
   plaintext <- readFileLazy plainfile
   let hashtext = hash twistree plaintext
   if null outfile
-    then putStrLn $ block16str $ elems hashtext
+    then putStrLn $ block16str $ V.toList hashtext
     else writeFileArray outfile hashtext
 
 testHash :: IO ()
@@ -95,7 +95,7 @@ testHash = do
   let twistree = keyedTwistree (fromString "")
   let plaintext = (take 105 (repeat 105)) ++ (take 150 (repeat 150))
   let hashtext = hash twistree $ BL.pack plaintext
-  putStrLn $ block16str $ elems hashtext
+  putStrLn $ block16str $ V.toList hashtext
 
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
@@ -185,8 +185,8 @@ testExtendKey = do
 
 testCompress :: IO ()
 testCompress = do
-  putStr $ block16str $ elems $
-    compress2 linearSbox exp4_2adic (exp4_base2 :: UArray Int Word8) 0
+  putStr $ block16str $ V.toList $
+    compress2 linearSbox exp4_2adic exp4_base2 0
 
 doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of

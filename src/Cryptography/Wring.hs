@@ -20,13 +20,16 @@ import Cryptography.WringTwistree.RotBitcount
 import Cryptography.WringTwistree.Sboxes
 import Data.Word
 import Data.Bits
-import Data.Array.Unboxed
 import Data.Foldable (foldl')
 import qualified Data.ByteString as B
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad
 
 data Wring = Wring
-  { sbox    :: UArray (Word8,Word8) Word8
-  , invSbox :: UArray (Word8,Word8) Word8
+  { sbox    :: SBox
+  , invSbox :: SBox
   } deriving Show
 
 nRounds :: Integral a => a -> a
@@ -39,8 +42,8 @@ xorn 0 = 0
 xorn (-1) = error "xorn: negative"
 xorn a = (fromIntegral a) `xor` (xorn (a .>>. 8))
 
-xornArray :: (Integral a,Bits a,Ix a) => a -> UArray a Word8
-xornArray n = listArray (0,(n-1)) (map xorn [0..(n-1)])
+xornArray :: Int -> V.Vector Word8
+xornArray n = V.fromListN n (map xorn [0..(n-1)])
 
 linearWring = Wring linearSbox linearInvSbox
 
@@ -49,7 +52,8 @@ linearWring = Wring linearSbox linearInvSbox
 -- package.yaml dependencies, import Data.ByteString.UTF8, and use
 -- fromString.
 keyedWring :: B.ByteString -> Wring
-keyedWring key = Wring sbox (invert sbox) where
+keyedWring key = Wring sbox (invert sbox)
+ where
   sbox = sboxes key
 
 {- A round of encryption consists of four steps:
@@ -59,46 +63,57 @@ keyedWring key = Wring sbox (invert sbox) where
  - add byte index xor round number
  -}
 
-{-# SPECIALIZE roundEncrypt :: Int -> UArray (Word8,Word8) Word8 ->
-    UArray Int Word8 -> UArray Int Word8 -> Int -> UArray Int Word8 #-}
-roundEncrypt :: (Ix a,Integral a,Bits a) => 
-  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundEncrypt rprime sbox xornary buf rond = i4 where
-  bnd = bounds buf
-  xornrond = xorn rond
-  i1 = mix3Parts buf rprime
-  i2 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i1)
-  i3 = rotBitcount i2 1
-  i4 = listArray bnd $ zipWith (+) (elems i3)
-       (map (xor xornrond) (elems xornary))
+{-# NOINLINE roundEncrypt #-}
+roundEncrypt :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
+roundEncrypt rprime sbox xornary buf tmp rond = do
+  let len = MV.length buf
+      xornrond = xorn rond
+  mix3Parts' buf rprime
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      MV.write tmp i (sbox V.! (((i + rond) `rem` 3)*256 + fromIntegral a))
+  rotBitcount' tmp 1 buf
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      let a' = a + (xornrond `xor` (xornary V.! i))
+      MV.write buf i a'
 
-{-# SPECIALIZE roundDecrypt :: Int -> UArray (Word8,Word8) Word8 ->
-    UArray Int Word8 -> UArray Int Word8 -> Int -> UArray Int Word8 #-}
-roundDecrypt :: (Ix a,Integral a,Bits a) => 
-  a -> UArray (Word8,Word8) Word8 -> UArray a Word8 -> UArray a Word8 -> a -> UArray a Word8
-roundDecrypt rprime sbox xornary buf rond = i4 where
-  bnd = bounds buf
-  xornrond = xorn rond
-  i1 = listArray bnd $ zipWith (-) (elems buf)
-       (map (xor xornrond) (elems xornary))
-  i2 = rotBitcount i1 (-1)
-  i3 = listArray bnd $ map (sbox !) $ zip (drop (fromIntegral rond) cycle3) (elems i2)
-  i4 = mix3Parts i3 rprime
+{-# NOINLINE roundDecrypt #-}
+roundDecrypt :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
+roundDecrypt rprime sbox xornary buf tmp rond = do
+  let len = MV.length buf
+      xornrond = xorn rond
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      let a' = a - (xornrond `xor` (xornary V.! i))
+      MV.write tmp i a'
+  rotBitcount' tmp (-1) buf
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      MV.write buf i (sbox V.! (((i + rond) `rem` 3)*256 + fromIntegral a))
+  mix3Parts' buf rprime
 
-{-# SPECIALIZE encrypt :: Wring -> UArray Int Word8 -> UArray Int Word8 #-}
-encrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
-encrypt wring buf = foldl' (roundEncrypt rprime (sbox wring) xornary) buf rounds
-  where
-    len = fromIntegral $ snd (bounds buf) +1
-    xornary = xornArray (fromIntegral len)
-    rprime = fromIntegral $ findMaxOrder (len `div` 3)
-    rounds = [0 .. (fromIntegral (nRounds len) -1)]
+encrypt :: Wring -> V.Vector Word8 -> V.Vector Word8
+encrypt wring buf = V.create $ do
+  let len = V.length buf
+      xornary = xornArray len
+      rprime = findMaxOrder (len `div` 3)
+      rounds = [0 .. nRounds len - 1]
+  buf <- V.thaw buf
+  tmp <- MV.new len
+  forM_ [0..nRounds len - 1] $ \rond -> do
+    roundEncrypt rprime (sbox wring) xornary buf tmp rond
+  pure buf
 
-{-# SPECIALIZE decrypt :: Wring -> UArray Int Word8 -> UArray Int Word8 #-}
-decrypt :: (Ix a,Integral a,Bits a) => Wring -> UArray a Word8 -> UArray a Word8
-decrypt wring buf = foldl' (roundDecrypt rprime (invSbox wring) xornary) buf rounds
-  where
-    len = fromIntegral $ snd (bounds buf) +1
-    xornary = xornArray (fromIntegral len)
-    rprime = fromIntegral $ findMaxOrder (len `div` 3)
-    rounds = reverse [0 .. (fromIntegral (nRounds len) -1)]
+decrypt :: Wring -> V.Vector Word8 -> V.Vector Word8
+decrypt wring buf = V.create $ do
+  let len = V.length buf
+      xornary = xornArray len
+      rprime = findMaxOrder (len `div` 3)
+      nr = nRounds len - 1
+      rounds = [0 .. nr]
+  buf <- V.thaw buf
+  tmp <- MV.new len
+  forM_ [0..nRounds len - 1] $ \rond -> do
+    roundDecrypt rprime (invSbox wring) xornary buf tmp (nr - rond)
+  pure buf

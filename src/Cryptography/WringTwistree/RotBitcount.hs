@@ -1,7 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
 module Cryptography.WringTwistree.RotBitcount
   ( rotBitcount
-  ) where
+  , rotBitcount'
+  )  where
 
 {- This module is used in both Wring and Twistree.
  - It rotates an array of bytes by a multiple of its bitcount,
@@ -18,23 +19,36 @@ module Cryptography.WringTwistree.RotBitcount
 
 import Data.Bits
 import Data.Word
-import Data.Array.Unboxed
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad
 
-{-# INLINABLE rotBitcount #-}
-{-# SPECIALIZE rotBitcount :: UArray Int Word8 -> Int -> UArray Int Word8 #-}
-rotBitcount :: (Integral a,Ix a,Bits a) => UArray a Word8 -> a -> UArray a Word8
+rotBitcount :: V.Vector Word8 -> Int -> V.Vector Word8
 -- The type a may be signed or unsigned, but the array index must begin at 0.
 -- a should hold the square of eight times the bounds; so if the bounds are
 -- (0..31), Word16 is adequate, but Int16 and Word8 are not.
 -- See Rust code for a timing leak which may be present in (.>>.).
-rotBitcount src mult = listArray bnd
-  [ (src ! ((i+len-byte)   `mod` len) .<<. bit) .|.
-    (src ! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
+rotBitcount src mult = V.fromListN len
+  [ (src V.! ((i+len-byte)   `mod` len) .<<. bit) .|.
+    (src V.! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
   where
-    bnd = bounds src
-    !len = (snd bnd) +1
+    len = V.length src
     multmod = mult `mod` (len * 8)
-    bitcount = fromIntegral $ sum $ map popCount $ elems src
+    bitcount = sum $ map popCount $ V.toList src
     rotcount = (bitcount * multmod) `mod` (len * 8)
     !byte = rotcount .>>. 3
-    !bit = fromIntegral (rotcount .&. 7)
+    !bit = rotcount .&. 7
+
+rotBitcount' :: MV.MVector s Word8 -> Int -> MV.MVector s Word8 -> ST s ()
+rotBitcount' src mult dst = do
+    bitcount <- MV.foldl' (\acc x -> acc + popCount x) 0 src
+    let len = MV.length src
+        !multmod = mult `mod` (len * 8)
+        rotcount = (bitcount * multmod) `rem` (len * 8)
+        !byte = rotcount .>>. 3
+        !bit = rotcount .&. 7
+    forM_ [0..MV.length src - 1] $ \i -> do
+        l <- MV.read src ((i+len-byte) `rem` len)
+        r <- MV.read src ((i+len-byte-1) `rem` len)
+        MV.write dst i ((l .<<. bit) .|. (r .>>. (8-bit)))

@@ -46,6 +46,7 @@ import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Cryptography.Wring
 import Stats
+import qualified Data.Vector.Unboxed as V
 
 key96_0 = "Водворетраванатраведрова.Нерубидрованатраведвора!"
 key96_1 = "Водворетраванатраведрова.Нерубидрованатраведвора "
@@ -97,19 +98,19 @@ thueMorse :: Integral a => Int -> a
 -- Returns a Thue-Morse word of at least n bits ending in 1.
 thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
 
-byteArray :: (Bits a,Integral a) => Int -> a -> UArray Int Word8
-byteArray len n = listArray (0,(len-1)) bytes where
+byteArray :: (Bits a,Integral a) => Int -> a -> V.Vector Word8
+byteArray len n = V.fromListN len bytes where
   bytes = map (\x -> (fromIntegral (n .>>. (8*x)) .&. 255)) [0..(len-1)]
 
-eightByteArray :: Word64 -> UArray Int Word8
+eightByteArray :: Word64 -> V.Vector Word8
 eightByteArray = byteArray 8
 
 makeListInt :: (Bits a,Integral a) => [Word8] -> a
 makeListInt [] = 0
 makeListInt (n:ns) = ((makeListInt ns) .<<. 8) .|. (fromIntegral n)
 
-makeArrayInt :: (Bits a,Integral a) => UArray Int Word8 -> a
-makeArrayInt = makeListInt . elems
+makeArrayInt :: (Bits a,Integral a) => V.Vector Word8 -> a
+makeArrayInt = makeListInt . V.toList
 
 diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where

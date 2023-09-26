@@ -17,6 +17,7 @@ import Data.List.Split (chunksOf)
 import qualified Data.ByteString.Lazy as BL
 import Cryptography.WringTwistree.Compress
 import Text.Printf
+import qualified Data.Vector.Unboxed as V
 
 {-
 $ stack ghci --package padic
@@ -33,16 +34,16 @@ $ stack ghci --package padic
 -- e⁴, in two binary representations, is prepended to the
 -- blocks being hashed, so that if the message is only one block,
 -- two different compressed blocks are combined at the end.
-exp4_2adic :: (Num a,Ix a) => UArray a Word8
-exp4_2adic = listArray (0,31)
+exp4_2adic :: V.Vector Word8
+exp4_2adic = V.fromListN 32
   [ 0x4d, 0x41, 0x8e, 0x38, 0x72, 0x1a, 0x3a, 0xeb
   , 0x18, 0xe0, 0x08, 0x7f, 0xa3, 0x7f, 0x9c, 0xe0
   , 0x17, 0xb6, 0x45, 0xee, 0xa5, 0x3c, 0x95, 0x34
   , 0xca, 0x6d, 0x5c, 0xfe, 0x7f, 0x94, 0x14, 0x09
   ]
 
-exp4_base2 :: (Num a,Ix a) => UArray a Word8
-exp4_base2 = listArray (0,31)
+exp4_base2 :: V.Vector Word8
+exp4_base2 = V.fromListN 32
   [ 0xe8, 0xa7, 0x66, 0xce, 0x5b, 0x2e, 0x8a, 0x39
   , 0x4b, 0xb7, 0x89, 0x2e, 0x0c, 0xd5, 0x94, 0x05
   , 0xda, 0x72, 0x7b, 0x72, 0xfb, 0x77, 0xda, 0x1a
@@ -70,6 +71,6 @@ pad bs = (BL.unpack bs) ++ [0..(blockSize-1)]
 
 -- Breaks into blocks of 32 bytes, padding the last one to 32 bytes.
 -- If the last block is already 32 bytes, adds another block of 32 bytes.
-blockize :: BL.ByteString -> [UArray Int Word8]
-blockize bs = map (listArray (0,(blockSize-1))) $ filter ((== blockSize) . length) $
+blockize :: BL.ByteString -> [V.Vector Word8]
+blockize bs = map (V.fromListN blockSize) $ filter ((== blockSize) . length) $
   chunksOf blockSize $ pad bs

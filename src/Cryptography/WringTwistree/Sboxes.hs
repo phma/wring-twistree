@@ -1,5 +1,6 @@
 module Cryptography.WringTwistree.Sboxes
-  ( cycle3
+  ( SBox
+  , cycle3
   , sboxes
   , invert
   , linearSbox
@@ -18,17 +19,19 @@ module Cryptography.WringTwistree.Sboxes
 
 import Data.Bits
 import Data.Word
-import Data.Array.Unboxed
 import Data.Foldable (toList)
 import qualified Data.ByteString as B
 import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule
+import qualified Data.Vector.Unboxed as V
+
+type SBox = V.Vector Word8
 
 cycle3 :: [Word8]
 cycle3 = 0 : 1 : 2 : cycle3
 
-sboxes :: B.ByteString -> UArray (Word8,Word8) Word8
-sboxes key = listArray ((0,0),(2,255)) (box0 ++ box1 ++ box2) where
+sboxes :: B.ByteString -> SBox
+sboxes key = V.fromListN (3*256) (box0 ++ box1 ++ box2) where
   box0seq = keySchedule key
   box1seq = reschedule box0seq
   box2seq = reschedule box1seq
@@ -36,14 +39,13 @@ sboxes key = listArray ((0,0),(2,255)) (box0 ++ box1 ++ box2) where
   box1 = toList (permute256 box1seq)
   box2 = toList (permute256 box2seq)
 
-invert :: UArray (Word8,Word8) Word8 -> UArray (Word8,Word8) Word8
-invert sbox = array ((0,0),(2,255))
-  [ ((i,sbox ! (i,j)),j) | i <- [0..2], j <- [0..255] ]
+invert ::SBox -> SBox
+invert sbox = V.replicate (3*256) 0 V.//
+  [(i*256 + fromIntegral (sbox V.! (i*256 + j)), fromIntegral j) | i <- [0..2], j <- [0..255]]
 
-linearSbox = array ((0,0),(2,255))
-  [ ((i,j),rotate j (fromIntegral (3*i+1))) | i <- [0..2], j <- [0..255] ]
-  :: UArray (Word8,Word8) Word8
+linearSbox, linearInvSbox :: SBox
+linearSbox = V.fromListN (3*256)
+  [ rotate j (fromIntegral (3*i+1)) | i <- [0..2], j <- [0..255] ]
 
-linearInvSbox = array ((0,0),(2,255))
-  [ ((i,j),rotate j (fromIntegral (7-3*i))) | i <- [0..2], j <- [0..255] ]
-  :: UArray (Word8,Word8) Word8
+linearInvSbox = V.fromListN (3*256)
+  [ (rotate j (fromIntegral (7-3*i))) | i <- [0..2], j <- [0..255] ]
