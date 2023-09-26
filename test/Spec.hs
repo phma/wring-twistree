@@ -9,7 +9,7 @@ import Cryptography.Wring
 import Cryptography.Twistree
 import qualified Data.Sequence as Seq
 import Data.Foldable (toList)
-import Data.Array.Unboxed
+import Data.Vector.Unboxed (fromListN)
 import Data.ByteString.UTF8 (fromString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -59,39 +59,39 @@ unitTests = testGroup "Unit tests"
 
 testVectors = testGroup "Test vectors"
   [ testCase "lin8nulls" $
-      (encrypt linearWring (listArray (0,7) [0,0,0,0,0,0,0,0]))
-      @?= listArray (0,7::Int) [0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc]
+      (encrypt linearWring (fromListN 8 [0,0,0,0,0,0,0,0]))
+      @?= fromListN 8 [0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc]
   , testCase "lin8ff" $
-      (encrypt linearWring (listArray (0,7) [255,255,255,255,255,255,255,255]))
-      @?= listArray (0,7::Int) [0x84,0x91,0x95,0xa0,0x9f,0x48,0x4b,0x59]
+      (encrypt linearWring (fromListN 8 [255,255,255,255,255,255,255,255]))
+      @?= fromListN 8 [0x84,0x91,0x95,0xa0,0x9f,0x48,0x4b,0x59]
   , testCase "lin8Twistree" $
-      (encrypt linearWring (listArray (0,7) $ stringToBytes "Twistree"))
-      @?= listArray (0,7::Int) [0xed,0x4b,0x2e,0xc6,0xc4,0x39,0x65,0x2b]
+      (encrypt linearWring (fromListN 8 $ stringToBytes "Twistree"))
+      @?= fromListN 8 [0xed,0x4b,0x2e,0xc6,0xc4,0x39,0x65,0x2b]
   , testCase "lin9nulls" $
-      (encrypt linearWring (listArray (0,8) [0,0,0,0,0,0,0,0,0]))
-      @?= listArray (0,8::Int) [0xad,0x93,0x5e,0x85,0xe1,0x49,0x45,0xca,0xe2]
+      (encrypt linearWring (fromListN 9 [0,0,0,0,0,0,0,0,0]))
+      @?= fromListN 9 [0xad,0x93,0x5e,0x85,0xe1,0x49,0x45,0xca,0xe2]
   , testCase "lin9ff" $
-      (encrypt linearWring (listArray (0,8) [255,255,255,255,255,255,255,255,255]))
-      @?= listArray (0,8::Int) [0x36,0xdf,0x60,0xae,0xf5,0xbd,0x1a,0xaf,0x6e]
+      (encrypt linearWring (fromListN 9 [255,255,255,255,255,255,255,255,255]))
+      @?= fromListN 9 [0x36,0xdf,0x60,0xae,0xf5,0xbd,0x1a,0xaf,0x6e]
   , testCase "lin9AllOrNone" $
-      (encrypt linearWring (listArray (0,8) $ stringToBytes "AllOrNone"))
-      @?= listArray (0,8::Int) [0x53,0x28,0xe7,0xc7,0xe0,0x71,0xa5,0x2e,0x8c]
+      (encrypt linearWring (fromListN 9 $ stringToBytes "AllOrNone"))
+      @?= fromListN 9 [0x53,0x28,0xe7,0xc7,0xe0,0x71,0xa5,0x2e,0x8c]
   , testCase "aerate8nulls" $
-      (encrypt wring6 (listArray (0,7) [0,0,0,0,0,0,0,0]))
-      @?= listArray (0,7::Int) [0x23,0x44,0x2e,0x6e,0xf3,0xd7,0xa0,0x7e]
+      (encrypt wring6 (fromListN 8 [0,0,0,0,0,0,0,0]))
+      @?= fromListN 8 [0x23,0x44,0x2e,0x6e,0xf3,0xd7,0xa0,0x7e]
   , testCase "aerate8ff" $
-      (encrypt wring6 (listArray (0,7) [255,255,255,255,255,255,255,255]))
-      @?= listArray (0,7::Int) [0x7e,0x05,0xae,0x5c,0x64,0xdd,0xf4,0xeb]
+      (encrypt wring6 (fromListN 8 [255,255,255,255,255,255,255,255]))
+      @?= fromListN 8 [0x7e,0x05,0xae,0x5c,0x64,0xdd,0xf4,0xeb]
   , testCase "aerate8Twistree" $
-      (encrypt wring6 (listArray (0,7) $ stringToBytes "Twistree"))
-      @?= listArray (0,7::Int) [0x36,0x39,0x14,0x22,0x40,0x7f,0xc3,0x79]
+      (encrypt wring6 (fromListN 8 $ stringToBytes "Twistree"))
+      @?= fromListN 8 [0x36,0x39,0x14,0x22,0x40,0x7f,0xc3,0x79]
   , testCase "aerate9nulls" $
-      (encrypt wring6 (listArray (0,8) [0,0,0,0,0,0,0,0,0]))
-      @?= listArray (0,8::Int) [0x41,0xc1,0x44,0x0f,0x07,0x2d,0x92,0xbf,0x43]
+      (encrypt wring6 (fromListN 9 [0,0,0,0,0,0,0,0,0]))
+      @?= fromListN 9 [0x41,0xc1,0x44,0x0f,0x07,0x2d,0x92,0xbf,0x43]
   , testCase "aerate9ff" $
-      (encrypt wring6 (listArray (0,8) [255,255,255,255,255,255,255,255,255]))
-      @?= listArray (0,8::Int) [0x46,0xb0,0x57,0x43,0xfb,0xdb,0x9d,0x32,0x88]
+      (encrypt wring6 (fromListN 9 [255,255,255,255,255,255,255,255,255]))
+      @?= fromListN 9 [0x46,0xb0,0x57,0x43,0xfb,0xdb,0x9d,0x32,0x88]
   , testCase "aerate9AllOrNone" $
-      (encrypt wring6 (listArray (0,8) $ stringToBytes "AllOrNone"))
-      @?= listArray (0,8::Int) [0x5e,0x3b,0x49,0xd4,0xb8,0x70,0xdd,0x07,0xac]
+      (encrypt wring6 (fromListN 9 $ stringToBytes "AllOrNone"))
+      @?= fromListN 9 [0x5e,0x3b,0x49,0xd4,0xb8,0x70,0xdd,0x07,0xac]
   ]
