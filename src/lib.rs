@@ -147,17 +147,34 @@ impl Wring {
 mod tests {
   use super::*;
 
+  fn test_vector(wring: &Wring, plain: &[u8], cipher: &[u8]) {
+    let mut buf:Vec<u8> = Vec::new();
+    buf.extend_from_slice(&plain);
+    wring.encrypt(&mut buf);
+    assert_eq!(&buf,&cipher);
+  }
+
   #[test]
   fn test_vectors() {
     let zero8=[0u8; 8];
-    let mut zero8lin:Vec<u8> = Vec::new();
-    zero8lin.extend_from_slice(&zero8);
-    let zero8lin_ref=[0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc];
+    let ff8=[255u8; 8];
+    let twistree8="Twistree".as_bytes();
+    let zero9=[0u8; 9];
+    let ff9=[255u8; 9];
+    let allornone9="AllOrNone".as_bytes();
     let mut linear_wring=Wring::new();
     linear_wring.set_key_linear();
-    linear_wring.encrypt(&mut zero8lin);
-    assert_eq!(&zero8lin,&zero8lin_ref);
-    }
+    let mut empty_wring=Wring::new();
+    empty_wring.set_key(&[]);
+    let mut aerate_wring=Wring::new();
+    aerate_wring.set_key("aerate".as_bytes());
+    test_vector(&linear_wring,&zero8,&[0x04,0xd7,0x16,0x6a,0xca,0x70,0x57,0xbc]);
+    test_vector(&linear_wring,&ff8,&[0x84,0x91,0x95,0xa0,0x9f,0x48,0x4b,0x59]);
+    test_vector(&linear_wring,&twistree8,&[0xed,0x4b,0x2e,0xc6,0xc4,0x39,0x65,0x2b]);
+    test_vector(&linear_wring,&zero9,&[0xad,0x93,0x5e,0x85,0xe1,0x49,0x45,0xca,0xe2]);
+    test_vector(&linear_wring,&ff9,&[0x36,0xdf,0x60,0xae,0xf5,0xbd,0x1a,0xaf,0x6e]);
+    test_vector(&linear_wring,&allornone9,&[0x53,0x28,0xe7,0xc7,0xe0,0x71,0xa5,0x2e,0x8c]);
+  }
 
 }
 
