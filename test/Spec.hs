@@ -43,6 +43,10 @@ qcProps = testGroup "(checked by QuickCheck)"
       \x -> wrapPermut8 "repaints" x /= "pantries"
   , QC.testProperty "mul65537" $
       \x y -> mul65537 x y == mul65537 (65535-x) (65535-y)
+  , QC.testProperty "roundtrip" $
+      \a b c d e f g h ->
+        (decrypt wring0 $ encrypt wring0 (fromListN 8 [a,b,c,d,e,f,g,h]))
+        == (fromListN 8 [a,b,c,d,e,f,g,h])
   ]
 
 unitTests = testGroup "Unit tests"
