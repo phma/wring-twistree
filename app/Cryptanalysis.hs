@@ -32,6 +32,7 @@ module Cryptanalysis
   , plaintextHisto
   , sixStats
   , relatedKey
+  , integralHisto
   ) where
 
 import Data.Word
@@ -112,17 +113,14 @@ makeListInt (n:ns) = ((makeListInt ns) .<<. 8) .|. (fromIntegral n)
 makeArrayInt :: (Bits a,Integral a) => V.Vector Word8 -> a
 makeArrayInt = makeListInt . V.toList
 
+-- Related-key cryptanalysis
+-- Take four keys which differ by one or two bytes, in pairs, and encrypt
+-- the same plaintext with both and compute the difference.
+
 diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
-
-sum1Wring :: Wring -> Word64 -> Int -> Word64
--- Take pt with all values in the bth byte, encrypt them all,
--- and xor the ciphertexts.
-sum1Wring w pt b = foldl' xor 0 cts where
-  pts = map eightByteArray $ zipWith xor (repeat pt) (map (.<<. (b .<<. 3)) [0..255])
-  cts = map makeArrayInt $ map (encrypt w) pts
 
 diffRelated :: Wring -> Wring -> [Word64]
 diffRelated w0 w1 = map ((diff1Related w0 w1) . ((thueMorse 64) *)) [0..]
@@ -174,3 +172,20 @@ relatedKey = do
   relatedKey4 wring30_0 wring30_1 wring30_2 wring30_3
   putStrLn "6-byte key, 8-byte data:"
   relatedKey4 wring6_0 wring6_1 wring6_2 wring6_3
+
+-- Integral cryptanalysis
+-- Take one key, and each of the eight bytes of the plaintext in parallel,
+-- and xor all the ciphertexts produced by changing the byte of the plaintext
+-- to all 256 possibilities.
+
+sum1Wring :: Wring -> Word64 -> Int -> Word64
+-- Take pt with all values in the bth byte, encrypt them all,
+-- and xor the ciphertexts.
+sum1Wring w pt b = foldl' xor 0 cts where
+  pts = map eightByteArray $ zipWith xor (repeat pt) (map (.<<. (b .<<. 3)) [0..255])
+  cts = map makeArrayInt $ map (encrypt w) pts
+
+integralHisto :: Wring -> Int -> Histo
+integralHisto w b = foldl' hCountBits (emptyHisto 64)
+  (take (div samples 256) $
+  map ((\pt -> sum1Wring w pt b) . ((thueMorse 64) *)) [0..])
