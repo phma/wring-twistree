@@ -16,10 +16,10 @@ resist linear cryptanalysis.
 4. Twistree runs a CRC backwards to make the four bytes about to be dropped affect all the other bytes.
 
 # Rust
-To run the program, type `cargo run`. The first time you run it, Cargo may download a quarter-gigabyte of data, which is the index to all crates.
+To run the program, type `cargo run`. The first time you run it, Cargo may download a quarter-gigabyte of data, which is the index to all crates. You can also test the program with `cargo test`.
 
 # Haskell
-You can run WringTwistree in the REPL with `stack ghci`, compile and run it with `stack run`, or use other Stack commands.
+You can run WringTwistree in the REPL with `stack ghci`, compile and run it with `stack run`, or use other Stack commands. You can also test the program with `stack test`.
 
 # Command-line options
 `stack run -- -k key -e plaintext -o ciphertext` enciphers a file. Omit `-o ciphertext` to encipher in place.
@@ -28,4 +28,11 @@ You can run WringTwistree in the REPL with `stack ghci`, compile and run it with
 
 `stack run -- -k key -H plaintext -o hash` hashes a file. Omit `-o hash` to output the hash to stdout.
 
-`cargo` instead of `stack` runs the Rust implementation; the options are the same, except that `-H` isn't implemented yet.
+`stack run -- -c foo` runs cryptanalysis of type `foo`, which is currently `relkey` for related-key cryptanalysis. This option is not available in the Rust implementation.
+
+`cargo` instead of `stack` runs the Rust implementation; the options are the same, except that hash is `-h`.
+
+The Rust binary is `wring-twistree`; the Haskell binary is `WringTwistree` and can be installed with `stack install`. They take the options after `--`.
+
+# Test vectors
+Test vectors are in `test/Spec.hs` and `src/lib.rs`.
