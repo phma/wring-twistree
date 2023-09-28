@@ -33,6 +33,8 @@ module Cryptanalysis
   , sixStats
   , relatedKey
   , integralHisto
+  , eightStats
+  , integralCr
   ) where
 
 import Data.Word
@@ -189,3 +191,42 @@ integralHisto :: Wring -> Int -> Histo
 integralHisto w b = foldl' hCountBits (emptyHisto 64)
   (take (div samples 256) $
   map ((\pt -> sum1Wring w pt b) . ((thueMorse 64) *)) [0..])
+
+integralStat :: Wring -> Int -> Double
+integralStat w b = binomial (integralHisto w b) (div samples 256)
+
+eightStats :: Wring -> [Double]
+eightStats w = par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $
+  [s0,s1,s2,s3,s4,s5,s6,s7] where
+    s0 = integralStat w 0
+    s1 = integralStat w 1
+    s2 = integralStat w 2
+    s3 = integralStat w 3
+    s4 = integralStat w 4
+    s5 = integralStat w 5
+    s6 = integralStat w 6
+    s7 = integralStat w 7
+
+integral1 :: Wring -> IO ()
+integral1 w = do
+  let eightS = eightStats w
+  putStrLn (show eightS)
+  putStrLn ("Byte 0: " ++ tellStat (eightS !! 0))
+  putStrLn ("Byte 1: " ++ tellStat (eightS !! 1))
+  putStrLn ("Byte 2: " ++ tellStat (eightS !! 2))
+  putStrLn ("Byte 3: " ++ tellStat (eightS !! 3))
+  putStrLn ("Byte 4: " ++ tellStat (eightS !! 4))
+  putStrLn ("Byte 5: " ++ tellStat (eightS !! 5))
+  putStrLn ("Byte 6: " ++ tellStat (eightS !! 6))
+  putStrLn ("Byte 7: " ++ tellStat (eightS !! 7))
+
+integralCr :: IO ()
+integralCr = do
+  putStrLn "96-byte key, 8-byte data:"
+  integral1 wring96_0
+  putStrLn "30-byte key, 8-byte data:"
+  integral1 wring30_0
+  putStrLn "6-byte key, 8-byte data:"
+  integral1 wring6_0
+  putStrLn "Linear key, 8-byte data:"
+  integral1 linearWring

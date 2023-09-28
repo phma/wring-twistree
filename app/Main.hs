@@ -100,8 +100,10 @@ testHash = do
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
   "relkey"  -> relatedKey
+  "integral"  -> integralCr
   otherwise -> putStrLn ("Available cryptanalyses are:\n" ++
-    "relkey  Related-key cryptanalysis")
+    "relkey    Related-key cryptanalysis\n" ++
+    "integral  Integral cryptanalysis")
 
 data WtOpt
   = Infile String
