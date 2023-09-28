@@ -230,3 +230,8 @@ integralCr = do
   integral1 wring6_0
   putStrLn "Linear key, 8-byte data:"
   integral1 linearWring
+  putStrLn "96-byte key, byte 1:" -- These two bytes came out as
+  putStrLn $ show $ integralHisto wring96_0 1
+  putStrLn "96-byte key, byte 7:" -- "too much variation".
+  putStrLn $ show $ integralHisto wring96_0 7
+
