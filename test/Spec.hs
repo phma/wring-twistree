@@ -135,4 +135,22 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "χαίρετε9AllOrNone" $
       (encrypt wring30 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0x4b,0xb2,0x68,0xe9,0xf1,0x64,0x0a,0x44,0xc4]
+  , testCase "двор8nulls" $
+      (encrypt wring96 (fromListN 8 [0,0,0,0,0,0,0,0]))
+      @?= fromListN 8 [0x9c,0xc1,0x3c,0xe7,0x8a,0xc5,0x6f,0x18]
+  , testCase "двор8ff" $
+      (encrypt wring96 (fromListN 8 [255,255,255,255,255,255,255,255]))
+      @?= fromListN 8 [0x37,0x42,0x00,0x47,0xd5,0x2f,0x9d,0x7f]
+  , testCase "двор8Twistree" $
+      (encrypt wring96 (fromListN 8 $ stringToBytes "Twistree"))
+      @?= fromListN 8 [0x15,0x06,0xc6,0xa6,0x3d,0xef,0x19,0xf1]
+  , testCase "двор9nulls" $
+      (encrypt wring96 (fromListN 9 [0,0,0,0,0,0,0,0,0]))
+      @?= fromListN 9 [0xd6,0x7b,0x2c,0xcc,0x71,0x24,0x5d,0x06,0x07]
+  , testCase "двор9ff" $
+      (encrypt wring96 (fromListN 9 [255,255,255,255,255,255,255,255,255]))
+      @?= fromListN 9 [0xd3,0xa8,0x3f,0xb6,0x9a,0x5e,0x0f,0x07,0x11]
+  , testCase "двор9AllOrNone" $
+      (encrypt wring96 (fromListN 9 $ stringToBytes "AllOrNone"))
+      @?= fromListN 9 [0x53,0x6c,0x7e,0x2d,0xcd,0xda,0xdc,0xf2,0x70]
   ]
