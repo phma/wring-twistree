@@ -9,7 +9,7 @@ import Cryptography.Wring
 import Cryptography.Twistree
 import qualified Data.Sequence as Seq
 import Data.Foldable (toList)
-import Data.Vector.Unboxed (fromListN)
+import Data.Vector.Unboxed (fromListN,fromList)
 import Data.ByteString.UTF8 (fromString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -21,11 +21,15 @@ wring96 = keyedWring $ fromString key96
 wring30 = keyedWring $ fromString key30
 wring6 = keyedWring $ fromString key6
 wring0 = keyedWring $ fromString ""
+twistree96 = keyedTwistree $ fromString key96
+twistree30 = keyedTwistree $ fromString key30
+twistree6 = keyedTwistree $ fromString key6
+twistree0 = keyedTwistree $ fromString ""
 
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [properties, unitTests, testVectorsWring]
+tests = testGroup "Tests" [properties, unitTests, testVectorsWring, testVectorsTwistree]
 
 properties :: TestTree
 properties = testGroup "Properties" [qcProps]
@@ -153,4 +157,15 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "двор9AllOrNone" $
       (encrypt wring96 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0x53,0x6c,0x7e,0x2d,0xcd,0xda,0xdc,0xf2,0x70]
+  ]
+
+testVectorsTwistree = testGroup "Test vectors for Twistree"
+  [ testCase "nullдвор" $
+      (hash twistree0 (BL.fromStrict $ fromString key96))
+      @?= fromList
+	[ 0x4c, 0x19, 0x30, 0x4a, 0xae, 0x2a, 0x92, 0xba
+	, 0x9c, 0x05, 0x69, 0x37, 0xd7, 0xfc, 0x36, 0x2d 
+	, 0x29, 0x94, 0x8e, 0xdc, 0x3c, 0x56, 0x4f, 0x50
+	, 0x08, 0xa7, 0x5b, 0x0a, 0x06, 0x95, 0x90, 0xee
+	]
   ]
