@@ -71,7 +71,7 @@ roundEncrypt rprime sbox xornary buf tmp rond = do
   mix3Parts' buf rprime
   forM_ [0..len-1] $ \i -> do
       a <- MV.read buf i
-      MV.write tmp i (sbox V.! (((i + rond) `rem` 3)*256 + fromIntegral a))
+      MV.write tmp i (sbox V.! (sboxInx ((i + rond) `rem` 3) a))
   rotBitcount' tmp 1 buf
   forM_ [0..len-1] $ \i -> do
       a <- MV.read buf i
@@ -90,7 +90,7 @@ roundDecrypt rprime sbox xornary buf tmp rond = do
   rotBitcount' tmp (-1) buf
   forM_ [0..len-1] $ \i -> do
       a <- MV.read buf i
-      MV.write buf i (sbox V.! (((i + rond) `rem` 3)*256 + fromIntegral a))
+      MV.write buf i (sbox V.! (sboxInx ((i + rond) `rem` 3) a))
   mix3Parts' buf rprime
 
 encrypt :: Wring -> V.Vector Word8 -> V.Vector Word8

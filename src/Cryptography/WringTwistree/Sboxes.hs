@@ -28,7 +28,9 @@ import qualified Data.Vector.Unboxed as V
 
 type SBox = V.Vector Word8
 
-sboxInx :: Word8 -> Word8 -> Int
+{-# SPECIALIZE sboxInx :: Word8 -> Word8 -> Int #-}
+{-# SPECIALIZE sboxInx :: Int -> Word8 -> Int #-}
+sboxInx :: (Integral a,Integral b) => a -> b -> Int
 sboxInx whichBox n = fromIntegral whichBox*256 + fromIntegral n
 
 cycle3 :: [Word8]
