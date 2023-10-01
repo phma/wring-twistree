@@ -59,7 +59,7 @@ roundCompress sbox buf sboxalt = i4 where
   len = V.length buf
   rprime = relPrimes ! (fromIntegral len)
   i1 = mix3Parts buf (fromIntegral rprime)
-  i2 = V.fromListN len $ map (sbox V.!) $ zipWith (\y x -> fromIntegral y*256 + fromIntegral x) (drop sboxalt cycle3) (V.toList i1)
+  i2 = V.fromListN len $ map (sbox V.!) $ zipWith sboxInx (drop sboxalt cycle3) (V.toList i1)
   i3 = rotBitcount i2 twistPrime
   i4 = V.fromListN (len-4) $ backCrc (V.toList i3)
 

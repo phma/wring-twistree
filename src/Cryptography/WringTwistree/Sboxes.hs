@@ -1,5 +1,6 @@
 module Cryptography.WringTwistree.Sboxes
   ( SBox
+  , sboxInx
   , cycle3
   , sboxes
   , invert
@@ -26,6 +27,9 @@ import Cryptography.WringTwistree.KeySchedule
 import qualified Data.Vector.Unboxed as V
 
 type SBox = V.Vector Word8
+
+sboxInx :: Word8 -> Word8 -> Int
+sboxInx whichBox n = fromIntegral whichBox*256 + fromIntegral n
 
 cycle3 :: [Word8]
 cycle3 = 0 : 1 : 2 : cycle3
