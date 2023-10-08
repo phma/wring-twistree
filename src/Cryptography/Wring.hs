@@ -161,7 +161,5 @@ decryptST wring buf = V.create $ do
 
 -- Use either the ST version or the Fun version.
 
-roundEncrypt = roundEncryptST
-roundDecrypt = roundDecryptST
 encrypt = encryptST
 decrypt = decryptST
