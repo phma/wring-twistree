@@ -54,8 +54,10 @@ backCrcM a b = (c,(fromIntegral c)) where
 backCrc :: [Word8] -> [Word8]
 backCrc bytes = snd $ mapAccumR backCrcM 0xdeadc0de bytes
 
-roundCompress :: SBox -> V.Vector Word8 -> Int -> V.Vector Word8
-roundCompress sbox buf sboxalt = i4 where
+-- Original purely functional version, modified to use vectors
+
+roundCompressFun :: SBox -> V.Vector Word8 -> Int -> V.Vector Word8
+roundCompressFun sbox buf sboxalt = i4 where
   len = V.length buf
   rprime = relPrimes ! (fromIntegral len)
   i1 = mix3Parts buf (fromIntegral rprime)
@@ -63,12 +65,14 @@ roundCompress sbox buf sboxalt = i4 where
   i3 = rotBitcount i2 twistPrime
   i4 = V.fromListN (len-4) $ backCrc (V.toList i3)
 
-compress :: V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
-compress sbox buf sboxalt
+compressFun :: V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
+compressFun sbox buf sboxalt
   | len <= blockSize = buf
   | len `mod` twistPrime == 0 = error "bad block size"
-  | otherwise = compress sbox (roundCompress sbox buf sboxalt) sboxalt
+  | otherwise = compress sbox (roundCompressFun sbox buf sboxalt) sboxalt
   where len = V.length buf
+
+compress = compressFun
 
 {-
 compress2 takes 100x operations, compress3 takes 264x operations.
