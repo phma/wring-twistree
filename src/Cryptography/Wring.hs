@@ -63,6 +63,47 @@ keyedWring key = Wring sbox (invert sbox)
  - add byte index xor round number
  -}
 
+-- Original purely functional version, modified to use vectors
+
+roundEncryptFun :: Int -> SBox -> V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
+roundEncryptFun rprime sbox xornary buf rond = i4 where
+  len = V.length buf
+  xornrond = xorn rond
+  i1 = mix3Parts buf rprime
+  i2 = V.fromListN len $ map (sbox V.!) $ zipWith sboxInx (drop (fromIntegral rond) cycle3) (V.toList i1)
+  i3 = rotBitcount i2 1
+  i4 = V.fromListN len $ zipWith (+) (V.toList i3)
+       (map (xor xornrond) (V.toList xornary))
+
+roundDecryptFun :: Int -> SBox -> V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
+roundDecryptFun rprime sbox xornary buf rond = i4 where
+  len = V.length buf
+  xornrond = xorn rond
+  i1 = V.fromListN len $ zipWith (-) (V.toList buf)
+       (map (xor xornrond) (V.toList xornary))
+  i2 = rotBitcount i1 (-1)
+  i3 = V.fromListN len $ map (sbox V.!) $ zipWith sboxInx (drop (fromIntegral rond) cycle3) (V.toList i2)
+  i4 = mix3Parts i3 rprime
+
+encryptFun :: Wring -> V.Vector Word8 -> V.Vector Word8
+encryptFun wring buf = foldl' (roundEncryptFun rprime (sbox wring) xornary) buf rounds
+  where
+    len = V.length buf
+    xornary = xornArray (fromIntegral len)
+    rprime = fromIntegral $ findMaxOrder (len `div` 3)
+    rounds = [0 .. (fromIntegral (nRounds len) -1)]
+
+decryptFun :: Wring -> V.Vector Word8 -> V.Vector Word8
+decryptFun wring buf = foldl' (roundDecryptFun rprime (invSbox wring) xornary) buf rounds
+  where
+    len = V.length buf
+    xornary = xornArray (fromIntegral len)
+    rprime = fromIntegral $ findMaxOrder (len `div` 3)
+    rounds = reverse [0 .. (fromIntegral (nRounds len) -1)]
+
+-- ST monad version modifies memory in place
+-- by int-e
+
 {-# NOINLINE roundEncryptST #-}
 roundEncryptST :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
 roundEncryptST rprime sbox xornary buf tmp rond = do
@@ -117,6 +158,8 @@ decryptST wring buf = V.create $ do
   forM_ [0..nRounds len - 1] $ \rond -> do
     roundDecryptST rprime (invSbox wring) xornary buf tmp (nr - rond)
   pure buf
+
+-- Use either the ST version or the Fun version.
 
 roundEncrypt = roundEncryptST
 roundDecrypt = roundDecryptST
