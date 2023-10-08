@@ -63,9 +63,9 @@ keyedWring key = Wring sbox (invert sbox)
  - add byte index xor round number
  -}
 
-{-# NOINLINE roundEncrypt #-}
-roundEncrypt :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
-roundEncrypt rprime sbox xornary buf tmp rond = do
+{-# NOINLINE roundEncryptST #-}
+roundEncryptST :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
+roundEncryptST rprime sbox xornary buf tmp rond = do
   let len = MV.length buf
       xornrond = xorn rond
   mix3Parts' buf rprime
@@ -78,9 +78,9 @@ roundEncrypt rprime sbox xornary buf tmp rond = do
       let a' = a + (xornrond `xor` (xornary V.! i))
       MV.write buf i a'
 
-{-# NOINLINE roundDecrypt #-}
-roundDecrypt :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
-roundDecrypt rprime sbox xornary buf tmp rond = do
+{-# NOINLINE roundDecryptST #-}
+roundDecryptST :: Int -> SBox -> V.Vector Word8 -> MV.MVector s Word8 -> MV.MVector s Word8 -> Int -> ST s ()
+roundDecryptST rprime sbox xornary buf tmp rond = do
   let len = MV.length buf
       xornrond = xorn rond
   forM_ [0..len-1] $ \i -> do
@@ -93,8 +93,8 @@ roundDecrypt rprime sbox xornary buf tmp rond = do
       MV.write buf i (sbox V.! (sboxInx ((i + rond) `rem` 3) a))
   mix3Parts' buf rprime
 
-encrypt :: Wring -> V.Vector Word8 -> V.Vector Word8
-encrypt wring buf = V.create $ do
+encryptST :: Wring -> V.Vector Word8 -> V.Vector Word8
+encryptST wring buf = V.create $ do
   let len = V.length buf
       xornary = xornArray len
       rprime = findMaxOrder (len `div` 3)
@@ -102,11 +102,11 @@ encrypt wring buf = V.create $ do
   buf <- V.thaw buf
   tmp <- MV.new len
   forM_ [0..nRounds len - 1] $ \rond -> do
-    roundEncrypt rprime (sbox wring) xornary buf tmp rond
+    roundEncryptST rprime (sbox wring) xornary buf tmp rond
   pure buf
 
-decrypt :: Wring -> V.Vector Word8 -> V.Vector Word8
-decrypt wring buf = V.create $ do
+decryptST :: Wring -> V.Vector Word8 -> V.Vector Word8
+decryptST wring buf = V.create $ do
   let len = V.length buf
       xornary = xornArray len
       rprime = findMaxOrder (len `div` 3)
@@ -115,5 +115,10 @@ decrypt wring buf = V.create $ do
   buf <- V.thaw buf
   tmp <- MV.new len
   forM_ [0..nRounds len - 1] $ \rond -> do
-    roundDecrypt rprime (invSbox wring) xornary buf tmp (nr - rond)
+    roundDecryptST rprime (invSbox wring) xornary buf tmp (nr - rond)
   pure buf
+
+roundEncrypt = roundEncryptST
+roundDecrypt = roundDecryptST
+encrypt = encryptST
+decrypt = decryptST
