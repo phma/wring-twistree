@@ -21,6 +21,9 @@ import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
 import Cryptography.WringTwistree.Sboxes
 import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as MV
+import Control.Monad.ST
+import Control.Monad
 
 blockSize :: Integral a => a
 blockSize = 32
@@ -71,6 +74,32 @@ compressFun sbox buf sboxalt
   | len `mod` twistPrime == 0 = error "bad block size"
   | otherwise = compress sbox (roundCompressFun sbox buf sboxalt) sboxalt
   where len = V.length buf
+
+-- ST monad version modifies memory in place
+
+roundCompressST ::
+  SBox ->
+  MV.MVector s Word8 ->
+  MV.MVector s Word8 ->
+  Int ->
+  ST s (MV.MVector s Word8)
+roundCompressST sbox buf tmp sboxalt = do
+  let len = MV.length buf
+  let rprime = relPrimes ! (fromIntegral len)
+  mix3Parts' buf (fromIntegral rprime)
+  forM_ [0..len-1] $ \i -> do
+    a <- MV.read buf i
+    MV.write tmp i (sbox V.! (sboxInx ((i + sboxalt) `rem` 3) a))
+  rotBitcount' tmp twistPrime buf
+  crcVec <- MV.new (len+1)
+  MV.write crcVec len 0xdeadc0de
+  forM_ (reverse [0..len-1]) $ \i -> do
+    a <- MV.read buf i
+    c <- MV.read crcVec (i+1)
+    let (c',a') = backCrcM c a
+    MV.write buf i a'
+    MV.write crcVec i c'
+  return (MV.take (len-4) buf)
 
 compress = compressFun
 
