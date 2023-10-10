@@ -80,12 +80,12 @@ compressFun sbox buf sboxalt
 roundCompressST ::
   SBox ->
   MV.MVector s Word8 ->
-  MV.MVector s Word8 ->
   Int ->
   ST s (MV.MVector s Word8)
-roundCompressST sbox buf tmp sboxalt = do
+roundCompressST sbox buf sboxalt = do
   let len = MV.length buf
   let rprime = relPrimes ! (fromIntegral len)
+  tmp <- MV.new len
   mix3Parts' buf (fromIntegral rprime)
   forM_ [0..len-1] $ \i -> do
     a <- MV.read buf i
@@ -107,8 +107,7 @@ compressST sbox buf sboxalt = V.create $ do
   let nr = (len - blockSize) `div` 4 - 1
   let rounds = [0 .. nr]
   buf <- V.thaw buf
-  tmp <- MV.new len
-  res <- foldM (\b r -> roundCompressST sbox b tmp sboxalt) buf rounds
+  res <- foldM (\b r -> roundCompressST sbox b sboxalt) buf rounds
   pure res
 
 compress = compressFun
