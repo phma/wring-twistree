@@ -72,7 +72,7 @@ compressFun :: V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
 compressFun sbox buf sboxalt
   | len <= blockSize = buf
   | len `mod` twistPrime == 0 = error "bad block size"
-  | otherwise = compress sbox (roundCompressFun sbox buf sboxalt) sboxalt
+  | otherwise = compressFun sbox (roundCompressFun sbox buf sboxalt) sboxalt
   where len = V.length buf
 
 -- ST monad version modifies memory in place
@@ -100,6 +100,16 @@ roundCompressST sbox buf tmp sboxalt = do
     MV.write buf i a'
     MV.write crcVec i c'
   return (MV.take (len-4) buf)
+
+compressST :: V.Vector Word8 -> V.Vector Word8 -> Int -> V.Vector Word8
+compressST sbox buf sboxalt = V.create $ do
+  let len = V.length buf
+  let nr = (len - blockSize) `div` 4 - 1
+  let rounds = [0 .. nr]
+  buf <- V.thaw buf
+  tmp <- MV.new len
+  res <- foldM (\b r -> roundCompressST sbox b tmp sboxalt) buf rounds
+  pure res
 
 compress = compressFun
 
