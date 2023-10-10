@@ -110,7 +110,7 @@ compressST sbox buf sboxalt = V.create $ do
   res <- foldM (\b r -> roundCompressST sbox b sboxalt) buf rounds
   pure res
 
-compress = compressFun
+compress = compressST
 
 {-
 compress2 takes 100x operations, compress3 takes 264x operations.
