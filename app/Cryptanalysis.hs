@@ -71,7 +71,7 @@ key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
 
-samples = 1048576
+samples = 16777216
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
