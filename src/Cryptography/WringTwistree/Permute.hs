@@ -46,26 +46,15 @@ permut8x32 key sbox = permHead >< permTail where
   permHead = permut8 (Seq.take 8 sbox) (Seq.index key 0)
   permTail = permut8x32 (Seq.drop 1 key) (Seq.drop 8 sbox)
 
--- 10 is a primitive root of 257; 180 is its inverse. The eight bytes in a group
--- all go to and come from different groups of eight.
-dealInxA :: Int -> Int
-dealInxA n = ((n+1)*10) `mod` 257-1
-
-invDealInxA :: Int -> Int
-invDealInxA n = ((n+1)*180) `mod` 257-1
-
 -- polynomial 100011101, 3 bit overflow table
 shift3    = listArray (0,7) [0x00,0x1d,0x3a,0x27,0x74,0x69,0x4e,0x53] :: UArray Int Int
 invShift3 = listArray (0,7) [0x00,0xad,0x47,0xea,0x8e,0x23,0xc9,0x64] :: UArray Int Int
 
-dealInxB :: Int -> Int
-dealInxB n = ((n .&. 0x1f) .<<. 3) `xor` (shift3 ! ((n .&. 0xe0) .>>. 5))
+dealInx :: Int -> Int
+dealInx n = ((n .&. 0x1f) .<<. 3) `xor` (shift3 ! ((n .&. 0xe0) .>>. 5))
 
-invDealInxB :: Int -> Int
-invDealInxB n = ((n .&. 0xf8) .>>. 3) `xor` (invShift3 ! (n .&. 0x07))
-
-dealInx = dealInxB
-invDealInx = invDealInxB
+invDealInx :: Int -> Int
+invDealInx n = ((n .&. 0xf8) .>>. 3) `xor` (invShift3 ! (n .&. 0x07))
 
 dealBytes :: Seq.Seq a -> Seq.Seq a -- must be 256 long
 dealBytes bs = Seq.fromList $ map (Seq.index bs) $ map invDealInx [0..255]
