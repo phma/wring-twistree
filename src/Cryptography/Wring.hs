@@ -105,7 +105,7 @@ encryptFun wring buf = foldl' (roundEncryptFun rprime (sbox wring) xornary)
   where
     len = V.length buf
     xornary = xornArray len
-    rprime = fromIntegral $ findMaxOrder (len `div` 3)
+    rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
     rounds = [0 .. (nRounds len) -1]
 
 decryptFun :: Wring -> V.Vector Word8 -> V.Vector Word8
@@ -114,7 +114,7 @@ decryptFun wring buf = foldl' (roundDecryptFun rprime (invSbox wring) xornary)
   where
     len = V.length buf
     xornary = xornArray len
-    rprime = fromIntegral $ findMaxOrder (len `div` 3)
+    rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
     rounds = reverse [0 .. (nRounds len) -1]
 
 -- ST monad version modifies memory in place
@@ -168,7 +168,7 @@ encryptST :: Wring -> V.Vector Word8 -> V.Vector Word8
 encryptST wring buf = V.create $ do
   let len = V.length buf
       xornary = xornArray len
-      rprime = findMaxOrder (len `div` 3)
+      rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
       rounds = [0 .. nRounds len - 1]
   buf <- V.thaw buf
   tmp <- MV.new len
@@ -180,7 +180,7 @@ decryptST :: Wring -> V.Vector Word8 -> V.Vector Word8
 decryptST wring buf = V.create $ do
   let len = V.length buf
       xornary = xornArray len
-      rprime = findMaxOrder (len `div` 3)
+      rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
       nr = nRounds len - 1
       rounds = [0 .. nr]
   buf <- V.thaw buf

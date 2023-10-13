@@ -42,10 +42,10 @@ mix a b c = xor a mask
 
 fibonacci = 0 : 1 : zipWith (+) fibonacci (tail fibonacci)
 
-fiboPair :: Int -> [Int]
+fiboPair :: Integer -> [Integer]
 fiboPair n = take 2 $ dropWhile (<= n) fibonacci
 
-searchDir :: Int -> (Int,Int)
+searchDir :: Integer -> (Integer,Int)
 -- fst=n/φ rounded to nearest. snd=+1 or -1, indicating search direction.
 -- e.g. if n=89, returns (55,1). Search 55,56,54,57,53...
 -- if n=144, returns (89,(-1)). Search 89,88,90,87,91...
@@ -71,10 +71,10 @@ isMaxOrder modl car fac n = (powModNatural nn ncar nmodl) == 1 && allnot1
 
 searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
 
-searchFrom :: (Int,Int) -> [Int]
+searchFrom :: (Integer,Int) -> [Integer]
 searchFrom (start,dir) = map (\x -> x*(fromIntegral dir)+start) searchSeq
 
-findMaxOrder :: Int -> Int
+findMaxOrder :: Integer -> Integer
 -- n must be positive.
 -- Returns the number of maximum multiplicative order mod n closest to n/φ.
 -- n=1 is a special case, as (isMaxOrder 1 1 [] i) returns False for all i>=0.
