@@ -23,6 +23,10 @@ module Cryptanalysis
   , wring6_1
   , wring6_2
   , wring6_3
+  , match
+  , rot1Bit
+  , convolve
+  , similar
   , thueMorse
   , byteArray
   , diff1Related
@@ -85,6 +89,31 @@ wring6_0 = keyedWring $ fromString key6_0
 wring6_1 = keyedWring $ fromString key6_1
 wring6_2 = keyedWring $ fromString key6_2
 wring6_3 = keyedWring $ fromString key6_3
+
+-- Because of rotBitcount, fixed-position bit differences are inadequate to
+-- telling whether two outputs of Wring are similar. Convolve them instead.
+
+match :: [Word8] -> [Word8] -> Int
+match as bs = sum $ zipWith (\a b -> 4 - popCount (a .^. b)) as bs
+
+rot1Bit' :: Word8 -> [Word8] -> [Word8]
+rot1Bit' b [a] = [(a .>>. 1) .|. (b .<<. 7)]
+rot1Bit' b (a0:a1:as) = ((a0 .>>. 1) .|. (a1 .<<. 7)) : (rot1Bit' b (a1:as))
+
+rot1Bit :: [Word8] -> [Word8]
+rot1Bit [] = []
+rot1Bit (a:as) = rot1Bit' a (a:as)
+
+convolve :: [Word8] -> [Word8] -> [Int]
+-- The lists should be equally long. Returns a list 8 times as long.
+convolve as bs = take nBits $ zipWith match (repeat as) (iterate rot1Bit bs) where
+  nBits = 8 * length bs
+
+similar :: [Word8] -> [Word8] -> Integer
+similar as bs = sum $ map ((^2) . fromIntegral) $ convolve as bs
+
+-- Multiples of the Thue-Morse word for spreading plaintexts around the
+-- space of plaintext
 
 log2 :: Integral a => a -> Int
 log2 0 = (-1)
