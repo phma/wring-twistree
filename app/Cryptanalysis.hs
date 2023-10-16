@@ -25,6 +25,7 @@ module Cryptanalysis
   , wring6_3
   , match
   , rot1Bit
+  , bias
   , convolve
   , similar
   , thueMorse
@@ -103,6 +104,10 @@ rot1Bit' b (a0:a1:as) = ((a0 .>>. 1) .|. (a1 .<<. 7)) : (rot1Bit' b (a1:as))
 rot1Bit :: [Word8] -> [Word8]
 rot1Bit [] = []
 rot1Bit (a:as) = rot1Bit' a (a:as)
+
+-- Ranges from -1 to 1, with 0 meaning half the bits are ones.
+bias :: [Word8] -> Double
+bias as = 1 - ((fromIntegral $ sum $ map popCount as) / (4 * fromIntegral (length as)))
 
 convolve :: [Word8] -> [Word8] -> [Int]
 -- The lists should be equally long. Returns a list 8 times as long.
