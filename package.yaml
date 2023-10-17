@@ -66,6 +66,7 @@ executables:
     - bytestring
     - utf8-string
     - multiarg
+    - arithmoi
 
 tests:
   WringTwistree-test:

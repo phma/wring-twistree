@@ -28,7 +28,7 @@ module Cryptanalysis
   , bias
   , convolve
   , similar
-  , thueMorse
+  , priminal
   , byteArray
   , diff1Related
   , diffRelated
@@ -44,6 +44,7 @@ module Cryptanalysis
 
 import Data.Word
 import Data.Bits
+import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
@@ -117,23 +118,18 @@ convolve as bs = take nBits $ zipWith match (repeat as) (iterate rot1Bit bs) whe
 similar :: [Word8] -> [Word8] -> Integer
 similar as bs = sum $ map ((^2) . fromIntegral) $ convolve as bs
 
--- Multiples of the Thue-Morse word for spreading plaintexts around the
+-- Multiples of the priminal word for spreading plaintexts around the
 -- space of plaintext
 
-log2 :: Integral a => a -> Int
-log2 0 = (-1)
-log2 (-1) = (-1771476585)
-log2 n = 1 + (log2 (n `div` 2))
+halfPrimes :: Int -> [Int]
+halfPrimes n = takeWhile (< n) (map ((`div` 2) . (+(-3)) . unPrime) [nextPrime 3 ..])
 
-thueMorse_ :: Int -> Integer
-thueMorse_ 0 = 1
-thueMorse_ n = (((1 .<<. nbits) - 1 - (thueMorse_ (n-1))) .<<. nbits)
-               + (thueMorse_ (n-1)) where
-  nbits = (1 .<<. (n-1))
+priminal_ :: Int -> Integer
+priminal_ n = sum $ map (1 .<<.) (halfPrimes n)
 
-thueMorse :: Integral a => Int -> a
--- Returns a Thue-Morse word of at least n bits ending in 1.
-thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
+priminal :: Integral a => Int -> a
+-- Returns a priminal word of at least n bits ending in 1.
+priminal n = fromIntegral (priminal_ n)
 
 byteArray :: (Bits a,Integral a) => Int -> a -> V.Vector Word8
 byteArray len n = V.fromListN len bytes where
@@ -159,11 +155,11 @@ diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
 
 diffRelated :: Wring -> Wring -> [Word64]
-diffRelated w0 w1 = map ((diff1Related w0 w1) . ((thueMorse 64) *)) [0..]
+diffRelated w0 w1 = map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
-  (take (div samples 2) (map ((thueMorse 64) *) [0..]))
+  (take (div samples 2) (map ((priminal 64) *) [0..]))
 
 relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
@@ -224,7 +220,7 @@ sum1Wring w pt b = foldl' xor 0 cts where
 integralHisto :: Wring -> Int -> Histo
 integralHisto w b = foldl' hCountBits (emptyHisto 64)
   (take (div samples 256) $
-  map ((\pt -> sum1Wring w pt b) . ((thueMorse 64) *)) [0..])
+  map ((\pt -> sum1Wring w pt b) . ((priminal 64) *)) [0..])
 
 integralStat :: Wring -> Int -> Double
 integralStat w b = binomial (integralHisto w b) (div samples 256)
