@@ -122,8 +122,8 @@ unbiasedConvolve as bs = map ((+(- prodBias)) . (/ halfBits) . fromIntegral)
     prodBias = (bias as) * (bias bs)
     halfBits = fromIntegral (4 * (length as))
 
-similar :: [Word8] -> [Word8] -> Integer
-similar as bs = sum $ map ((^2) . fromIntegral) $ convolve as bs
+similar :: [Word8] -> [Word8] -> Double
+similar as bs = sum $ map (^2) $ unbiasedConvolve as bs
 
 -- Multiples of the priminal word for spreading plaintexts around the
 -- space of plaintext
