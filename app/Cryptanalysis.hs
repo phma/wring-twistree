@@ -27,6 +27,7 @@ module Cryptanalysis
   , rot1Bit
   , bias
   , convolve
+  , unbiasedConvolve
   , similar
   , priminal
   , byteArray
@@ -114,6 +115,12 @@ convolve :: [Word8] -> [Word8] -> [Int]
 -- The lists should be equally long. Returns a list 8 times as long.
 convolve as bs = take nBits $ zipWith match (repeat as) (iterate rot1Bit bs) where
   nBits = 8 * length bs
+
+unbiasedConvolve :: [Word8] -> [Word8] -> [Double]
+unbiasedConvolve as bs = map ((+(- prodBias)) . (/ halfBits) . fromIntegral)
+  (convolve as bs) where
+    prodBias = (bias as) * (bias bs)
+    halfBits = fromIntegral (4 * (length as))
 
 similar :: [Word8] -> [Word8] -> Integer
 similar as bs = sum $ map ((^2) . fromIntegral) $ convolve as bs
