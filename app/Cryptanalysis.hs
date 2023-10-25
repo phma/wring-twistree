@@ -132,7 +132,7 @@ unbiasedConvolve as bs = map ((+(- prodBias)) . (/ halfBits) . fromIntegral)
 similar :: [Word8] -> [Word8] -> Double
 similar as bs = if (scale == 0) then 1 else
   (sum $ map (^2) $ unbiasedConvolve as bs) / scale where
-  scale = sqrt ((1+(bias as))*(1+(bias bs))*(1-(bias as))*(1-(bias bs)))
+  scale = ((1+(bias as))*(1+(bias bs))*(1-(bias as))*(1-(bias bs)))
 
 -- Multiples of the priminal word for spreading plaintexts around the
 -- space of plaintext
