@@ -31,6 +31,13 @@ module Cryptanalysis
   , similar
   , priminal
   , byteArray
+  , b125
+  , b250
+  , b375
+  , b500
+  , b625
+  , b750
+  , b875
   , diff1Related
   , diffRelated
   , sum1Wring
@@ -153,6 +160,62 @@ makeListInt (n:ns) = ((makeListInt ns) .<<. 8) .|. (fromIntegral n)
 
 makeArrayInt :: (Bits a,Integral a) => V.Vector Word8 -> a
 makeArrayInt = makeListInt . V.toList
+
+-- Random-looking bit vectors with proportions of bits set,
+-- for testing similar on biased bit vectons
+
+land :: [Word8] -> [Word8] -> [Word8]
+land as bs = zipWith (.&.) as bs
+
+lor :: [Word8] -> [Word8] -> [Word8]
+lor as bs = zipWith (.|.) as bs
+
+b125 :: Integer -> [Word8]
+b125 n = land a (land b c) where
+  a = V.toList $ encrypt wring6_0 $ byteArray 32 n
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+b250 :: Integer -> [Word8]
+b250 n = land b c where
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+b375 :: Integer -> [Word8]
+b375 n = land a (lor b c) where
+  a = V.toList $ encrypt wring6_0 $ byteArray 32 n
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+b500 :: Integer -> [Word8]
+b500 n = a where
+  a = V.toList $ encrypt wring6_0 $ byteArray 32 n
+
+b625 :: Integer -> [Word8]
+b625 n = lor a (land b c) where
+  a = V.toList $ encrypt wring6_0 $ byteArray 32 n
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+b750 :: Integer -> [Word8]
+b750 n = lor b c where
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+b875 :: Integer -> [Word8]
+b875 n = lor a (lor b c) where
+  a = V.toList $ encrypt wring6_0 $ byteArray 32 n
+  b = V.toList $ encrypt wring30_0 $ byteArray 32 n
+  c = V.toList $ encrypt wring96_0 $ byteArray 32 n
+
+-- Exact bitcount:
+-- b125 [21,27,48,58,61,74,82,87,91,104,112,120,142,153,156,175,180,210,213,214,251,254]
+-- b250 [10,12,14,17,19,35,37,49,54,96,123,137,144,145,152,155,157,181,185,192,227,239,250]
+-- b375 [15,16,63,75,79,94,99,113,141,181,186,215,249,251]
+-- b500 [66,184,186,190,191,207,225,228,234,235]
+-- b625 [34,45,51,53,62,77,109,164,207,249,250]
+-- b750 [8,18,77,84,87,109,130,147,152,163,172,189,232,246]
+-- b875 [6,13,39,45,48,52,66,71,94,95,106,108,111,122,133,161,166,173,200,203,221,228,251,254]
 
 -- Related-key cryptanalysis
 -- Take four keys which differ by one or two bytes, in pairs, and encrypt
