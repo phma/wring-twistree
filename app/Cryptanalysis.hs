@@ -130,6 +130,8 @@ unbiasedConvolve as bs = map ((+(- prodBias)) . (/ halfBits) . fromIntegral)
     prodBias = (bias as) * (bias bs)
     halfBits = fromIntegral (4 * (length as))
 
+-- The numbers returned by similar appear to have mean 1 and variance
+-- 0.0078125, i.e. 2/256 where 256 is the number of bits.
 similar :: [Word8] -> [Word8] -> Double
 similar as bs = if (scale == 0) then 1 else
   (sum $ map (^2) $ unbiasedConvolve as bs) / scale where
