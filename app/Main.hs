@@ -101,13 +101,6 @@ testHash = do
 
 testSimilar :: IO ()
 testSimilar = do
-  let
-    _ = (varSimilar b125) `par`
-      (varSimilar b250) `par`
-      (varSimilar b375) `par`
-      (varSimilar b500) `par`
-      (varSimilar b625) `par`
-      (varSimilar b750) `par` (varSimilar b875)
   putStr "b125 "
   putStrLn $ printf "%f" $ varSimilar b125
   putStr "b250 "
