@@ -7,6 +7,8 @@ import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
 import Cryptanalysis
+import Control.Parallel
+import Control.Parallel.Strategies
 import Text.Printf
 import Data.List.Split
 import Data.Word
@@ -96,6 +98,30 @@ testHash = do
   let plaintext = (take 105 (repeat 105)) ++ (take 150 (repeat 150))
   let hashtext = hash twistree $ BL.pack plaintext
   putStrLn $ block16str $ V.toList hashtext
+
+testSimilar :: IO ()
+testSimilar = do
+  let
+    _ = (varSimilar b125) `par`
+      (varSimilar b250) `par`
+      (varSimilar b375) `par`
+      (varSimilar b500) `par`
+      (varSimilar b625) `par`
+      (varSimilar b750) `par` (varSimilar b875)
+  putStr "b125 "
+  putStrLn $ printf "%f" $ varSimilar b125
+  putStr "b250 "
+  putStrLn $ printf "%f" $ varSimilar b250
+  putStr "b375 "
+  putStrLn $ printf "%f" $ varSimilar b375
+  putStr "b500 "
+  putStrLn $ printf "%f" $ varSimilar b500
+  putStr "b625 "
+  putStrLn $ printf "%f" $ varSimilar b625
+  putStr "b750 "
+  putStrLn $ printf "%f" $ varSimilar b750
+  putStr "b875 "
+  putStrLn $ printf "%f" $ varSimilar b875
 
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
@@ -194,7 +220,7 @@ doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt     -> encryptFile key infile outfile
     Just Decrypt     -> decryptFile key infile outfile
-    Just Test        -> testHash
+    Just Test        -> testSimilar
     Just (Analyze a) -> cryptanalyze a
     Just Hash        -> hashFile key infile outfile
     Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
