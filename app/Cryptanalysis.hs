@@ -28,7 +28,7 @@ module Cryptanalysis
   , bias
   , convolve
   , unbiasedConvolve
-  , similar
+  , convolveDiff
   , priminal
   , byteArray
   , b125
@@ -38,7 +38,7 @@ module Cryptanalysis
   , b625
   , b750
   , b875
-  , varSimilar
+  , varConvolveDiff
   , diff1Related
   , diffRelated
   , sum1Wring
@@ -130,10 +130,10 @@ unbiasedConvolve as bs = map ((+(- prodBias)) . (/ halfBits) . fromIntegral)
     prodBias = (bias as) * (bias bs)
     halfBits = fromIntegral (4 * (length as))
 
--- The numbers returned by similar appear to have mean 1 and variance
+-- The numbers returned by convolveDiff appear to have mean 1 and variance
 -- 0.0078125, i.e. 2/256 where 256 is the number of bits.
-similar :: [Word8] -> [Word8] -> Double
-similar as bs = if (scale == 0) then 1 else
+convolveDiff :: [Word8] -> [Word8] -> Double
+convolveDiff as bs = if (scale == 0) then 1 else
   (sum $ map (^2) $ unbiasedConvolve as bs) / scale where
   scale = ((1+(bias as))*(1+(bias bs))*(1-(bias as))*(1-(bias bs)))
 
@@ -165,7 +165,7 @@ makeArrayInt :: (Bits a,Integral a) => V.Vector Word8 -> a
 makeArrayInt = makeListInt . V.toList
 
 -- Random-looking bit vectors with proportions of bits set,
--- for testing similar on biased bit vectons
+-- for testing convolveDiff on biased bit vectons
 
 land :: [Word8] -> [Word8] -> [Word8]
 land as bs = zipWith (.&.) as bs
@@ -211,10 +211,10 @@ b875 n = lor a (lor b c) where
   b = V.toList $ encrypt wring30_0 $ byteArray 32 n
   c = V.toList $ encrypt wring96_0 $ byteArray 32 n
 
-varSimilar :: (Integer -> [Word8]) -> Double
--- Assumes the mean of similar is 1
-varSimilar b = sum (map (\x -> (x-1)^2) sims) / 4096 where
-  sims = map (\n -> similar (b (2*n)) (b (2*n+1))) [0..4095]
+varConvolveDiff :: (Integer -> [Word8]) -> Double
+-- Assumes the mean of convolveDiff is 1
+varConvolveDiff b = sum (map (\x -> (x-1)^2) sims) / 4096 where
+  sims = map (\n -> convolveDiff (b (2*n)) (b (2*n+1))) [0..4095]
 
 -- Exact bitcount:
 -- b125 [21,27,48,58,61,74,82,87,91,104,112,120,142,153,156,175,180,210,213,214,251,254]

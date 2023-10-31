@@ -102,19 +102,19 @@ testHash = do
 testSimilar :: IO ()
 testSimilar = do
   putStr "b125 "
-  putStrLn $ printf "%f" $ varSimilar b125
+  putStrLn $ printf "%f" $ varConvolveDiff b125
   putStr "b250 "
-  putStrLn $ printf "%f" $ varSimilar b250
+  putStrLn $ printf "%f" $ varConvolveDiff b250
   putStr "b375 "
-  putStrLn $ printf "%f" $ varSimilar b375
+  putStrLn $ printf "%f" $ varConvolveDiff b375
   putStr "b500 "
-  putStrLn $ printf "%f" $ varSimilar b500
+  putStrLn $ printf "%f" $ varConvolveDiff b500
   putStr "b625 "
-  putStrLn $ printf "%f" $ varSimilar b625
+  putStrLn $ printf "%f" $ varConvolveDiff b625
   putStr "b750 "
-  putStrLn $ printf "%f" $ varSimilar b750
+  putStrLn $ printf "%f" $ varConvolveDiff b750
   putStr "b875 "
-  putStrLn $ printf "%f" $ varSimilar b875
+  putStrLn $ printf "%f" $ varConvolveDiff b875
 
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
