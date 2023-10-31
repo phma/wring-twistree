@@ -258,9 +258,9 @@ sixStats w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
     s03 = relatedKeyStat w0 w3
     s12 = relatedKeyStat w1 w2
 
-tellStat :: Double -> String
+tellStat64 :: Double -> String
 -- 0.635 and 1.456 are 1% tails at 64 degrees of freedom, divided by 64.
-tellStat stat
+tellStat64 stat
   | stat < 0.635 = "Too smooth. They look like a low-discrepancy sequence."
   | stat < 1.456 = "The differences look random."
   | otherwise    = "Too much variation. Check for outliers."
@@ -269,12 +269,12 @@ relatedKey4 :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4 w0 w1 w2 w3 = do
   let sixS = sixStats w0 w1 w2 w3
   putStrLn (show sixS)
-  putStrLn ("0,1: " ++ tellStat (sixS !! 0))
-  putStrLn ("2,3: " ++ tellStat (sixS !! 1))
-  putStrLn ("0,2: " ++ tellStat (sixS !! 2))
-  putStrLn ("1,3: " ++ tellStat (sixS !! 3))
-  putStrLn ("0,3: " ++ tellStat (sixS !! 4))
-  putStrLn ("1,2: " ++ tellStat (sixS !! 5))
+  putStrLn ("0,1: " ++ tellStat64 (sixS !! 0))
+  putStrLn ("2,3: " ++ tellStat64 (sixS !! 1))
+  putStrLn ("0,2: " ++ tellStat64 (sixS !! 2))
+  putStrLn ("1,3: " ++ tellStat64 (sixS !! 3))
+  putStrLn ("0,3: " ++ tellStat64 (sixS !! 4))
+  putStrLn ("1,2: " ++ tellStat64 (sixS !! 5))
 
 relatedKey :: IO ()
 relatedKey = do
@@ -321,14 +321,14 @@ integral1 :: Wring -> IO ()
 integral1 w = do
   let eightS = eightStats w
   putStrLn (show eightS)
-  putStrLn ("Byte 0: " ++ tellStat (eightS !! 0))
-  putStrLn ("Byte 1: " ++ tellStat (eightS !! 1))
-  putStrLn ("Byte 2: " ++ tellStat (eightS !! 2))
-  putStrLn ("Byte 3: " ++ tellStat (eightS !! 3))
-  putStrLn ("Byte 4: " ++ tellStat (eightS !! 4))
-  putStrLn ("Byte 5: " ++ tellStat (eightS !! 5))
-  putStrLn ("Byte 6: " ++ tellStat (eightS !! 6))
-  putStrLn ("Byte 7: " ++ tellStat (eightS !! 7))
+  putStrLn ("Byte 0: " ++ tellStat64 (eightS !! 0))
+  putStrLn ("Byte 1: " ++ tellStat64 (eightS !! 1))
+  putStrLn ("Byte 2: " ++ tellStat64 (eightS !! 2))
+  putStrLn ("Byte 3: " ++ tellStat64 (eightS !! 3))
+  putStrLn ("Byte 4: " ++ tellStat64 (eightS !! 4))
+  putStrLn ("Byte 5: " ++ tellStat64 (eightS !! 5))
+  putStrLn ("Byte 6: " ++ tellStat64 (eightS !! 6))
+  putStrLn ("Byte 7: " ++ tellStat64 (eightS !! 7))
 
 integralCr :: IO ()
 integralCr = do
