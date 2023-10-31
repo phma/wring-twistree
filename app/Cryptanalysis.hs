@@ -265,6 +265,13 @@ tellStat64 stat
   | stat < 1.456 = "The differences look random."
   | otherwise    = "Too much variation. Check for outliers."
 
+tellStat256 :: Double -> String
+-- 0.806 and 1.217 are 1% tails at 256 degrees of freedom, divided by 256.
+tellStat256 stat
+  | stat < 0.806 = "Too smooth. They look like a low-discrepancy sequence."
+  | stat < 1.217 = "The differences look random."
+  | otherwise    = "Too much variation. Check for outliers."
+
 relatedKey4 :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4 w0 w1 w2 w3 = do
   let sixS = sixStats w0 w1 w2 w3
