@@ -25,9 +25,6 @@ import Control.Monad.ST
 import Control.Monad
 
 rotBitcount :: V.Vector Word8 -> Int -> V.Vector Word8
--- The type a may be signed or unsigned, but the array index must begin at 0.
--- a should hold the square of eight times the bounds; so if the bounds are
--- (0..31), Word16 is adequate, but Int16 and Word8 are not.
 -- See Rust code for a timing leak which may be present in (.>>.).
 rotBitcount src mult = V.fromListN len
   [ (src V.! ((i+len-byte)   `mod` len) .<<. bit) .|.
