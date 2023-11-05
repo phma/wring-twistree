@@ -230,6 +230,12 @@ varConvolveDiff b = sum (map (\x -> (x-1)^2) sims) / 4096 where
 -- Take four keys which differ by one or two bytes, in pairs, and encrypt
 -- the same plaintext with both and compute the difference.
 
+-- diffRelated produces a list of integers, which are then histogrammed,
+-- and the histo bars are turned into a chi-squared random variable.
+-- conDiffRelated produces a list of chi-squared random variables, whose
+-- mean and variance are then checked against what's expected. In both
+-- cases, the chi-squared variables are scaled to have a mean of 1.
+
 diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
