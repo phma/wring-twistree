@@ -1,5 +1,6 @@
 module Stats
-  ( Histo (..)
+  ( pairwiseSumCount
+  , Histo (..)
   , emptyHisto
   , hCount
   , hCountBits
@@ -16,6 +17,22 @@ import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
 import Control.Parallel.Strategies
+
+addDuple :: Num a => (a,Int) -> (a,Int) -> (a,Int)
+addDuple (b,c) (d,e) = (b+d,c+e)
+
+sumPairs :: Num a => [(a,Int)] -> [(a,Int)]
+sumPairs [] = []
+sumPairs [x] = [x]
+sumPairs (x:y:xs) = ((addDuple x y) : sumPairs xs)
+
+pairwiseSumCount_ :: (Num a) => [(a,Int)] -> (a,Int)
+pairwiseSumCount_ [] = (0,0)
+pairwiseSumCount_ [x] = x
+pairwiseSumCount_ x = pairwiseSumCount_ (sumPairs x)
+
+pairwiseSumCount :: (Num a) => [a] -> (a,Int)
+pairwiseSumCount xs = pairwiseSumCount_ (zip xs (repeat 1))
 
 newtype Histo = Histo (Seq.Seq Word) deriving (Show)
 
