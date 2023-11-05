@@ -2,6 +2,8 @@
 module Cryptography.WringTwistree.RotBitcount
   ( rotBitcount
   , rotBitcount'
+  , rotFixed
+  , rotFixed'
   )  where
 
 {- This module is used in both Wring and Twistree.
@@ -41,6 +43,34 @@ rotBitcount' :: MV.MVector s Word8 -> Int -> MV.MVector s Word8 -> ST s ()
 rotBitcount' src mult dst = do
     bitcount <- MV.foldl' (\acc x -> acc + popCount x) 0 src
     let len = MV.length src
+        !multmod = mult `mod` (len * 8)
+        rotcount = (bitcount * multmod) `rem` (len * 8)
+        !byte = rotcount .>>. 3
+        !bit = rotcount .&. 7
+    forM_ [0..MV.length src - 1] $ \i -> do
+        l <- MV.read src ((i+len-byte) `rem` len)
+        r <- MV.read src ((i+len-byte-1) `rem` len)
+        MV.write dst i ((l .<<. bit) .|. (r .>>. (8-bit)))
+
+-- For cryptanalyzing a weakened version which replaces the SACful rotBitcount
+-- with a linear fixed rotation. It rotates by two more than half the number
+-- of bits in the buffer, times mult.
+rotFixed :: V.Vector Word8 -> Int -> V.Vector Word8
+rotFixed src mult = V.fromListN len
+  [ (src V.! ((i+len-byte)   `mod` len) .<<. bit) .|.
+    (src V.! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
+  where
+    len = V.length src
+    multmod = mult `mod` (len * 8)
+    bitcount = len * 4 + 2
+    rotcount = (bitcount * multmod) `mod` (len * 8)
+    !byte = rotcount .>>. 3
+    !bit = rotcount .&. 7
+
+rotFixed' :: MV.MVector s Word8 -> Int -> MV.MVector s Word8 -> ST s ()
+rotFixed' src mult dst = do
+    let len = MV.length src
+	bitcount = len * 4 + 2
         !multmod = mult `mod` (len * 8)
         rotcount = (bitcount * multmod) `rem` (len * 8)
         !byte = rotcount .>>. 3
