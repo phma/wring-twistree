@@ -40,6 +40,7 @@ module Cryptanalysis
   , b875
   , varConvolveDiff
   , diff1Related
+  , conDiff1Related
   , diffRelated
   , sum1Wring
   , relatedKeyHisto
@@ -233,6 +234,11 @@ diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
+
+conDiff1Related :: Wring -> Wring -> Word64 -> Double
+conDiff1Related w0 w1 pt = convolveDiff ct0 ct1 where
+  ct0 = V.toList $ encrypt w0 $ eightByteArray pt
+  ct1 = V.toList $ encrypt w1 $ eightByteArray pt
 
 diffRelated :: Wring -> Wring -> [Word64]
 diffRelated w0 w1 = map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
