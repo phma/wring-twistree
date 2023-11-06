@@ -42,6 +42,7 @@ module Cryptanalysis
   , diff1Related
   , conDiff1Related
   , diffRelated
+  , conDiffRelated
   , sum1Wring
   , relatedKeyHisto
   , plaintextHisto
@@ -248,6 +249,9 @@ conDiff1Related w0 w1 pt = convolveDiff ct0 ct1 where
 
 diffRelated :: Wring -> Wring -> [Word64]
 diffRelated w0 w1 = map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
+
+conDiffRelated :: Wring -> Wring -> [Double]
+conDiffRelated w0 w1 = map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
