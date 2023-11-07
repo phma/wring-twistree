@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Stats
   ( pairwiseSumCount
   , Histo (..)
@@ -21,12 +22,12 @@ import Control.Parallel
 import Control.Parallel.Strategies
 
 addDuple :: Num a => (a,Int) -> (a,Int) -> (a,Int)
-addDuple (b,c) (d,e) = (b+d,c+e)
+addDuple (!b,!c) (d,e) = (b+d,c+e)
 
 sumPairs :: Num a => [(a,Int)] -> [(a,Int)]
 sumPairs [] = []
 sumPairs [x] = [x]
-sumPairs (x:y:xs) = ((addDuple x y) : sumPairs xs)
+sumPairs (x:y:xs) = pseq (addDuple x y) $ ((addDuple x y) : sumPairs xs)
 
 pairwiseSumCount_ :: (Num a) => [(a,Int)] -> (a,Int)
 pairwiseSumCount_ [] = (0,0)
