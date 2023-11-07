@@ -9,6 +9,7 @@ module Stats
   , sacCountBit
   , bitFold
   , sacStats
+  , normμσ
   ) where
 
 import Data.Bits
@@ -16,6 +17,7 @@ import Data.Word
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
+import Control.Parallel
 import Control.Parallel.Strategies
 
 addDuple :: Num a => (a,Int) -> (a,Int) -> (a,Int)
@@ -110,3 +112,16 @@ sacStats :: (Integral a,FiniteBits a) => [a] -> [[Int]]
 sacStats [] = []
 sacStats (x:xs) = parMap rpar (\h -> sacRow h wid) (sacHistos (x:xs) wid)
   where wid=finiteBitSize (x)
+
+normμσ :: Double -> Double -> [Double] -> (Double,Double)
+-- Takes a list of numbers, assumed to have the specified mean and standard
+-- deviation, and returns the actual mean, as an offset from the specified
+-- mean in specified standard deviations, and the average square deviation,
+-- in specified variances. The result should be near (0,1).
+normμσ μ σ devs = par var $ (mean,var) where
+  ndevs = map (\x -> (x-μ)/σ) devs
+  ndevsqs = map (^2) ndevs
+  (total,n) = pairwiseSumCount ndevs
+  (total2,n2) = pairwiseSumCount ndevsqs
+  mean = total / (fromIntegral n)
+  var = total2 / (fromIntegral n2)
