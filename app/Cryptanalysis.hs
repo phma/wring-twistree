@@ -46,7 +46,7 @@ module Cryptanalysis
   , sum1Wring
   , relatedKeyHisto
   , plaintextHisto
-  , sixStats
+  , sixStatsBit
   , relatedKey
   , integralHisto
   , eightStats
@@ -261,18 +261,32 @@ relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
   (take (div samples 2) (diffRelated w0 w1))
 
-relatedKeyStat :: Wring -> Wring -> Double
-relatedKeyStat w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
+relatedKeyStatBit :: Wring -> Wring -> Double
+relatedKeyStatBit w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
 
-sixStats :: Wring -> Wring -> Wring -> Wring -> [Double]
-sixStats w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
+relatedKeyStatConv :: Wring -> Wring -> (Double,Double)
+relatedKeyStatConv w0 w1 = normμσ 1 (sqrt (1/32))
+  (take (div samples 2) (conDiffRelated w0 w1))
+
+sixStatsBit :: Wring -> Wring -> Wring -> Wring -> [Double]
+sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
   [s01,s23,s02,s13,s03,s12] where
-    s01 = relatedKeyStat w0 w1
-    s23 = relatedKeyStat w2 w3
-    s02 = relatedKeyStat w0 w2
-    s13 = relatedKeyStat w1 w3
-    s03 = relatedKeyStat w0 w3
-    s12 = relatedKeyStat w1 w2
+    s01 = relatedKeyStatBit w0 w1
+    s23 = relatedKeyStatBit w2 w3
+    s02 = relatedKeyStatBit w0 w2
+    s13 = relatedKeyStatBit w1 w3
+    s03 = relatedKeyStatBit w0 w3
+    s12 = relatedKeyStatBit w1 w2
+
+sixStatsConv :: Wring -> Wring -> Wring -> Wring -> [(Double,Double)]
+sixStatsConv w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
+  [s01,s23,s02,s13,s03,s12] where
+    s01 = relatedKeyStatConv w0 w1
+    s23 = relatedKeyStatConv w2 w3
+    s02 = relatedKeyStatConv w0 w2
+    s13 = relatedKeyStatConv w1 w3
+    s03 = relatedKeyStatConv w0 w3
+    s12 = relatedKeyStatConv w1 w2
 
 tellStat64 :: Double -> String
 -- 0.635 and 1.456 are 1% tails at 64 degrees of freedom, divided by 64.
@@ -288,9 +302,17 @@ tellStat256 stat
   | stat < 1.217 = "The differences look random."
   | otherwise    = "Too much variation. Check for outliers."
 
-relatedKey4 :: Wring -> Wring -> Wring -> Wring -> IO ()
-relatedKey4 w0 w1 w2 w3 = do
-  let sixS = sixStats w0 w1 w2 w3
+tellStatμσ :: (Double,Double) -> String
+tellStatμσ (mean,var)
+  | mean < -0.5 = "The bit patterns are close to periodic."
+  | mean > 0.5  = "The bit patterns are too similar."
+  | var  > 2    = "The variance is too high."
+  | var  < 0.5  = "The variance is too low."
+  | otherwise   = "The differences look random."
+
+relatedKey4Bit :: Wring -> Wring -> Wring -> Wring -> IO ()
+relatedKey4Bit w0 w1 w2 w3 = do
+  let sixS = sixStatsBit w0 w1 w2 w3
   putStrLn (show sixS)
   putStrLn ("0,1: " ++ tellStat64 (sixS !! 0))
   putStrLn ("2,3: " ++ tellStat64 (sixS !! 1))
@@ -299,14 +321,31 @@ relatedKey4 w0 w1 w2 w3 = do
   putStrLn ("0,3: " ++ tellStat64 (sixS !! 4))
   putStrLn ("1,2: " ++ tellStat64 (sixS !! 5))
 
+relatedKey4Conv :: Wring -> Wring -> Wring -> Wring -> IO ()
+relatedKey4Conv w0 w1 w2 w3 = do
+  let sixS = sixStatsConv w0 w1 w2 w3
+  putStrLn (show sixS)
+  putStrLn ("0,1: " ++ tellStatμσ (sixS !! 0))
+  putStrLn ("2,3: " ++ tellStatμσ (sixS !! 1))
+  putStrLn ("0,2: " ++ tellStatμσ (sixS !! 2))
+  putStrLn ("1,3: " ++ tellStatμσ (sixS !! 3))
+  putStrLn ("0,3: " ++ tellStatμσ (sixS !! 4))
+  putStrLn ("1,2: " ++ tellStatμσ (sixS !! 5))
+
 relatedKey :: IO ()
 relatedKey = do
-  putStrLn "96-byte key, 8-byte data:"
-  relatedKey4 wring96_0 wring96_1 wring96_2 wring96_3
-  putStrLn "30-byte key, 8-byte data:"
-  relatedKey4 wring30_0 wring30_1 wring30_2 wring30_3
-  putStrLn "6-byte key, 8-byte data:"
-  relatedKey4 wring6_0 wring6_1 wring6_2 wring6_3
+  putStrLn "96-byte key, 8-byte data, bitwise differences:"
+  relatedKey4Bit wring96_0 wring96_1 wring96_2 wring96_3
+  putStrLn "96-byte key, 8-byte data, convolutional differences:"
+  relatedKey4Conv wring96_0 wring96_1 wring96_2 wring96_3
+  putStrLn "30-byte key, 8-byte data, bitwise differences:"
+  relatedKey4Bit wring30_0 wring30_1 wring30_2 wring30_3
+  putStrLn "30-byte key, 8-byte data, convolutional differences:"
+  relatedKey4Conv wring30_0 wring30_1 wring30_2 wring30_3
+  putStrLn "6-byte key, 8-byte data, bitwise differences:"
+  relatedKey4Bit wring6_0 wring6_1 wring6_2 wring6_3
+  putStrLn "6-byte key, 8-byte data, convolutional differences:"
+  relatedKey4Conv wring6_0 wring6_1 wring6_2 wring6_3
 
 -- Integral cryptanalysis
 -- Take one key, and each of the eight bytes of the plaintext in parallel,
