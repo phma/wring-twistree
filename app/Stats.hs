@@ -21,21 +21,18 @@ import Data.Foldable (toList,foldl')
 import Control.Parallel
 import Control.Parallel.Strategies
 
-addDuple :: Num a => (a,Int) -> (a,Int) -> (a,Int)
-addDuple (!b,!c) (d,e) = (b+d,c+e)
+addTriple :: Num a => (Int,a,a) -> (Int,a,a) -> (Int,a,a)
+addTriple (!b,!c,!d) (e,f,g) = (b+e,c+f,d+g)
 
-sumPairs :: Num a => [(a,Int)] -> [(a,Int)]
+sumPairs :: Num a => [(Int,a,a)] -> [(Int,a,a)]
 sumPairs [] = []
 sumPairs [x] = [x]
-sumPairs (x:y:xs) = pseq (addDuple x y) $ ((addDuple x y) : sumPairs xs)
+sumPairs (x:y:xs) = pseq (addTriple x y) $ ((addTriple x y) : sumPairs xs)
 
-pairwiseSumCount_ :: (Num a) => [(a,Int)] -> (a,Int)
-pairwiseSumCount_ [] = (0,0)
-pairwiseSumCount_ [x] = x
-pairwiseSumCount_ x = pairwiseSumCount_ (sumPairs x)
-
-pairwiseSumCount :: (Num a) => [a] -> (a,Int)
-pairwiseSumCount xs = pairwiseSumCount_ (zip xs (repeat 1))
+pairwiseSumCount :: (Num a) => [(Int,a,a)] -> (Int,a,a)
+pairwiseSumCount [] = (0,0,0)
+pairwiseSumCount [x] = x
+pairwiseSumCount xs = pairwiseSumCount (sumPairs xs)
 
 newtype Histo = Histo (Seq.Seq Word) deriving (Show)
 
@@ -119,10 +116,9 @@ normμσ :: Double -> Double -> [Double] -> (Double,Double)
 -- deviation, and returns the actual mean, as an offset from the specified
 -- mean in specified standard deviations, and the average square deviation,
 -- in specified variances. The result should be near (0,1).
-normμσ μ σ devs = par var $ (mean,var) where
+normμσ μ σ devs = (mean,var) where
   ndevs = map (\x -> (x-μ)/σ) devs
-  ndevsqs = map (^2) ndevs
-  (total,n) = pairwiseSumCount ndevs
-  (total2,n2) = pairwiseSumCount ndevsqs
+  ndevsqs = map (\x -> (1,x,x^2)) ndevs
+  (n,total,total2) = pairwiseSumCount ndevsqs
   mean = total / (fromIntegral n)
-  var = total2 / (fromIntegral n2)
+  var = total2 / (fromIntegral n)
