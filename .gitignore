@@ -6,6 +6,7 @@ debug
 *.hp
 *.prof
 *.ps
+*.eventlog
 
 # Added by cargo
 
