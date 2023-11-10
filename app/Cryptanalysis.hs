@@ -62,6 +62,7 @@ import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
 import Control.Parallel
 import Control.Parallel.Strategies
+import GHC.Conc (numCapabilities)
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Cryptography.Wring
