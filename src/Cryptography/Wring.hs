@@ -190,6 +190,10 @@ decryptST wring buf = V.create $ do
   pure buf
 
 -- Use either the ST version or the Fun version.
+-- Fun takes 4.2 times as long as ST when encrypting or decrypting a file,
+-- but doing six threads in parallel for cryptanalysis, it takes only
+-- 1.58 times as long. Turning off threading makes encrypting 5.2 times
+-- as fast.
 
-encrypt = encryptST
-decrypt = decryptST
+encrypt = encryptFun
+decrypt = decryptFun
