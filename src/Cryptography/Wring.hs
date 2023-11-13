@@ -1,5 +1,6 @@
 module Cryptography.Wring
   ( Wring
+  , wringName
   , linearWring
   , keyedWring
   , encrypt
@@ -18,6 +19,7 @@ module Cryptography.Wring
 import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.RotBitcount
 import Cryptography.WringTwistree.Sboxes
+import Text.Printf
 import Data.Word
 import Data.Bits
 import Data.Foldable (foldl')
@@ -31,6 +33,13 @@ data Wring = Wring
   { sbox    :: SBox
   , invSbox :: SBox
   } deriving Show
+
+wringName :: Wring -> String
+wringName wring = printf "%02x-%02x-%02x-%02x"
+  ((sbox wring) V.! 0)
+  ((sbox wring) V.! 1)
+  ((sbox wring) V.! 2)
+  ((sbox wring) V.! 3)
 
 nRounds :: Integral a => a -> a
 nRounds len

@@ -65,6 +65,7 @@ import Control.Parallel.Strategies
 import GHC.Conc (numCapabilities)
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
+import Debug.Trace
 import Cryptography.Wring
 import Stats
 import qualified Data.Vector.Unboxed as V
@@ -244,7 +245,7 @@ diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
 
 conDiff1Related :: Wring -> Wring -> Word64 -> Double
-conDiff1Related w0 w1 pt = convolveDiff ct0 ct1 where
+conDiff1Related w0 w1 pt = par ct0 $ convolveDiff ct0 ct1 where
   ct0 = V.toList $ encrypt w0 $ eightByteArray pt
   ct1 = V.toList $ encrypt w1 $ eightByteArray pt
 
@@ -252,7 +253,7 @@ diffRelated :: Wring -> Wring -> [Word64]
 diffRelated w0 w1 = map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 conDiffRelated :: Wring -> Wring -> [Double]
-conDiffRelated w0 w1 = map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
+conDiffRelated w0 w1 = traceEvent ((wringName w0) ++ "-con-" ++ (wringName w1)) $ map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
@@ -335,18 +336,25 @@ relatedKey4Conv w0 w1 w2 w3 = do
 
 relatedKey :: IO ()
 relatedKey = do
+  traceMarkerIO "96bit"
   putStrLn "96-byte key, 8-byte data, bitwise differences:"
   relatedKey4Bit wring96_0 wring96_1 wring96_2 wring96_3
+  traceMarkerIO "96conv"
   putStrLn "96-byte key, 8-byte data, convolutional differences:"
   relatedKey4Conv wring96_0 wring96_1 wring96_2 wring96_3
+  traceMarkerIO "30bit"
   putStrLn "30-byte key, 8-byte data, bitwise differences:"
   relatedKey4Bit wring30_0 wring30_1 wring30_2 wring30_3
+  traceMarkerIO "30conv"
   putStrLn "30-byte key, 8-byte data, convolutional differences:"
   relatedKey4Conv wring30_0 wring30_1 wring30_2 wring30_3
+  traceMarkerIO "6bit"
   putStrLn "6-byte key, 8-byte data, bitwise differences:"
   relatedKey4Bit wring6_0 wring6_1 wring6_2 wring6_3
+  traceMarkerIO "6conv"
   putStrLn "6-byte key, 8-byte data, convolutional differences:"
   relatedKey4Conv wring6_0 wring6_1 wring6_2 wring6_3
+  traceMarkerIO "relkey done"
 
 -- Integral cryptanalysis
 -- Take one key, and each of the eight bytes of the plaintext in parallel,
