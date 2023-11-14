@@ -239,6 +239,9 @@ varConvolveDiff b = sum (map (\x -> (x-1)^2) sims) / 4096 where
 -- mean and variance are then checked against what's expected. In both
 -- cases, the chi-squared variables are scaled to have a mean of 1.
 
+name2 :: Wring -> String -> Wring -> String
+name2 w0 s w1 = (wringName w0) ++ s ++ (wringName w1)
+
 diff1Related :: Wring -> Wring -> Word64 -> Word64
 diff1Related w0 w1 pt = ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
@@ -250,10 +253,10 @@ conDiff1Related w0 w1 pt = par ct0 $ convolveDiff ct0 ct1 where
   ct1 = V.toList $ encrypt w1 $ eightByteArray pt
 
 diffRelated :: Wring -> Wring -> [Word64]
-diffRelated w0 w1 = map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
+diffRelated w0 w1 = traceEvent (name2 w0 "-diff-" w1) $ map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 conDiffRelated :: Wring -> Wring -> [Double]
-conDiffRelated w0 w1 = traceEvent ((wringName w0) ++ "-con-" ++ (wringName w1)) $ map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
+conDiffRelated w0 w1 = traceEvent (name2 w0 "-con-" w1) $ map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
