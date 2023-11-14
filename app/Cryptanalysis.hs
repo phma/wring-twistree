@@ -274,7 +274,7 @@ relatedKeyStatConv w0 w1 = normμσ 1 (sqrt (1/32))
   (take (div samples 2) (conDiffRelated w0 w1))
 
 sixStatsBit :: Wring -> Wring -> Wring -> Wring -> [Double]
-sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
+sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
   [s01,s23,s02,s13,s03,s12] where
     s01 = relatedKeyStatBit w0 w1
     s23 = relatedKeyStatBit w2 w3
@@ -284,7 +284,7 @@ sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
     s12 = relatedKeyStatBit w1 w2
 
 sixStatsConv :: Wring -> Wring -> Wring -> Wring -> [(Double,Double)]
-sixStatsConv w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $
+sixStatsConv w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
   [s01,s23,s02,s13,s03,s12] where
     s01 = relatedKeyStatConv w0 w1
     s23 = relatedKeyStatConv w2 w3
