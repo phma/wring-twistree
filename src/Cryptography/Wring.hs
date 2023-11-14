@@ -3,6 +3,10 @@ module Cryptography.Wring
   , wringName
   , linearWring
   , keyedWring
+  , encryptFun
+  , decryptFun
+  , encryptST
+  , decryptST
   , encrypt
   , decrypt
   ) where
@@ -204,5 +208,5 @@ decryptST wring buf = V.create $ do
 -- 1.58 times as long. Turning off threading makes encrypting 5.2 times
 -- as fast.
 
-encrypt = encryptFun
-decrypt = decryptFun
+encrypt = encryptST
+decrypt = decryptST
