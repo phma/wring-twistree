@@ -9,6 +9,7 @@ module Cryptography.Wring
   , decryptST
   , encrypt
   , decrypt
+  , encryptFixed
   ) where
 
 {- This cipher is intended to be used with short random keys (32 bytes or less,
@@ -155,6 +156,28 @@ roundEncryptST rprime sbox xornary buf tmp rond = do
       let a' = a + (xornrond `xor` (xornary V.! i))
       MV.write buf i a'
 
+{-# NOINLINE roundEncryptFixedST #-}
+roundEncryptFixedST ::
+  Int ->
+  SBox ->
+  V.Vector Word8 ->
+  MV.MVector s Word8 ->
+  MV.MVector s Word8 ->
+  Int ->
+  ST s ()
+roundEncryptFixedST rprime sbox xornary buf tmp rond = do
+  let len = MV.length buf
+      xornrond = xorn rond
+  mix3Parts' buf rprime
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      MV.write tmp i (sbox V.! (sboxInx ((i + rond) `rem` 3) a))
+  rotFixed' tmp 1 buf
+  forM_ [0..len-1] $ \i -> do
+      a <- MV.read buf i
+      let a' = a + (xornrond `xor` (xornary V.! i))
+      MV.write buf i a'
+
 {-# NOINLINE roundDecryptST #-}
 roundDecryptST ::
   Int ->
@@ -189,6 +212,20 @@ encryptST wring buf = V.create $ do
     roundEncryptST rprime (sbox wring) xornary buf tmp rond
   pure buf
 
+-- Encrypts using a fixed rotation of the buffer, rather than rotating
+-- by its population count. This removes a source of nonlinearity.
+encryptFixedST :: Wring -> V.Vector Word8 -> V.Vector Word8
+encryptFixedST wring buf = V.create $ do
+  let len = V.length buf
+      xornary = xornArray len
+      rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
+      rounds = [0 .. nRounds len - 1]
+  buf <- V.thaw buf
+  tmp <- MV.new len
+  forM_ [0..nRounds len - 1] $ \rond -> do
+    roundEncryptFixedST rprime (sbox wring) xornary buf tmp rond
+  pure buf
+
 decryptST :: Wring -> V.Vector Word8 -> V.Vector Word8
 decryptST wring buf = V.create $ do
   let len = V.length buf
@@ -209,4 +246,5 @@ decryptST wring buf = V.create $ do
 -- as fast.
 
 encrypt = encryptST
+encryptFixed = encryptFixedST
 decrypt = decryptST
