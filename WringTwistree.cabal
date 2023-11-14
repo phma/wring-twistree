@@ -44,7 +44,7 @@ library
   build-depends:
       arithmoi
     , array
-    , base >=4.7 && <5
+    , base >=4.17 && <5
     , bytestring
     , containers
     , mod
@@ -67,7 +67,7 @@ executable WringTwistree
       WringTwistree
     , arithmoi
     , array
-    , base >=4.7 && <5
+    , base >=4.17 && <5
     , bytestring
     , containers
     , multiarg
@@ -88,7 +88,7 @@ test-suite WringTwistree-test
   build-depends:
       WringTwistree
     , array
-    , base >=4.7 && <5
+    , base >=4.17 && <5
     , bytestring
     , containers
     , tasty
