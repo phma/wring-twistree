@@ -380,7 +380,7 @@ integralStat :: Wring -> Int -> Double
 integralStat w b = binomial (integralHisto w b) (div samples 256)
 
 eightStats :: Wring -> [Double]
-eightStats w = par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $
+eightStats w = par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $ par s7 $
   [s0,s1,s2,s3,s4,s5,s6,s7] where
     s0 = integralStat w 0
     s1 = integralStat w 1
