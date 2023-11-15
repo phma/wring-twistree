@@ -92,6 +92,7 @@ key6_2 = "cerate"
 key6_3 = "derate"
 
 samples = 16384 -- 16777216
+chunkSize = div samples (2 * numCapabilities)
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
@@ -265,14 +266,14 @@ plaintextHisto = foldl' hCountBits (emptyHisto 64)
 
 relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
-  (take (div samples 2) (diffRelated w0 w1))
+  (take (div samples 2) (diffRelated w0 w1) `using` parListChunk chunkSize rdeepseq)
 
 relatedKeyStatBit :: Wring -> Wring -> Double
 relatedKeyStatBit w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
 
 relatedKeyStatConv :: Wring -> Wring -> (Double,Double)
 relatedKeyStatConv w0 w1 = normμσ 1 (sqrt (1/32))
-  (take (div samples 2) (conDiffRelated w0 w1))
+  (take (div samples 2) (conDiffRelated w0 w1) `using` parListChunk chunkSize rdeepseq)
 
 sixStatsBit :: Wring -> Wring -> Wring -> Wring -> [Double]
 sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
