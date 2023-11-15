@@ -91,8 +91,9 @@ key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
 
-samples = 16384 -- 16777216
-chunkSize = div samples (2 * numCapabilities)
+samples = 16777216
+chunkSize = 1 + div samples (2 * numCapabilities)
+smallChunkSize = 1 + div samples (256 * numCapabilities)
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
@@ -377,8 +378,9 @@ sum1Wring w pt b = foldl' xor 0 cts where
 
 integralHisto :: Wring -> Int -> Histo
 integralHisto w b = foldl' hCountBits (emptyHisto 64)
-  (take (div samples 256) $
-  map ((\pt -> sum1Wring w pt b) . ((priminal 64) *)) [0..])
+  (take (div samples 256)
+  (map ((\pt -> sum1Wring w pt b) . ((priminal 64) *)) [0..])
+  `using` parListChunk smallChunkSize rdeepseq)
 
 integralStat :: Wring -> Int -> Double
 integralStat w b = binomial (integralHisto w b) (div samples 256)
