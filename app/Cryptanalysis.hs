@@ -60,6 +60,7 @@ import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
 import Data.Foldable (toList,foldl')
+import Control.DeepSeq
 import Control.Parallel
 import Control.Parallel.Strategies
 import GHC.Conc (numCapabilities)
@@ -284,7 +285,9 @@ sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par 
     s12 = relatedKeyStatBit w1 w2
 
 sixStatsConv :: Wring -> Wring -> Wring -> Wring -> [(Double,Double)]
-sixStatsConv w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
+sixStatsConv w0 w1 w2 w3 =
+  par (force s01) $ par (force s23) $ par (force s02) $
+  par (force s13) $ par (force s03) $ par (force s12) $
   [s01,s23,s02,s13,s03,s12] where
     s01 = relatedKeyStatConv w0 w1
     s23 = relatedKeyStatConv w2 w3

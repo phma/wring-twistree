@@ -61,6 +61,7 @@ executables:
     - split
     - array
     - parallel
+    - deepseq
     - containers
     - vector
     - bytestring

@@ -70,6 +70,7 @@ executable WringTwistree
     , base >=4.17 && <5
     , bytestring
     , containers
+    , deepseq
     , multiarg
     , parallel
     , split
