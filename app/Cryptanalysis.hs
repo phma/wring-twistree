@@ -71,6 +71,8 @@ import Cryptography.Wring
 import Stats
 import qualified Data.Vector.Unboxed as V
 
+type Crypt = Wring -> V.Vector Word8 -> V.Vector Word8
+
 key96_0 = "Водворетраванатраведрова.Нерубидрованатраведвора!"
 key96_1 = "Водворетраванатраведрова.Нерубидрованатраведвора "
 key96_2 = "Водворетраванатраведрова,Нерубидрованатраведвора!"
@@ -369,37 +371,38 @@ relatedKey = do
 -- and xor all the ciphertexts produced by changing the byte of the plaintext
 -- to all 256 possibilities.
 
-sum1Wring :: Wring -> Word64 -> Int -> Word64
+sum1Wring :: Crypt -> Wring -> Word64 -> Int -> Word64
 -- Take pt with all values in the bth byte, encrypt them all,
 -- and xor the ciphertexts.
-sum1Wring w pt b = foldl' xor 0 cts where
+sum1Wring enc w pt b = foldl' xor 0 cts where
   pts = map eightByteArray $ zipWith xor (repeat pt) (map (.<<. (b .<<. 3)) [0..255])
-  cts = map makeArrayInt $ map (encrypt w) pts
+  cts = map makeArrayInt $ map (enc w) pts
 
-integralHisto :: Wring -> Int -> Histo
-integralHisto w b = foldl' hCountBits (emptyHisto 64)
+integralHisto :: Crypt -> Wring -> Int -> Histo
+integralHisto enc w b = foldl' hCountBits (emptyHisto 64)
   (take (div samples 256)
-  (map ((\pt -> sum1Wring w pt b) . ((priminal 64) *)) [0..])
+  (map ((\pt -> sum1Wring enc w pt b) . ((priminal 64) *)) [0..])
   `using` parListChunk smallChunkSize rdeepseq)
 
-integralStat :: Wring -> Int -> Double
-integralStat w b = binomial (integralHisto w b) (div samples 256)
+integralStat :: Crypt -> Wring -> Int -> Double
+integralStat enc w b = binomial (integralHisto enc w b) (div samples 256)
 
-eightStats :: Wring -> [Double]
-eightStats w = par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $ par s7 $
+eightStats :: Crypt -> Wring -> [Double]
+eightStats enc w =
+  par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $ par s7 $
   [s0,s1,s2,s3,s4,s5,s6,s7] where
-    s0 = integralStat w 0
-    s1 = integralStat w 1
-    s2 = integralStat w 2
-    s3 = integralStat w 3
-    s4 = integralStat w 4
-    s5 = integralStat w 5
-    s6 = integralStat w 6
-    s7 = integralStat w 7
+    s0 = integralStat enc w 0
+    s1 = integralStat enc w 1
+    s2 = integralStat enc w 2
+    s3 = integralStat enc w 3
+    s4 = integralStat enc w 4
+    s5 = integralStat enc w 5
+    s6 = integralStat enc w 6
+    s7 = integralStat enc w 7
 
-integral1 :: Wring -> IO ()
-integral1 w = do
-  let eightS = eightStats w
+integral1 :: Crypt -> Wring -> IO ()
+integral1 enc w = do
+  let eightS = eightStats enc w
   putStrLn (show eightS)
   putStrLn ("Byte 0: " ++ tellStat64 (eightS !! 0))
   putStrLn ("Byte 1: " ++ tellStat64 (eightS !! 1))
@@ -413,15 +416,15 @@ integral1 w = do
 integralCr :: IO ()
 integralCr = do
   putStrLn "96-byte key, 8-byte data:"
-  integral1 wring96_0
+  integral1 encrypt wring96_0
   putStrLn "30-byte key, 8-byte data:"
-  integral1 wring30_0
+  integral1 encrypt wring30_0
   putStrLn "6-byte key, 8-byte data:"
-  integral1 wring6_0
+  integral1 encrypt wring6_0
   putStrLn "Linear key, 8-byte data:"
-  integral1 linearWring
+  integral1 encrypt linearWring
   putStrLn "96-byte key, byte 1:" -- These two bytes came out as
-  putStrLn $ show $ integralHisto wring96_0 1
+  putStrLn $ show $ integralHisto encrypt wring96_0 1
   putStrLn "96-byte key, byte 7:" -- "too much variation".
-  putStrLn $ show $ integralHisto wring96_0 7
+  putStrLn $ show $ integralHisto encrypt wring96_0 7
 
