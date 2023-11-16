@@ -120,9 +120,11 @@ cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
   "relkey"  -> relatedKey
   "integral"  -> integralCr
+  "integral-fixed"  -> integralCrFixed
   otherwise -> putStrLn ("Available cryptanalyses are:\n" ++
-    "relkey    Related-key cryptanalysis\n" ++
-    "integral  Integral cryptanalysis")
+    "relkey          Related-key cryptanalysis\n" ++
+    "integral        Integral cryptanalysis\n" ++
+    "integral-fixed  Integral cryptanalysis, fixed rotation instead of rotBitcount")
 
 data WtOpt
   = Infile String

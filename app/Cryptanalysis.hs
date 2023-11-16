@@ -51,6 +51,7 @@ module Cryptanalysis
   , integralHisto
   , eightStats
   , integralCr
+  , integralCrFixed
   ) where
 
 import Data.Word
@@ -428,3 +429,13 @@ integralCr = do
   putStrLn "96-byte key, byte 7:" -- "too much variation".
   putStrLn $ show $ integralHisto encrypt wring96_0 7
 
+integralCrFixed :: IO ()
+integralCrFixed = do
+  putStrLn "96-byte key, 8-byte data:"
+  integral1 encryptFixed wring96_0
+  putStrLn "30-byte key, 8-byte data:"
+  integral1 encryptFixed wring30_0
+  putStrLn "6-byte key, 8-byte data:"
+  integral1 encryptFixed wring6_0
+  putStrLn "Linear key, 8-byte data:"
+  integral1 encryptFixed linearWring
