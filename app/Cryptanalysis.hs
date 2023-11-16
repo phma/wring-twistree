@@ -424,10 +424,10 @@ integralCr = do
   integral1 encrypt wring6_0
   putStrLn "Linear key, 8-byte data:"
   integral1 encrypt linearWring
-  putStrLn "96-byte key, byte 1:" -- These two bytes came out as
-  putStrLn $ show $ integralHisto encrypt wring96_0 1
-  putStrLn "96-byte key, byte 7:" -- "too much variation".
+  putStrLn "96-byte key, byte 7:" -- This byte came out as "too much variation".
   putStrLn $ show $ integralHisto encrypt wring96_0 7
+  putStrLn "Linear key, byte 3:" -- This byte came out as "low-discrepancy".
+  putStrLn $ show $ integralHisto encrypt linearWring 3
 
 integralCrFixed :: IO ()
 integralCrFixed = do
