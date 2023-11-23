@@ -23,6 +23,8 @@ module Cryptanalysis
   , wring6_1
   , wring6_2
   , wring6_3
+  , same30_3
+  , same96_0
   , match
   , rot1Bit
   , bias
@@ -69,6 +71,7 @@ import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Debug.Trace
 import Cryptography.Wring
+import Cryptography.WringTwistree.Sboxes
 import Stats
 import qualified Data.Vector.Unboxed as V
 
@@ -93,6 +96,11 @@ key6_0 = "aerate"
 key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
+
+same30_3 = sameBitcount (sboxes (fromString key30_3))
+same96_0 = sameBitcount (sboxes (fromString key96_0))
+-- These two are the longest, 17, of the sameBitcount of the S-boxes made from
+-- the above keys. sameBitcount linearSbox is all 256 bytes.
 
 samples = 16777216
 chunkSize = 1 + div samples (2 * numCapabilities)

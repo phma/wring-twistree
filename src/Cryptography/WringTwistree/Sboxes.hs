@@ -6,6 +6,7 @@ module Cryptography.WringTwistree.Sboxes
   , invert
   , linearSbox
   , linearInvSbox
+  , sameBitcount
   ) where
 
 {- This module is used in both Wring and Twistree.
@@ -45,7 +46,7 @@ sboxes key = V.fromListN (3*256) (box0 ++ box1 ++ box2) where
   box1 = toList (permute256 box1seq)
   box2 = toList (permute256 box2seq)
 
-invert ::SBox -> SBox
+invert :: SBox -> SBox
 invert sbox = V.replicate (3*256) 0 V.//
   [(i*256 + fromIntegral (sbox V.! (i*256 + j)), fromIntegral j) | i <- [0..2], j <- [0..255]]
 
@@ -55,3 +56,14 @@ linearSbox = V.fromListN (3*256)
 
 linearInvSbox = V.fromListN (3*256)
   [ (rotate j (fromIntegral (7-3*i))) | i <- [0..2], j <- [0..255] ]
+
+sameBitcount1 :: SBox -> Word8 -> Bool
+sameBitcount1 sbox n =
+  popCount (sbox V.! (sboxInx 0 n)) == popCount (sbox V.! (sboxInx 1 n)) &&
+  popCount (sbox V.! (sboxInx 1 n)) == popCount (sbox V.! (sboxInx 2 n))
+
+sameBitcount :: SBox -> [Word8]
+-- Returns a list of the bytes which, when looked up in the S-boxes,
+-- give three bytes (which may be the same) with the same bitcount.
+-- For cryptanalysis of the hash function.
+sameBitcount sbox = [x | x <- [0..255], sameBitcount1 sbox x]
