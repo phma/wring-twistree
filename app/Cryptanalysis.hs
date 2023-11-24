@@ -101,6 +101,11 @@ same30_3 = sameBitcount (sboxes (fromString key30_3))
 same96_0 = sameBitcount (sboxes (fromString key96_0))
 -- These two are the longest, 17, of the sameBitcount of the S-boxes made from
 -- the above keys. sameBitcount linearSbox is all 256 bytes.
+-- The bitcounts of the S-box entries are:
+-- same30_3: [3,4,4,2,3,4,4,4,4,4,4,3,4,4,6,4,5]
+-- same96_0: [2,3,3,3,5,5,4,5,3,5,4,3,4,3,5,4,3]
+-- Using 16 of the 17 bytes, drop the 5 from same30_3 (and risk the 6)
+-- or drop the 2 from same96_0.
 
 samples = 16777216
 chunkSize = 1 + div samples (2 * numCapabilities)
