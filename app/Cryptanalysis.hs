@@ -80,6 +80,7 @@ import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Debug.Trace
 import Cryptography.Wring
+import Cryptography.WringTwistree.Mix3
 import Cryptography.WringTwistree.Sboxes
 import Cryptography.WringTwistree.Compress
 import Stats
@@ -490,7 +491,8 @@ changeEachNybble n = foldl' (++) [n] (map (changeOneNybble n) [0..63])
 
 compressChanges :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
 compressChanges sbox n = map (\x -> (x,(compressBoth sbox x))) $
-  map sixtyFourNybbleArray (changeEachNybble n)
+  map (\x -> mix3Parts (sixtyFourNybbleArray x) 11) (changeEachNybble n)
+  -- 11 is rprime for a 64-byte block
 
 dups :: [(V.Vector Word8,V.Vector Word8)] -> [(V.Vector Word8,V.Vector Word8)]
 dups [] = []
