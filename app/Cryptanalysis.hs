@@ -64,6 +64,7 @@ module Cryptanalysis
 
 import Data.Word
 import Data.Bits
+import Data.Sort
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq

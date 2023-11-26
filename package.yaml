@@ -68,6 +68,7 @@ executables:
     - utf8-string
     - multiarg
     - arithmoi
+    - sort
 
 tests:
   WringTwistree-test:
