@@ -11,6 +11,8 @@ module Cryptanalysis
   , key6_1
   , key6_2
   , key6_3
+  , sbox30_3
+  , sbox96_0
   , wring96_0
   , wring96_1
   , wring96_2
@@ -56,6 +58,8 @@ module Cryptanalysis
   , integralCrFixed
   , compressBoth
   , sixtyFourNybbleArray
+  , changeEachNybble
+  , compressChanges
   ) where
 
 import Data.Word
@@ -100,8 +104,10 @@ key6_1 = "berate"
 key6_2 = "cerate"
 key6_3 = "derate"
 
-same30_3 = sameBitcount (sboxes (fromString key30_3))
-same96_0 = sameBitcount (sboxes (fromString key96_0))
+sbox30_3 = sboxes (fromString key30_3)
+sbox96_0 = sboxes (fromString key96_0)
+same30_3 = sameBitcount sbox30_3
+same96_0 = sameBitcount sbox96_0
 -- These two are the longest, 17, of the sameBitcount of the S-boxes made from
 -- the above keys. sameBitcount linearSbox is all 256 bytes.
 -- The bitcounts of the S-box entries are:
@@ -471,3 +477,18 @@ nybbleArray len n = V.fromListN len bytes where
 
 sixtyFourNybbleArray :: Integer -> V.Vector Word8
 sixtyFourNybbleArray = nybbleArray 64
+
+changeOneNybble :: Integer -> Int -> [Integer]
+changeOneNybble n k = map (\x -> n .^. (x .<<. (4*k))) [1..15]
+
+changeEachNybble :: Integer -> [Integer]
+-- Returns a list of 961 numbers
+changeEachNybble n = foldl' (++) [n] (map (changeOneNybble n) [0..63])
+
+compressChanges :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
+compressChanges sbox n = map (\x -> (x,(compressBoth sbox x))) $
+  map sixtyFourNybbleArray (changeEachNybble n)
+
+--collisions1 :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
+-- Given an S-box and a 64-nybble integer, tries compressing all 961 blocks
+-- made from the integer changed by 0 or 1 nybble, and returns any collisions.
