@@ -60,6 +60,7 @@ module Cryptanalysis
   , sixtyFourNybbleArray
   , changeEachNybble
   , compressChanges
+  , collisions1
   ) where
 
 import Data.Word
@@ -490,6 +491,14 @@ compressChanges :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
 compressChanges sbox n = map (\x -> (x,(compressBoth sbox x))) $
   map sixtyFourNybbleArray (changeEachNybble n)
 
---collisions1 :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
+dups :: [(V.Vector Word8,V.Vector Word8)] -> [(V.Vector Word8,V.Vector Word8)]
+dups [] = []
+dups [x] = []
+dups ((a,h0):(b,h1):xs)
+  | h0==h1    = (a,b):(dups ((b,h1):xs))
+  | otherwise = dups ((b,h1):xs)
+
+collisions1 :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
 -- Given an S-box and a 64-nybble integer, tries compressing all 961 blocks
 -- made from the integer changed by 0 or 1 nybble, and returns any collisions.
+collisions1 sbox n = dups $ sortOn snd $ compressChanges sbox n
