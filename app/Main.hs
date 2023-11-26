@@ -121,10 +121,14 @@ cryptanalyze arg = case arg of
   "relkey"  -> relatedKey
   "integral"  -> integralCr
   "integral-fixed"  -> integralCrFixed
+  "hashcoll"  -> hashColl
+  "hashcoll-linear"  -> hashCollLinear
   otherwise -> putStrLn ("Available cryptanalyses are:\n" ++
     "relkey          Related-key cryptanalysis\n" ++
     "integral        Integral cryptanalysis\n" ++
-    "integral-fixed  Integral cryptanalysis, fixed rotation instead of rotBitcount")
+    "integral-fixed  Integral cryptanalysis, fixed rotation instead of rotBitcount" ++
+    "hashcoll        Hash collisions" ++
+    "hashcoll-linear Hash collisions, linear S-box")
 
 data WtOpt
   = Infile String

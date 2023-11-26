@@ -60,7 +60,8 @@ module Cryptanalysis
   , sixtyFourNybbleArray
   , changeEachNybble
   , compressChanges
-  , collisions1
+  , hashColl
+  , hashCollLinear
   ) where
 
 import Data.Word
@@ -120,7 +121,7 @@ same96_0 = sameBitcount sbox96_0
 
 samples = 16777216
 chunkSize = 1 + div samples (2 * numCapabilities)
-smallChunkSize = 1 + div samples (256 * numCapabilities)
+smallChunkSize = 1 + div samples (961 * numCapabilities)
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
@@ -502,3 +503,23 @@ collisions1 :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
 -- Given an S-box and a 64-nybble integer, tries compressing all 961 blocks
 -- made from the integer changed by 0 or 1 nybble, and returns any collisions.
 collisions1 sbox n = dups $ sortOn snd $ compressChanges sbox n
+
+collisions :: SBox -> [(V.Vector Word8,V.Vector Word8)]
+collisions sbox = foldl' (++) []
+  (take (div samples 961)
+  (map ((collisions1 sbox) . ((priminal 256) *)) [0..])
+  `using` parListChunk smallChunkSize rdeepseq)
+
+hashColl :: IO ()
+hashColl = do
+  putStrLn "Hash collisions, 30-byte key:"
+  let colls = collisions sbox30_3
+  putStrLn (show colls)
+  putStrLn ((show (length colls)) ++ " collisions")
+
+hashCollLinear :: IO ()
+hashCollLinear = do
+  putStrLn "Hash collisions, linear S-box:"
+  let colls = collisions linearSbox
+  putStrLn (show colls)
+  putStrLn ((show (length colls)) ++ " collisions")
