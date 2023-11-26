@@ -54,6 +54,8 @@ module Cryptanalysis
   , eightStats
   , integralCr
   , integralCrFixed
+  , compressBoth
+  , sixtyFourNybbleArray
   ) where
 
 import Data.Word
@@ -72,6 +74,7 @@ import Data.ByteString.UTF8 (fromString)
 import Debug.Trace
 import Cryptography.Wring
 import Cryptography.WringTwistree.Sboxes
+import Cryptography.WringTwistree.Compress
 import Stats
 import qualified Data.Vector.Unboxed as V
 
@@ -452,3 +455,19 @@ integralCrFixed = do
   integral1 encryptFixed wring6_0
   putStrLn "Linear key, 8-byte data:"
   integral1 encryptFixed linearWring
+
+-- Attempt to find a collision of the hash compression function
+
+compressBoth :: SBox -> V.Vector Word8 -> V.Vector Word8
+-- Takes a 64-byte block, compresses it as in both the 2-tree and the 3-tree,
+-- and concatenates the results.
+compressBoth sbox buf = (compress sbox buf 0) <> (compress sbox buf 1)
+
+nybbleArray :: (Bits a,Integral a) => Int -> a -> V.Vector Word8
+-- Like byteArray, but the nybbles are looked up in same30_3 to get the bytes,
+-- which are then assembled into a vector.
+nybbleArray len n = V.fromListN len bytes where
+  bytes = map (\x -> same30_3 !! (fromIntegral (n .>>. (4*x)) .&. 15)) [0..(len-1)]
+
+sixtyFourNybbleArray :: Integer -> V.Vector Word8
+sixtyFourNybbleArray = nybbleArray 64
