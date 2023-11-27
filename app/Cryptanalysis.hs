@@ -60,6 +60,7 @@ module Cryptanalysis
   , sixtyFourNybbleArray
   , changeEachNybble
   , compressChanges
+  , collisions1
   , hashColl
   , hashCollLinear
   ) where

@@ -24,6 +24,7 @@ import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad
+import Debug.Trace
 
 blockSize :: Integral a => a
 blockSize = 32

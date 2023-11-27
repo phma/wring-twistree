@@ -25,6 +25,7 @@ import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Control.Monad.ST
 import Control.Monad
+import Debug.Trace
 
 rotBitcount :: V.Vector Word8 -> Int -> V.Vector Word8
 -- See Rust code for a timing leak which may be present in (.>>.).
