@@ -37,7 +37,7 @@ twistPrime = 37
 
 relPrimes :: UArray Word16 Word16
 -- 3/4 of this is waste. The numbers are Word16, because the last number is
--- 19, and the program will multiply 31 by 19, which doesn't fit in Word8.
+-- 19, and the program will multiply 37 by 19, which doesn't fit in Word8.
 relPrimes = listArray (blockSize,3*blockSize)
   (map (fromIntegral . findMaxOrder . (`div` 3))
        [blockSize..3*blockSize])
