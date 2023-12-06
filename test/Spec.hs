@@ -41,7 +41,7 @@ wrapPermut8 :: [a] -> Word16 -> [a]
 wrapPermut8 as n = toList $ permut8 (Seq.fromList as) n
 
 stringToBytes :: String -> [Word8]
-stringToBytes = map (fromIntegral . fromEnum)
+stringToBytes = B.unpack . fromString
 
 seq40504 = 0 : map (mul65537 40504) seq40504
 
@@ -161,7 +161,7 @@ testVectorsWring = testGroup "Test vectors for Wring"
       (encrypt wring96 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0x53,0x6c,0x7e,0x2d,0xcd,0xda,0xdc,0xf2,0x70]
   , testCase "searchDir" $
-      (encrypt wring96 (fromList $ B.unpack $ fromString key96))
+      (encrypt wring96 (fromList $ stringToBytes key96))
       -- This comes from a typo when translating to Julia. All the 8- and 9-byte
       -- tests passed, but the relPrimes entry which is findMaxOrder(32) was
       -- wrong, because it was searching in the wrong direction.
