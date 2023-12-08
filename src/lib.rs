@@ -339,7 +339,7 @@ impl Twistree {
   pub fn finalize(&mut self) -> Vec<u8> {
     // Check that the Twistree has been initialized
     if self.tree2.len()==0 || self.tree3.len()==0 {
-      panic!("call initialize before update");
+      panic!("call initialize before finalize");
     }
     let last_block=pad(&mut self.partial_block);
     self.tree2[0].extend(&last_block);
