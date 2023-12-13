@@ -1,5 +1,10 @@
 module Cryptography.Twistree
   ( Twistree
+  , SBox -- reexported for use in Cryptanalysis.hs
+  , sboxes -- "
+  , sameBitcount -- "
+  , compress -- "
+  , linearSbox -- "
   , linearTwistree -- Only for cryptanalysis and testing
   , keyedTwistree
   , hash

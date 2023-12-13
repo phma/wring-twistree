@@ -81,9 +81,7 @@ import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
 import Debug.Trace
 import Cryptography.Wring
-import Cryptography.WringTwistree.Mix3
-import Cryptography.WringTwistree.Sboxes
-import Cryptography.WringTwistree.Compress
+import Cryptography.Twistree
 import Stats
 import qualified Data.Vector.Unboxed as V
 

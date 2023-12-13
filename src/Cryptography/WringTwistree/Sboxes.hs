@@ -1,5 +1,7 @@
 module Cryptography.WringTwistree.Sboxes
   ( SBox
+  , permut8 -- reexported for testing
+  , mul65537 -- "
   , sboxInx
   , cycle3
   , sboxes

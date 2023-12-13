@@ -2,10 +2,6 @@ module Main (main) where
 
 import Cryptography.Wring
 import Cryptography.Twistree
-import Cryptography.WringTwistree.KeySchedule
-import Cryptography.WringTwistree.Compress
-import Cryptography.WringTwistree.Blockize
-import Cryptography.WringTwistree.Sboxes
 import Cryptanalysis
 import Control.Parallel
 import Control.Parallel.Strategies
@@ -46,9 +42,6 @@ block16str16 a = blockStr16 $ chunksOf 16 a
 
 wrungZeros :: V.Vector Word8
 wrungZeros = encrypt linearWring (V.replicate 256 0)
-
-dumpSbox :: SBox -> IO ()
-dumpSbox sbox = putStr $ block16str $ take 256 (V.toList sbox)
 
 readFileEager :: String -> IO (V.Vector Word8)
 readFileEager fileName = do
@@ -204,16 +197,6 @@ help progName = unlines
   , "the ciphertext or plaintext overwrites the original file, and the hash"
   , "is written to standard output."
   ]
-
-testExtendKey :: IO ()
-testExtendKey = do
-  putStr $ block16str16 $ toList $ extendKey $ fromString "roygbiv"
-  putStr $ block16str16 $ toList $ extendKey $ fromString "aerate"
-
-testCompress :: IO ()
-testCompress = do
-  putStr $ block16str $ V.toList $
-    compress2 linearSbox exp4_2adic exp4_base2 0
 
 doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of

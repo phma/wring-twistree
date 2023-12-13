@@ -29,6 +29,7 @@ library
   exposed-modules:
       Cryptography.Twistree
       Cryptography.Wring
+  other-modules:
       Cryptography.WringTwistree.Blockize
       Cryptography.WringTwistree.Compress
       Cryptography.WringTwistree.KeySchedule
@@ -36,8 +37,6 @@ library
       Cryptography.WringTwistree.Permute
       Cryptography.WringTwistree.RotBitcount
       Cryptography.WringTwistree.Sboxes
-  other-modules:
-      Paths_WringTwistree
   hs-source-dirs:
       src
   ghc-options: -O2 -fllvm -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints

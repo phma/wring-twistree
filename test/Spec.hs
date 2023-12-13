@@ -3,8 +3,6 @@ import Data.Word
 import Test.Tasty
 import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
-import Cryptography.WringTwistree.Permute
-import Cryptography.WringTwistree.KeySchedule
 import Cryptography.Wring
 import Cryptography.Twistree
 import qualified Data.Sequence as Seq
