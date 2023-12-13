@@ -353,6 +353,12 @@ impl Twistree {
     compress(&self.sbox,&mut fruit,2);
     fruit
   }
+
+  pub fn hash(&mut self,data:&[u8]) -> Vec<u8> {
+    self.initialize();
+    self.update(data);
+    self.finalize()
+  }
 }
 
 #[cfg(test)]
