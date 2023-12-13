@@ -1,4 +1,9 @@
 #![allow(arithmetic_overflow)]
+//! Wring is a whole-message cipher and Twistree is a hash function.
+//! They use the same key space; keys may be up to 96 bytes long
+//! (they can be arbitrarily long, but longer keys can be susceptible
+//! to related-key attacks). The user-facing modules are `wring` and
+//! `twistree`; the others are internals.
 
 // Used by both wring and twistree
 pub mod mix3;
@@ -12,6 +17,8 @@ pub mod blockize;
 pub mod compress; // uses mix3 and rotbitcount
 
 pub mod wring {
+//! Wring is a whole-message cipher. All the user interface is in the
+//! `Wring` class.
 
 use crate::mix3::*;
 use crate::rotbitcount::*;
@@ -27,6 +34,9 @@ fn n_rounds(n: usize) -> u32 {
   ret
 }
 
+/// Exclusive-ors all bytes in a nonnegative number. The only reason this
+/// function is public is that it's used to generate a long bytestring
+/// for a test.
 pub fn xorn(n: u64) -> u8 { // used for big hash test
   let mut ret=0u8;
   let mut i=n;
@@ -44,6 +54,7 @@ pub struct Wring {
 }
 
 impl Wring {
+  /// Creates a new unkeyed Wring.
   pub fn new() -> Wring {
     Wring { sbox: [[0u8; 256]; 3], inv_sbox: [[0u8; 256]; 3] }
   }
@@ -56,6 +67,7 @@ impl Wring {
     }
   }
 
+  /// Sets the S-boxes to linear. Use only for testing.
   pub fn set_key_linear(&mut self) {
     for i in 0..3 {
       for j in 0..256 {
@@ -65,6 +77,7 @@ impl Wring {
     self.set_inv_sbox();
   }
 
+  /// Sets the key to a bytestring. Use `.as_bytes` if you have a character string.
   pub fn set_key(&mut self,str:&[u8]) {
     sboxes(str,&mut self.sbox);
     self.set_inv_sbox();
@@ -96,6 +109,7 @@ impl Wring {
     mix3parts(dst,len,rprime);
   }
 
+  /// Encrypts `buf` in place, using a temporary buffer of equal size.
   pub fn encrypt(&self, buf: &mut[u8]) {
     let mut tmp:Vec<u8> = Vec::new();
     tmp.extend_from_slice(buf);
@@ -119,6 +133,7 @@ impl Wring {
     }
   }
 
+  /// Decrypts `buf` in place, using a temporary buffer of equal size.
   pub fn decrypt(&self, buf: &mut[u8]) {
     let mut tmp:Vec<u8> = Vec::new();
     tmp.extend_from_slice(buf);
@@ -224,6 +239,8 @@ mod tests {
 }
 
 pub mod twistree {
+//! Twistree is a keyed hash function. All the user interface is in
+//! the `Twistree` class.
 
 use crate::sboxes::*; // uses keyschedule and permute
 use crate::blockize::*;
@@ -239,6 +256,7 @@ pub struct Twistree {
 }
 
 impl Twistree {
+  /// Creates a new unkeyed Twistree.
   pub fn new() -> Twistree {
     Twistree { sbox: [[0u8; 256]; 3],
 	       tree2: Vec::new(),
@@ -246,6 +264,7 @@ impl Twistree {
 	       partial_block: Vec::new() }
   }
 
+  /// Sets the S-box to linear. Use only for testing.
   pub fn set_key_linear(&mut self) {
     for i in 0..3 {
       for j in 0..256 {
@@ -254,10 +273,12 @@ impl Twistree {
     }
   }
 
+  /// Sets the key to a bytestring. Use `.as_bytes` if you have a character string.
   pub fn set_key(&mut self,str:&[u8]) {
     sboxes(str,&mut self.sbox);
   }
 
+  /// Initializes a Twistree. Do this before calling `update!` and `finalize!`.
   pub fn initialize(&mut self) {
     // Check that the Twistree has been keyed
     let mut sum:u32=0;
@@ -323,6 +344,7 @@ impl Twistree {
     }
   }
 
+  /// Updates a Twistree with some data.
   pub fn update(&mut self,data:&[u8]) {
     // Check that the Twistree has been initialized
     if self.tree2.len()==0 || self.tree3.len()==0 {
@@ -336,6 +358,8 @@ impl Twistree {
     }
   }
 
+  /// Completes processing the data in the Twistree and returns the hash.
+  /// Use after `initialize!` and `update!`.
   pub fn finalize(&mut self) -> Vec<u8> {
     // Check that the Twistree has been initialized
     if self.tree2.len()==0 || self.tree3.len()==0 {
@@ -354,6 +378,7 @@ impl Twistree {
     fruit
   }
 
+  /// convenience function if the data all fit in RAM
   pub fn hash(&mut self,data:&[u8]) -> Vec<u8> {
     self.initialize();
     self.update(data);
