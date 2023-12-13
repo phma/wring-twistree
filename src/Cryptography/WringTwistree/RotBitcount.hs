@@ -71,7 +71,7 @@ rotFixed src mult = V.fromListN len
 rotFixed' :: MV.MVector s Word8 -> Int -> MV.MVector s Word8 -> ST s ()
 rotFixed' src mult dst = do
     let len = MV.length src
-	bitcount = len * 4 + 2
+        bitcount = len * 4 + 2
         !multmod = mult `mod` (len * 8)
         rotcount = (bitcount * multmod) `rem` (len * 8)
         !byte = rotcount .>>. 3
