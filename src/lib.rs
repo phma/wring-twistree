@@ -27,7 +27,7 @@ fn n_rounds(n: usize) -> u32 {
   ret
 }
 
-pub fn xorn(n: u64) -> u8 {
+pub fn xorn(n: u64) -> u8 { // used for big hash test
   let mut ret=0u8;
   let mut i=n;
   while i>0 {
