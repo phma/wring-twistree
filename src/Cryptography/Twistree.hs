@@ -1,9 +1,7 @@
 module Cryptography.Twistree
   ( Twistree
-  , linearTwistree
+  , linearTwistree -- Only for cryptanalysis and testing
   , keyedTwistree
-  , hashPairs
-  , hashTriples
   , hash
   ) where
 

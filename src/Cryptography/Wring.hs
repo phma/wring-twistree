@@ -1,15 +1,11 @@
 module Cryptography.Wring
   ( Wring
-  , wringName
-  , linearWring
+  , wringName -- For events in traces when profiling
+  , linearWring -- Only for cryptanalysis and testing
   , keyedWring
-  , encryptFun
-  , decryptFun
-  , encryptST
-  , decryptST
   , encrypt
   , decrypt
-  , encryptFixed
+  , encryptFixed -- Only for cryptanalysis and testing
   ) where
 
 {- This cipher is intended to be used with short random keys (32 bytes or less,
