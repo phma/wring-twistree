@@ -358,6 +358,7 @@ impl Twistree {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::wring::xorn;
 
   fn test_vector(twistree: &mut Twistree, plain: &[u8], hash: &[u8]) {
     let mut buf:Vec<u8> = Vec::new();
@@ -373,6 +374,11 @@ mod tests {
     let text31="בראשית ברא אלהים ".as_bytes();
     let text33="árvíztűrő tükörfúrógépek".as_bytes();
     let text96="Водворетраванатраведрова.Нерубидрованатраведвора!".as_bytes();
+    let mut text59049=[0u8;59049];
+    // This long test vector is intended for testing parallel implementations.
+    for i in 0..59049 {
+      text59049[i]=xorn((i+1) as u64);
+    }
     let mut linear_twistree=Twistree::new();
     linear_twistree.set_key_linear();
     let mut empty_twistree=Twistree::new();
@@ -502,6 +508,12 @@ mod tests {
       , 0xf9, 0xdc, 0x69, 0x47, 0xe1, 0xd2, 0xc0, 0x20 
       , 0x64, 0x0d, 0x8f, 0xf6, 0x79, 0xb6, 0x7b, 0x69
       , 0xbc, 0x70, 0xe1, 0x2e, 0x3d, 0xd7, 0xeb, 0x57
+      ]);
+    test_vector(&mut двор_twistree,&text59049,&
+      [ 0xd2, 0xe3, 0x0f, 0x01, 0xa0, 0x32, 0x27, 0x51
+      , 0x4e, 0x56, 0x44, 0xf1, 0x8f, 0x2e, 0x3e, 0xeb 
+      , 0xdb, 0x14, 0x30, 0xba, 0x96, 0x2c, 0x47, 0x24
+      , 0x4b, 0x79, 0x39, 0x58, 0xbc, 0x4f, 0x79, 0x25
       ]);
   }
 

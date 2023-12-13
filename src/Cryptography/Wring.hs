@@ -1,6 +1,7 @@
 module Cryptography.Wring
   ( Wring
   , wringName -- For events in traces when profiling
+  , xorn -- Used for big hash test
   , linearWring -- Only for cryptanalysis and testing
   , keyedWring
   , encrypt
