@@ -4,8 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to the
-[Haskell Package Versioning Policy](https://pvp.haskell.org/).
+[Haskell Package Versioning Policy](https://pvp.haskell.org/) for Haskell
+and [Semantic Versioning](https://semver.org/) for Rust.
 
 ## Unreleased
 
-## 0.1.0.0 - YYYY-MM-DD
+## 0.0.1.0 - 0.1.0 - YYYY-MM-DD
+
+### Added
+
+- Keying, common to Wring and Twistree
+- Whole-message cipher Wring
+- Keyed hash algorithm Twistree
+- Test vectors for both algorithms
+- Shell script to test that both implementations give identical results
+- Related-key cryptanalysis of Wring
+- Integral cryptanalysis of Wring
+- Restricted-byte differential cryptanalysis of Twistree
