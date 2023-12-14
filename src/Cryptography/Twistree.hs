@@ -79,17 +79,22 @@ hashTriples _ [x] = x
 hashTriples sbox x = par (compressTriples sbox x) $
   hashTriples sbox (compressTriples sbox x)
 
+-- | A `Twistree` with linear `SBox`. Used only for testing and cryptanalysis.
 linearTwistree = Twistree linearSbox
 
--- | Creates a Twistree with the given key.
--- To convert a String to a ByteString, put "- utf8-string" in your
--- package.yaml dependencies, import Data.ByteString.UTF8, and use
--- fromString.
+-- | Creates a `Twistree` with the given key.
+-- To convert a `String` to a `ByteString`, put @- utf8-string@ in your
+-- package.yaml dependencies, @import Data.ByteString.UTF8@, and use
+-- `fromString`.
 keyedTwistree :: B.ByteString -> Twistree
 keyedTwistree key = Twistree sbox where
   sbox = sboxes key
 
-hash :: Twistree -> BL.ByteString -> V.Vector Word8
+hash
+  :: Twistree -- ^ The `Twistree` made with the key to hash with
+  -> BL.ByteString -- ^ The text to be hashed. It's a lazy `ByteString`,
+    -- so you can hash a file bigger than RAM.
+  -> V.Vector Word8 -- ^ The returned hash, 32 bytes.
 hash twistree stream = par blocks $ par h2 $ par h3 $
   compress2 (sbox twistree) h2 h3 2 where
     blocks = blockize stream

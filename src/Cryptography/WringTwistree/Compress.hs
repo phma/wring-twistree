@@ -111,6 +111,7 @@ compressST sbox buf sboxalt = V.create $ do
   res <- foldM (\b r -> roundCompressST sbox b sboxalt) buf rounds
   pure res
 
+-- | Compresses two or three 32-byte blocks into one. Exported for cryptanalysis.
 compress = compressST
 
 {-

@@ -99,6 +99,8 @@ mixOrder len rprime
       (map ((2*third-1) -) [0..])
       (map ((2*third) +) (iterate (\x -> (x + rprime) `mod` third) 0))
 
+-- | Splits @buf@ into three equal parts, with 0-2 bytes left over,
+-- and mixes the three parts. Exported for testing.
 mix3Parts :: V.Vector Word8 -> Int -> V.Vector Word8
 -- The index of buf must start at 0.
 -- Compute rprime once (findMaxOrder (fromIntegral (div len 3)))

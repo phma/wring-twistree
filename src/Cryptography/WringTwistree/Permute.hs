@@ -36,6 +36,7 @@ swapmute ys (x:xs) n = swapmute ys' xs (n+1) where
   c = Seq.index ys n
   ys' = update x c (update n b ys)
 
+-- | Permutes a `Seq` of eight bytes. Exported for testing.
 permut8 :: Seq.Seq a -> Word16 -> Seq.Seq a
 permut8 ys n = swapmute ys (swapOrder n) 1
 

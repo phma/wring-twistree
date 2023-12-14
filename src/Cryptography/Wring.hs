@@ -39,6 +39,8 @@ data Wring = Wring
   , invSbox :: SBox
   } deriving Show
 
+-- | Generates a name from the first four bytes of the S-box.
+-- Used to tag events in a profiling log.
 wringName :: Wring -> String
 wringName wring = printf "%02x-%02x-%02x-%02x"
   ((sbox wring) V.! 0)
@@ -51,6 +53,9 @@ nRounds len
   | len < 3 = 3
   | otherwise = (nRounds (len `div` 3)) +1
 
+-- | Exclusive-ors all bytes in a nonnegative number. The only reason this
+-- function is public is that it's used to generate a long `ByteString`
+-- for a test.
 xorn :: (Integral a,Bits a) => a -> Word8
 xorn 0 = 0
 xorn (-1) = error "xorn: negative"
@@ -59,12 +64,13 @@ xorn a = (fromIntegral a) `xor` (xorn (a .>>. 8))
 xornArray :: Int -> V.Vector Word8
 xornArray n = V.fromListN n (map xorn [0..(n-1)])
 
+-- | A `Wring` with linear S-boxes. Used only for testing and cryptanalysis.
 linearWring = Wring linearSbox linearInvSbox
 
--- | Creates a Wring with the given key.
--- To convert a String to a ByteString, put "- utf8-string" in your
--- package.yaml dependencies, import Data.ByteString.UTF8, and use
--- fromString.
+-- | Creates a `Wring` with the given key.
+-- To convert a `String` to a `ByteString`, put @- utf8-string@ in your
+-- package.yaml dependencies, @import Data.ByteString.UTF8@, and use
+-- `fromString`.
 keyedWring :: B.ByteString -> Wring
 keyedWring key = Wring sbox (invert sbox)
  where
@@ -245,6 +251,19 @@ decryptST wring buf = V.create $ do
 -- 1.58 times as long. Turning off threading makes encrypting 5.2 times
 -- as fast.
 
+-- | Encrypts a message.
+encrypt
+  :: Wring -- ^ The `Wring` made with the key to encrypt with
+  -> V.Vector Word8 -- ^ The plaintext
+  -> V.Vector Word8 -- ^ The returned ciphertext
 encrypt = encryptST
+
+-- | Used only for cryptanalysis
 encryptFixed = encryptFixedST
+
+-- | Decrypts a message.
+decrypt
+  :: Wring -- ^ The `Wring` made with the key to decrypt with
+  -> V.Vector Word8 -- ^ The ciphertext
+  -> V.Vector Word8 -- ^ The returned plaintext
 decrypt = decryptST

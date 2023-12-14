@@ -29,6 +29,7 @@ import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule
 import qualified Data.Vector.Unboxed as V
 
+-- | Three 8×8 S-boxes used alternatively to substitute bytes
 type SBox = V.Vector Word8
 
 {-# SPECIALIZE sboxInx :: Word8 -> Word8 -> Int #-}
@@ -39,6 +40,7 @@ sboxInx whichBox n = fromIntegral whichBox*256 + fromIntegral n
 cycle3 :: [Word8]
 cycle3 = 0 : 1 : 2 : cycle3
 
+-- | Computes S-boxes from a key. Exported for cryptanalysis.
 sboxes :: B.ByteString -> SBox
 sboxes key = V.fromListN (3*256) (box0 ++ box1 ++ box2) where
   box0seq = keySchedule key
@@ -52,6 +54,7 @@ invert :: SBox -> SBox
 invert sbox = V.replicate (3*256) 0 V.//
   [(i*256 + fromIntegral (sbox V.! (i*256 + j)), fromIntegral j) | i <- [0..2], j <- [0..255]]
 
+-- | A linear `SBox` used for cryptanalysis
 linearSbox, linearInvSbox :: SBox
 linearSbox = V.fromListN (3*256)
   [ rotate j (fromIntegral (3*i+1)) | i <- [0..2], j <- [0..255] ]
@@ -64,8 +67,8 @@ sameBitcount1 sbox n =
   popCount (sbox V.! (sboxInx 0 n)) == popCount (sbox V.! (sboxInx 1 n)) &&
   popCount (sbox V.! (sboxInx 1 n)) == popCount (sbox V.! (sboxInx 2 n))
 
-sameBitcount :: SBox -> [Word8]
--- Returns a list of the bytes which, when looked up in the S-boxes,
+-- | Returns a list of the bytes which, when looked up in the S-boxes,
 -- give three bytes (which may be the same) with the same bitcount.
 -- For cryptanalysis of the hash function.
+sameBitcount :: SBox -> [Word8]
 sameBitcount sbox = [x | x <- [0..255], sameBitcount1 sbox x]

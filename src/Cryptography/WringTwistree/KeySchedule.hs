@@ -38,6 +38,7 @@ extendKey :: B.ByteString -> [Word16]
 extendKey str = extendKey_ (B.unpack str) 0 n where
   n = if (B.length str)>0 then -((-384) `div` (B.length str)) else 0
 
+-- | Multiplies two nonzero numbers mod 65537. Exported for testing.
 mul65537 :: Word16 -> Word16 -> Word16
 mul65537 a b = fromIntegral ((((fromIntegral a)+1) * 
                               ((fromIntegral b)+1))
