@@ -32,7 +32,7 @@ You can run WringTwistree in the REPL with `stack ghci`, compile and run it with
 
 `cargo` instead of `stack` runs the Rust implementation; the options are the same, except that hash is `-h`.
 
-The Rust binary is `wring-twistree`; the Haskell binary is `WringTwistree` and can be installed with `stack install`. They take the options after `--`.
+The Rust binary is `wring-twistree` and can be installed with `cargo install --path .`; the Haskell binary is `WringTwistree` and can be installed with `stack install`. They take the options after `--`.
 
 # Test vectors
 Test vectors are in `test/Spec.hs` and `src/lib.rs`.
