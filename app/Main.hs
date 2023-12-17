@@ -119,8 +119,8 @@ cryptanalyze arg = case arg of
   otherwise -> putStrLn ("Available cryptanalyses are:\n" ++
     "relkey          Related-key cryptanalysis\n" ++
     "integral        Integral cryptanalysis\n" ++
-    "integral-fixed  Integral cryptanalysis, fixed rotation instead of rotBitcount" ++
-    "hashcoll        Hash collisions" ++
+    "integral-fixed  Integral cryptanalysis, fixed rotation instead of rotBitcount\n" ++
+    "hashcoll        Hash collisions\n" ++
     "hashcoll-linear Hash collisions, linear S-box")
 
 data WtOpt
