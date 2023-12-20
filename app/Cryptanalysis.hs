@@ -127,6 +127,11 @@ smallChunkSize = 1 + div samples (961 * numCapabilities)
 
 deal n = transpose . chunksOf n -- to be used as a parallel strategy
 
+parListDeal :: Int -> Strategy a -> Strategy [a]
+parListDeal n strat xs
+  | n <= 1    = evalList strat xs
+  | otherwise = concat `fmap` parList (evalList strat) (deal n xs)
+
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1
 wring96_2 = keyedWring $ fromString key96_2
@@ -299,7 +304,7 @@ plaintextHisto = foldl' hCountBits (emptyHisto 64)
 
 relatedKeyHisto :: Wring -> Wring -> Histo
 relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
-  (take (div samples 2) (diffRelated w0 w1) `using` parListChunk chunkSize rdeepseq)
+  (take (div samples 2) (diffRelated w0 w1) `using` parListDeal numCapabilities rdeepseq)
 
 relatedKeyStatBit :: Wring -> Wring -> Double
 relatedKeyStatBit w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
