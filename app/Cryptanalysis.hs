@@ -311,7 +311,7 @@ relatedKeyStatBit w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
 
 relatedKeyStatConv :: Wring -> Wring -> (Double,Double)
 relatedKeyStatConv w0 w1 = normμσ 1 (sqrt (1/32))
-  (take (div samples 2) (conDiffRelated w0 w1) `using` parListChunk chunkSize rdeepseq)
+  (take (div samples 2) (conDiffRelated w0 w1) `using` parListDeal numCapabilities rdeepseq)
 
 sixStatsBit :: Wring -> Wring -> Wring -> Wring -> [Double]
 sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
@@ -417,7 +417,7 @@ integralHisto :: Crypt -> Wring -> Int -> Histo
 integralHisto enc w b = foldl' hCountBits (emptyHisto 64)
   (take (div samples 256)
   (map ((\pt -> sum1Wring enc w pt b) . ((priminal 64) *)) [0..])
-  `using` parListChunk smallChunkSize rdeepseq)
+  `using` parListDeal numCapabilities rdeepseq)
 
 integralStat :: Crypt -> Wring -> Int -> Double
 integralStat enc w b = binomial (integralHisto enc w b) (div samples 256)
@@ -518,7 +518,7 @@ collisions :: SBox -> [(V.Vector Word8,V.Vector Word8)]
 collisions sbox = foldl' (++) []
   (take (div samples 961)
   (map ((collisions1 sbox) . ((priminal 256) *)) [0..])
-  `using` parListChunk smallChunkSize rdeepseq)
+  `using` parListDeal numCapabilities rdeepseq)
 
 hashColl :: IO ()
 hashColl = do
