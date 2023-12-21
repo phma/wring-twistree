@@ -68,8 +68,6 @@ module Cryptanalysis
 import Data.Word
 import Data.Bits
 import Data.Sort
-import Data.List (transpose)
-import Data.List.Split
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
@@ -124,13 +122,6 @@ same96_0 = sameBitcount sbox96_0
 samples = 16777216
 chunkSize = 1 + div samples (2 * numCapabilities)
 smallChunkSize = 1 + div samples (961 * numCapabilities)
-
-deal n = transpose . chunksOf n -- to be used as a parallel strategy
-
-parListDeal :: Int -> Strategy a -> Strategy [a]
-parListDeal n strat xs
-  | n <= 1    = evalList strat xs
-  | otherwise = concat `fmap` parList (evalList strat) (deal n xs)
 
 wring96_0 = keyedWring $ fromString key96_0
 wring96_1 = keyedWring $ fromString key96_1

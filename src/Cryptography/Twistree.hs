@@ -6,6 +6,7 @@ module Cryptography.Twistree
   , compress -- "
   , linearSbox -- "
   , linearTwistree -- Only for cryptanalysis and testing
+  , parListDeal
   , keyedTwistree
   , hash
   ) where
@@ -42,6 +43,9 @@ import Cryptography.WringTwistree.Compress
 import Cryptography.WringTwistree.Blockize
 import Cryptography.WringTwistree.Sboxes
 import Control.Parallel
+import Control.Parallel.Strategies
+import Data.List (transpose)
+import Data.List.Split
 import Data.Word
 import Data.Bits
 import Data.Array.Unboxed
@@ -53,6 +57,13 @@ import qualified Data.Vector.Unboxed as V
 data Twistree = Twistree
   { sbox    :: SBox
   } deriving Show
+
+deal n = transpose . chunksOf n -- to be used as a parallel strategy
+
+parListDeal :: Int -> Strategy a -> Strategy [a]
+parListDeal n strat xs
+  | n <= 1    = evalList strat xs
+  | otherwise = concat `fmap` parList (evalList strat) (deal n xs)
 
 compressPairs :: SBox -> [V.Vector Word8] -> [V.Vector Word8]
 compressPairs _ [] = []
