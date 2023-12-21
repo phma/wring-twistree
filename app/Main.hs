@@ -109,6 +109,9 @@ testSimilar = do
   putStr "b875 "
   putStrLn $ printf "%f" $ varConvolveDiff b875
 
+testNothing :: IO ()
+testNothing = putStrLn "No code under test"
+
 cryptanalyze :: String -> IO ()
 cryptanalyze arg = case arg of
   "relkey"  -> relatedKey
@@ -204,7 +207,7 @@ doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt     -> encryptFile key infile outfile
     Just Decrypt     -> decryptFile key infile outfile
-    Just Test        -> testSimilar
+    Just Test        -> testNothing
     Just (Analyze a) -> cryptanalyze a
     Just Hash        -> hashFile key infile outfile
     Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
