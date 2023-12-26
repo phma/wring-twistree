@@ -34,9 +34,10 @@ rotBitcount src mult = V.fromListN len
     (src V.! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
   where
     len = V.length src
-    multmod = mult `mod` (len * 8)
+    multmod = if len>0 then mult `mod` (len * 8) else mult
     bitcount = sum $ map popCount $ V.toList src
-    rotcount = (bitcount * multmod) `mod` (len * 8)
+    rotcount = if len>0 then (bitcount * multmod) `mod` (len * 8)
+			else bitcount * multmod
     !byte = rotcount .>>. 3
     !bit = rotcount .&. 7
 
@@ -44,8 +45,9 @@ rotBitcount' :: MV.MVector s Word8 -> Int -> MV.MVector s Word8 -> ST s ()
 rotBitcount' src mult dst = do
     bitcount <- MV.foldl' (\acc x -> acc + popCount x) 0 src
     let len = MV.length src
-        !multmod = mult `mod` (len * 8)
-        rotcount = (bitcount * multmod) `rem` (len * 8)
+        !multmod = if len>0 then mult `mod` (len * 8) else mult
+        rotcount = if len>0 then (bitcount * multmod) `rem` (len * 8)
+			    else bitcount * multmod
         !byte = rotcount .>>. 3
         !bit = rotcount .&. 7
     forM_ [0..MV.length src - 1] $ \i -> do

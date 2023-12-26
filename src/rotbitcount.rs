@@ -13,9 +13,15 @@
 
 pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   assert_eq!(src.len(),dst.len());
-  let multmod = mult.rem_euclid((src.len() as isize)*8) as usize;
   let bitcount = src.iter().fold(0, |acc,x| acc+x.count_ones()) as usize;
-  let rotcount = (bitcount*multmod)%(src.len()*8);
+  let rotcount:usize;
+  if (src.len()>0) {
+    let multmod = mult.rem_euclid((src.len() as isize)*8) as usize;
+    rotcount = (bitcount*multmod)%(src.len()*8);
+  } else {
+    let multmod = mult as usize;
+    rotcount = bitcount*multmod;
+  }
   let byte = rotcount>>3;
   let bit = rotcount&7;
   // The number of bit patterns where bit==0 tends to 1/8 of them:
