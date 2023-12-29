@@ -45,3 +45,26 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn cycle_rot_bitcount(buf:&[u8])->u32 {
+    let mut history:Vec<Vec<u8>> = Vec::new();
+    let mut cycle:u32=0;
+    history.push(buf.to_vec());
+    while cycle==0 {
+      for i in 0..history.len()-1 {
+	if history[i]==history[history.len()-1] {
+	  cycle=(history.len()-1+(i<<16)) as u32;
+	}
+      }
+      history.push(buf.to_vec());
+      let sz=history.len();
+      let (last,rest)=history.split_last_mut().unwrap();
+      rot_bitcount(&rest[sz-2],last,1);
+    }
+  cycle
+  }
+}
