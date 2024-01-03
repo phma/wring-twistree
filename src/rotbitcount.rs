@@ -35,13 +35,19 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   // This leak may be present in the Haskell code, depending on the processor
   // and the LLVM or C-- compiler.
   if bit>0 {
-    for i in 0..dst.len() {
-      dst[i]=(src[(i+src.len()-byte)  %src.len()]<<bit) |
-	     (src[(i+src.len()-byte-1)%src.len()]>>(8-bit));
+    for i in 0..byte {
+      dst[i]=(src[i+src.len()-byte]<<bit) | (src[i+src.len()-byte-1]>>(8-bit));
+    }
+    dst[byte]=(src[0]<<bit) | (src[src.len()-1]>>(8-bit));
+    for i in byte+1..dst.len() {
+      dst[i]=(src[i-byte]<<bit) | (src[i-byte-1]>>(8-bit));
     }
   } else {
-    for i in 0..dst.len() {
-      dst[i]=(src[(i+src.len()-byte)  %src.len()]);
+    for i in 0..byte {
+      dst[i]=src[i+src.len()-byte];
+    }
+    for i in byte..dst.len() {
+      dst[i]=src[i-byte];
     }
   }
 }
