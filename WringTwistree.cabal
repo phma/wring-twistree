@@ -13,7 +13,7 @@ homepage:       https://github.com/phma/wring-twistree#readme
 bug-reports:    https://github.com/phma/wring-twistree/issues
 author:         Pierre Abbat
 maintainer:     phma@bezitopo.org
-copyright:      2023 Pierre Abbat
+copyright:      2024 Pierre Abbat
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple

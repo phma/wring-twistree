@@ -4,7 +4,7 @@ github:              "phma/wring-twistree"
 license:             BSD3
 author:              "Pierre Abbat"
 maintainer:          "phma@bezitopo.org"
-copyright:           "2023 Pierre Abbat"
+copyright:           "2024 Pierre Abbat"
 
 extra-doc-files:
 - README.md
