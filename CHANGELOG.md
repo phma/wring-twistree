@@ -9,6 +9,12 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 
 ## Unreleased
 
+## 0.0.1.1 - 0.1.0 - 2024-01-11
+
+### Removed
+
+- -O2 and -fllvm options
+
 ## 0.0.1.0 - 0.1.0 - 2024-01-03
 
 ### Added
