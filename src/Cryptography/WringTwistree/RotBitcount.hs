@@ -1,7 +1,7 @@
 {-# LANGUAGE BangPatterns #-}
 module Cryptography.WringTwistree.RotBitcount
   ( rotBitcount
-  , rotBitcountN
+  , rotBitcountN -- Only for cryptanalysis and testing
   , rotBitcount'
   , rotFixed
   , rotFixed'

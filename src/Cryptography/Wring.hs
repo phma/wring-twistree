@@ -10,6 +10,7 @@ module Cryptography.Wring
   , encrypt
   , decrypt
   , encryptFixed -- Only for cryptanalysis and testing
+  , encryptN -- Only for cryptanalysis and testing
   ) where
 
 {- This cipher is intended to be used with short random keys (32 bytes or less,
@@ -102,6 +103,24 @@ roundEncryptFun rprime sbox xornary buf rond = i4 where
   i4 = V.fromListN len $ zipWith (+) (V.toList i3)
     (map (xor xornrond) (V.toList xornary))
 
+roundEncryptFunN ::
+  Int ->
+  SBox ->
+  V.Vector Word8 ->
+  (V.Vector Word8, [Int]) ->
+  Int ->
+  (V.Vector Word8, [Int])
+roundEncryptFunN rprime sbox xornary (buf,ns) rond = (i4,ns') where
+  len = V.length buf
+  xornrond = xorn rond
+  i1 = mix3Parts buf rprime
+  i2 = V.fromListN len $ map (sbox V.!) $
+    zipWith sboxInx (drop rond cycle3) (V.toList i1)
+  (i3,n) = rotBitcountN i2 1
+  i4 = V.fromListN len $ zipWith (+) (V.toList i3)
+    (map (xor xornrond) (V.toList xornary))
+  ns' = ns ++ [n]
+
 roundDecryptFun ::
   Int ->
   SBox ->
@@ -127,6 +146,15 @@ encryptFun wring buf = foldl' (roundEncryptFun rprime (sbox wring) xornary)
     xornary = xornArray len
     rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
     rounds = [0 .. (nRounds len) -1]
+
+encryptFunN :: Wring -> Int -> V.Vector Word8 -> (V.Vector Word8, [Int])
+encryptFunN wring n buf = foldl' (roundEncryptFunN rprime (sbox wring) xornary)
+  (buf,[]) rounds
+  where
+    len = V.length buf
+    xornary = xornArray len
+    rprime = fromIntegral $ findMaxOrder (fromIntegral $ len `div` 3)
+    rounds = [0 .. n-1]
 
 decryptFun :: Wring -> V.Vector Word8 -> V.Vector Word8
 decryptFun wring buf = foldl' (roundDecryptFun rprime (invSbox wring) xornary)
@@ -260,6 +288,9 @@ encrypt = encryptST
 
 -- | Used only for cryptanalysis
 encryptFixed = encryptFixedST
+
+-- | Used only for cryptanalysis
+encryptN = encryptFunN
 
 -- | Decrypts a message.
 decrypt
