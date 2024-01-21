@@ -1,6 +1,7 @@
 {-# LANGUAGE BangPatterns #-}
 module Cryptography.WringTwistree.RotBitcount
   ( rotBitcount
+  , rotBitcountN
   , rotBitcount'
   , rotFixed
   , rotFixed'
@@ -32,6 +33,20 @@ rotBitcount :: V.Vector Word8 -> Int -> V.Vector Word8
 rotBitcount src mult = V.fromListN len
   [ (src V.! ((i+len-byte)   `mod` len) .<<. bit) .|.
     (src V.! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]]
+  where
+    len = V.length src
+    multmod = if len>0 then mult `mod` (len * 8) else mult
+    bitcount = sum $ map popCount $ V.toList src
+    rotcount = if len>0 then (bitcount * multmod) `mod` (len * 8)
+			else bitcount * multmod
+    !byte = rotcount .>>. 3
+    !bit = rotcount .&. 7
+
+rotBitcountN :: V.Vector Word8 -> Int -> (V.Vector Word8, Int)
+-- for cryptanalysis
+rotBitcountN src mult = (V.fromListN len
+  [ (src V.! ((i+len-byte)   `mod` len) .<<. bit) .|.
+    (src V.! ((i+len-byte-1) `mod` len) .>>. (8-bit)) | i <- [0..(len-1)]], bitcount)
   where
     len = V.length src
     multmod = if len>0 then mult `mod` (len * 8) else mult
