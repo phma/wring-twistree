@@ -24,7 +24,7 @@ dependencies:
 
 ghc-options:
 #- -Wall
-#- -O2
+- -O2 # test.sh hangs at 59049 without optimization
 #- -fllvm
 - -Wcompat
 - -Widentities
