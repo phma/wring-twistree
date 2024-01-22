@@ -9,6 +9,12 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 
 ## Unreleased
 
+### Added
+
+- -O2 option
+- Cryptanalysis of `rotBitcount` (in progress)
+- In Rust, initialize sbox of new Wring and Twistree
+
 ## 0.0.1.1 - 0.1.0 - 2024-01-11
 
 ### Removed
