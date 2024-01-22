@@ -172,6 +172,17 @@ mod tests {
     assert_eq!(&buf,&cipher);
   }
 
+  fn test_new(plain: &[u8]) {
+    let mut wring=Wring::new();
+    let mut dewring=Wring::new();
+    let mut buf:Vec<u8> = Vec::new();
+    wring.set_key(&[]);
+    buf.extend_from_slice(&plain);
+    wring.encrypt(&mut buf);
+    dewring.decrypt(&mut buf);
+    assert_eq!(&buf,&plain);
+  }
+
   #[test]
   fn test_vectors() {
     let zero8=[0u8; 8];
@@ -235,6 +246,11 @@ mod tests {
 	, 0x46, 0xb1, 0x18, 0x6d, 0x9c, 0x7d, 0x88, 0x59
 	, 0x1b, 0x25, 0x01, 0x5d, 0x9d, 0xd7, 0x7c, 0x6d
 	]);
+  }
+
+  #[test]
+  fn test_unkeyed() {
+    test_new("Πάντοτε χαίρετε!".as_bytes());
   }
 
 }
