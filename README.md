@@ -21,6 +21,8 @@ To run the program, type `cargo run`. The first time you run it, Cargo may downl
 # Haskell
 You can run WringTwistree in the REPL with `stack ghci`, compile and run it with `stack run`, or use other Stack commands. You can also test the program with `stack test`.
 
+If you develop this using Cabal, please edit `package.yaml` to match any changes you make to `WringTwistree.cabal`.
+
 # Command-line options
 `stack run -- -k key -e plaintext -o ciphertext` enciphers a file. Omit `-o ciphertext` to encipher in place.
 
