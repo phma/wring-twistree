@@ -56,7 +56,7 @@ pub struct Wring {
 impl Wring {
   /// Creates a new unkeyed Wring.
   pub fn new() -> Wring {
-    Wring { sbox: [[0u8; 256]; 3], inv_sbox: [[0u8; 256]; 3] }
+    Wring { sbox: NULLKEY, inv_sbox: [[0u8; 256]; 3] }
   }
 
   fn set_inv_sbox(&mut self) {
@@ -134,9 +134,12 @@ impl Wring {
   }
 
   /// Decrypts `buf` in place, using a temporary buffer of equal size.
-  pub fn decrypt(&self, buf: &mut[u8]) {
+  pub fn decrypt(&mut self, buf: &mut[u8]) {
     let mut tmp:Vec<u8> = Vec::new();
     tmp.extend_from_slice(buf);
+    if self.inv_sbox[0][0]==self.inv_sbox[0][1] {
+      self.set_inv_sbox();
+    }
     let nrond=n_rounds(buf.len());
     let rprime=if buf.len()<3 {
       1 // in Haskell, laziness takes care of this
@@ -258,7 +261,7 @@ pub struct Twistree {
 impl Twistree {
   /// Creates a new unkeyed Twistree.
   pub fn new() -> Twistree {
-    Twistree { sbox: [[0u8; 256]; 3],
+    Twistree { sbox: NULLKEY,
 	       tree2: Vec::new(),
 	       tree3: Vec::new(),
 	       partial_block: Vec::new() }
