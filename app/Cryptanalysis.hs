@@ -33,6 +33,7 @@ module Cryptanalysis
   , convolve
   , unbiasedConvolve
   , convolveDiff
+  , thueMorse
   , priminal
   , byteArray
   , b125
@@ -171,6 +172,23 @@ convolveDiff :: [Word8] -> [Word8] -> Double
 convolveDiff as bs = if (scale == 0) then 1 else
   (sum $ map (^2) $ unbiasedConvolve as bs) / scale where
   scale = ((1+(bias as))*(1+(bias bs))*(1-(bias as))*(1-(bias bs)))
+
+-- Thue-Morse word
+
+log2 :: Integral a => a -> Int
+log2 0 = (-1)
+log2 (-1) = (-1771476585)
+log2 n = 1 + (log2 (n `div` 2))
+
+thueMorse_ :: Int -> Integer
+thueMorse_ 0 = 1
+thueMorse_ n = (((1 .<<. nbits) - 1 - (thueMorse_ (n-1))) .<<. nbits)
+               + (thueMorse_ (n-1)) where
+  nbits = (1 .<<. (n-1))
+
+thueMorse :: Integral a => Int -> a
+-- Returns a Thue-Morse word of at least n bits ending in 1.
+thueMorse n = fromIntegral (thueMorse_ ((log2 n)+1))
 
 -- Multiples of the priminal word for spreading plaintexts around the
 -- space of plaintext
