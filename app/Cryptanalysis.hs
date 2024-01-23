@@ -64,11 +64,12 @@ module Cryptanalysis
   , collisions1
   , hashColl
   , hashCollLinear
+  , countPairs
   ) where
 
 import Data.Word
 import Data.Bits
-import Data.Sort
+import Data.List (sort,sortOn,group)
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
@@ -542,3 +543,11 @@ hashCollLinear = do
   let colls = collisions linearSbox
   putStrLn (show colls)
   putStrLn ((show (length colls)) ++ " collisions")
+
+-- Clutch cryptanalysis: find out how often two messages are rotated together
+
+countPairs :: (Ord a, Eq a) => [a] -> Int
+-- Given a list of numbers representing the amount by which a message has been
+-- rotated by some number of rounds, returns the number of pairs of
+-- equal numbers.
+countPairs ns = sum $ map (\n -> n*(n-1)) $ map length $ group $ sort ns
