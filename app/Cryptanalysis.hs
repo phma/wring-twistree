@@ -64,12 +64,12 @@ module Cryptanalysis
   , collisions1
   , hashColl
   , hashCollLinear
-  , countPairs
+  , cumRot
   ) where
 
 import Data.Word
 import Data.Bits
-import Data.List (sort,sortOn,group)
+import Data.List (sort,sortOn,group,inits)
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
@@ -551,3 +551,6 @@ countPairs :: (Ord a, Eq a) => [a] -> Int
 -- rotated by some number of rounds, returns the number of pairs of
 -- equal numbers.
 countPairs ns = sum $ map (\n -> n*(n-1)) $ map length $ group $ sort ns
+
+cumRot :: Integral a => a -> [a] -> [a]
+cumRot modulus rotations = map (`mod` modulus) $ map sum $ tail $ inits rotations
