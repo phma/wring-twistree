@@ -65,11 +65,12 @@ module Cryptanalysis
   , hashColl
   , hashCollLinear
   , cumRot
+  , rotations1
   ) where
 
 import Data.Word
 import Data.Bits
-import Data.List (sort,sortOn,group,inits)
+import Data.List (sort,sortOn,group,inits,transpose)
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
@@ -546,11 +547,20 @@ hashCollLinear = do
 
 -- Clutch cryptanalysis: find out how often two messages are rotated together
 
+clutchMsgLen = 1000000
+clutchRounds = 8
+
 countPairs :: (Ord a, Eq a) => [a] -> Int
 -- Given a list of numbers representing the amount by which a message has been
 -- rotated by some number of rounds, returns the number of pairs of
 -- equal numbers.
 countPairs ns = sum $ map (\n -> n*(n-1)) $ map length $ group $ sort ns
 
-cumRot :: Integral a => a -> [a] -> [a]
-cumRot modulus rotations = map (`mod` modulus) $ map sum $ tail $ inits rotations
+cumRot :: [Int] -> [Int]
+cumRot rotations = map (`mod` clutchMsgLen) $ map sum $ tail $ inits rotations
+
+megabyteArray :: Integer -> V.Vector Word8
+megabyteArray pt = byteArray clutchMsgLen pt
+
+rotations1 :: Wring -> Integer -> [Int]
+rotations1 wring pt = snd $ encryptN wring clutchRounds $ megabyteArray pt
