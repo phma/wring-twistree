@@ -568,8 +568,9 @@ rotations1 :: Wring -> Integer -> [Int]
 rotations1 wring pt = cumRot $ snd $ encryptN wring clutchRounds $ megabyteArray pt
 
 rotations256 :: Wring -> Integer -> Int -> [[Int]]
-rotations256 wring pt n = map (rotations1 wring) $ map (xor pt) $
-  map (xor pt) $ map (.<<. (8*n)) [0..255]
+rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
+  map (xor pt) $ map (.<<. (8*n)) [0..255])
+  `using` parListDeal numCapabilities rdeepseq
 
 clutch1 :: Fractional a => Wring -> Integer -> Int -> ([a],[a])
 clutch1 wring pt n = (totalRotStats,togetherRotStats) where
