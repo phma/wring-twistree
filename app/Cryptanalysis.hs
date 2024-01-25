@@ -549,6 +549,7 @@ hashCollLinear = do
 
 -- Clutch cryptanalysis: find out how often two messages are rotated together
 
+clutchSamples = 65536
 clutchMsgLen = 10000--00
 clutchRounds = 8
 
@@ -561,11 +562,11 @@ countPairs ns = sum $ map (\n -> n*(n-1)) $ map length $ group $ sort ns
 cumRot :: [Int] -> [Int]
 cumRot rotations = map (`mod` (8*clutchMsgLen)) $ map sum $ tail $ inits rotations
 
-megabyteArray :: Integer -> V.Vector Word8
-megabyteArray pt = byteArray clutchMsgLen pt
+messageArray :: Integer -> V.Vector Word8
+messageArray pt = byteArray clutchMsgLen pt
 
 rotations1 :: Wring -> Integer -> [Int]
-rotations1 wring pt = cumRot $ snd $ encryptN wring clutchRounds $ megabyteArray pt
+rotations1 wring pt = cumRot $ snd $ encryptN wring clutchRounds $ messageArray pt
 
 rotations256 :: Wring -> Integer -> Int -> [[Int]]
 rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
