@@ -110,7 +110,7 @@ testSimilar = do
   putStrLn $ printf "%f" $ varConvolveDiff b875
 
 testClutch :: IO ()
-testClutch = putStrLn $ show $ clutch1 wring96_0 (thueMorse 80000) 100
+testClutch = putStrLn $ show $ clutch wring96_0
 
 testNothing :: IO ()
 testNothing = putStrLn "No code under test"

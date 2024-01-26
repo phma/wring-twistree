@@ -67,7 +67,7 @@ module Cryptanalysis
   , cumRot
   , rotations1
   , rotations256
-  , clutch1
+  , clutch
   ) where
 
 import Data.Word
@@ -87,6 +87,7 @@ import Data.ByteString.UTF8 (fromString)
 import Debug.Trace
 import Cryptography.Wring
 import Cryptography.Twistree
+import Cryptography.WringTwistree.Mix3
 import Stats
 import qualified Data.Vector.Unboxed as V
 
@@ -549,7 +550,7 @@ hashCollLinear = do
 
 -- Clutch cryptanalysis: find out how often two messages are rotated together
 
-clutchSamples = 65536
+clutchSamples = 256
 clutchMsgLen = 10000--00
 clutchRounds = 8
 
@@ -573,9 +574,23 @@ rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
   map (xor pt) $ map (.<<. (8*n)) [0..255])
   `using` parListDeal numCapabilities rdeepseq
 
-clutch1 :: Fractional a => Wring -> Integer -> Int -> ([a],[a])
-clutch1 wring pt n = (totalRotStats,togetherRotStats) where
+clutch1 :: Fractional a => Wring -> (Integer,Int) -> ([a],[a])
+clutch1 wring (pt,n) = (totalRotStats,togetherRotStats) where
   rotations = rotations256 wring pt n
   rotTogether = map (tail . inits) rotations
   totalRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotations
   togetherRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotTogether
+
+addClutch :: Num a => ([a],[a]) -> ([a],[a]) -> ([a],[a])
+addClutch (a,b) (m,n) = (zipWith (+) a m,zipWith (+) b n)
+
+divClutch :: Fractional a => ([a],[a]) -> ([a],[a])
+divClutch (a,b) = (map (/(fromIntegral clutchSamples)) a,
+		   map (/(fromIntegral clutchSamples)) b)
+
+clutch :: Fractional a => Wring -> ([a],[a])
+clutch wring = divClutch $ foldl' addClutch (repeat 0,repeat 0) $
+  map (clutch1 wring) $
+  map (\x -> ((priminal (8*clutchMsgLen))^2*(fromIntegral x),
+	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
+  [1..clutchSamples]

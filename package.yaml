@@ -51,7 +51,6 @@ library:
   - Cryptography.WringTwistree.Blockize
   - Cryptography.WringTwistree.Compress
   - Cryptography.WringTwistree.KeySchedule
-  - Cryptography.WringTwistree.Mix3
   - Cryptography.WringTwistree.Permute
   - Cryptography.WringTwistree.RotBitcount
   - Cryptography.WringTwistree.Sboxes
