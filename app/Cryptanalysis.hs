@@ -552,6 +552,7 @@ hashCollLinear = do
 clutchSamples = 256
 clutchMsgLen = 10000--00
 clutchRounds = 8
+clutchParNum = 2 + numCapabilities `div` 256 -- this 256 is from rotations256
 
 countPairs :: (Ord a, Eq a) => [a] -> Int
 -- Given a list of numbers representing the amount by which a message has been
@@ -592,4 +593,4 @@ clutch wring = divClutch $ foldl' addClutch (repeat 0,repeat 0) $
   map (clutch1 wring) $
   map (\x -> ((priminal (8*clutchMsgLen))^2*(fromIntegral x),
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
-  [1..clutchSamples]
+  ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
