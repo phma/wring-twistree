@@ -575,7 +575,7 @@ rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
 
 clutch1 :: Fractional a => Wring -> (Integer,Int) -> ([a],[a])
 clutch1 wring (pt,n) = (totalRotStats,togetherRotStats) where
-  rotations = rotations256 wring pt n
+  rotations = trace "." $ rotations256 wring pt n
   rotTogether = map (tail . inits) rotations
   totalRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotations
   togetherRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotTogether
