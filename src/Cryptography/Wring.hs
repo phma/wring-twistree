@@ -1,6 +1,7 @@
 module Cryptography.Wring
   ( Wring
   , mix3Parts -- reexported for use in Cryptanalysis.hs
+  , findMaxOrder -- reexported for use in Cryptanalysis.hs
   , permut8 -- reexported for testing
   , mul65537 -- "
   , wringName -- For events in traces when profiling
