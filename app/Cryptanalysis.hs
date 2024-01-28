@@ -574,6 +574,7 @@ rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
   map (xor pt) $ map (.<<. (8*n)) [0..255])
   `using` parListDeal numCapabilities rdeepseq
 
+{-# NOINLINE clutch1 #-}
 clutch1 :: Fractional a => Wring -> (Integer,Int) -> ([a],[a])
 clutch1 wring (pt,n) = (totalRotStats,togetherRotStats) where
   rotations = trace "." $ rotations256 wring pt n
