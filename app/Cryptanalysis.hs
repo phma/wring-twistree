@@ -81,6 +81,7 @@ import Data.Foldable (toList,foldl')
 import Control.DeepSeq
 import Control.Parallel
 import Control.Parallel.Strategies
+import System.ProgressBar
 import GHC.Conc (numCapabilities)
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
