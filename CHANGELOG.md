@@ -13,6 +13,7 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 
 - -O2 option
 - Cryptanalysis of `rotBitcount` (in progress)
+- Progress bar for cryptanalysis
 - In Rust, initialize sbox of new Wring and Twistree
 
 ## 0.0.1.1 - 0.1.0 - 2024-01-11
