@@ -27,6 +27,7 @@ module Cryptanalysis
   , wring6_3
   , same30_3
   , same96_0
+  , nopio
   , match
   , rot1Bit
   , bias
@@ -82,6 +83,7 @@ import Control.DeepSeq
 import Control.Parallel
 import Control.Parallel.Strategies
 import System.ProgressBar
+import System.IO.Unsafe
 import GHC.Conc (numCapabilities)
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
@@ -141,6 +143,9 @@ wring6_0 = keyedWring $ fromString key6_0
 wring6_1 = keyedWring $ fromString key6_1
 wring6_2 = keyedWring $ fromString key6_2
 wring6_3 = keyedWring $ fromString key6_3
+
+nopio :: IO () -- for calling functions which have a progress bar update
+nopio = return () -- argument from GHCI
 
 -- Because of rotBitcount, fixed-position bit differences are inadequate to
 -- telling whether two outputs of Wring are similar. Convolve them instead.
@@ -576,9 +581,9 @@ rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
   `using` parListDeal numCapabilities rdeepseq
 
 {-# NOINLINE clutch1 #-}
-clutch1 :: Fractional a => Wring -> (Integer,Int) -> ([a],[a])
-clutch1 wring (pt,n) = (totalRotStats,togetherRotStats) where
-  rotations = trace "." $ rotations256 wring pt n
+clutch1 :: Fractional a => Wring -> IO () -> (Integer,Int) -> ([a],[a])
+clutch1 wring upd (pt,n) = (totalRotStats,togetherRotStats) where
+  rotations = seq (unsafePerformIO upd) $ rotations256 wring pt n
   rotTogether = map (tail . inits) rotations
   totalRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotations
   togetherRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotTogether
@@ -590,9 +595,14 @@ divClutch :: Fractional a => ([a],[a]) -> ([a],[a])
 divClutch (a,b) = (map (/(fromIntegral clutchSamples)) a,
 		   map (/(fromIntegral clutchSamples)) b)
 
-clutch :: Fractional a => Wring -> ([a],[a])
-clutch wring = divClutch $ foldl' addClutch (repeat 0,repeat 0) $
-  map (clutch1 wring) $
+clutchStats :: Fractional a => Wring -> ProgressBar s -> ([a],[a])
+clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0) $
+  map (clutch1 wring (incProgress pb 1)) $
   map (\x -> ((priminal (8*clutchMsgLen))^2*(fromIntegral x),
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
   ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
+
+clutch :: IO ()
+clutch = do
+  pb <- newProgressBar defStyle 10 (Progress 0 clutchSamples ())
+  putStrLn $ show $ clutchStats wring96_0 pb
