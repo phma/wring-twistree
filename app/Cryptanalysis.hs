@@ -533,28 +533,32 @@ dups ((a,h0):(b,h1):xs)
   | h0==h1    = (a,b):(dups ((b,h1):xs))
   | otherwise = dups ((b,h1):xs)
 
-collisions1 :: SBox -> Integer -> [(V.Vector Word8,V.Vector Word8)]
+{-# NOINLINE collisions1 #-}
+collisions1 :: SBox -> IO () -> Integer -> [(V.Vector Word8,V.Vector Word8)]
 -- Given an S-box and a 64-nybble integer, tries compressing all 961 blocks
 -- made from the integer changed by 0 or 1 nybble, and returns any collisions.
-collisions1 sbox n = dups $ sortOn snd $ compressChanges sbox n
+collisions1 sbox upd n = seq (unsafePerformIO upd) $ dups
+  $ sortOn snd $ compressChanges sbox n
 
-collisions :: SBox -> [(V.Vector Word8,V.Vector Word8)]
-collisions sbox = foldl' (++) []
+collisions :: SBox -> IO () -> [(V.Vector Word8,V.Vector Word8)]
+collisions sbox upd = foldl' (++) []
   (take (div samples 961)
-  (map ((collisions1 sbox) . ((priminal 256) *)) [0..])
+  (map ((collisions1 sbox upd) . ((priminal 256) *)) [0..])
   `using` parListDeal numCapabilities rdeepseq)
 
 hashColl :: IO ()
 hashColl = do
   putStrLn "Hash collisions, 30-byte key:"
-  let colls = collisions sbox30_3
+  pb <- newProgressBar defStyle 10 (Progress 0 (div samples 961) ())
+  let colls = collisions sbox30_3 (incProgress pb 1)
   putStrLn (show colls)
   putStrLn ((show (length colls)) ++ " collisions")
 
 hashCollLinear :: IO ()
 hashCollLinear = do
   putStrLn "Hash collisions, linear S-box:"
-  let colls = collisions linearSbox
+  pb <- newProgressBar defStyle 10 (Progress 0 (div samples 961) ())
+  let colls = collisions linearSbox (incProgress pb 1)
   putStrLn (show colls)
   putStrLn ((show (length colls)) ++ " collisions")
 
