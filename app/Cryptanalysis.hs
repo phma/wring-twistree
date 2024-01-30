@@ -147,6 +147,9 @@ wring6_3 = keyedWring $ fromString key6_3
 nopio :: IO () -- for calling functions which have a progress bar update
 nopio = return () -- argument from GHCI
 
+dotio :: IO ()
+dotio = putStrLn "."
+
 -- Because of rotBitcount, fixed-position bit differences are inadequate to
 -- telling whether two outputs of Wring are similar. Convolve them instead.
 
@@ -425,38 +428,40 @@ relatedKey = do
 -- and xor all the ciphertexts produced by changing the byte of the plaintext
 -- to all 256 possibilities.
 
-sum1Wring :: Crypt -> Wring -> Word64 -> Int -> Word64
+{-# NOINLINE sum1Wring #-}
+sum1Wring :: Crypt -> Wring -> IO () -> Word64 -> Int -> Word64
 -- Take pt with all values in the bth byte, encrypt them all,
 -- and xor the ciphertexts.
-sum1Wring enc w pt b = foldl' xor 0 cts where
+sum1Wring enc w upd pt b = seq (unsafePerformIO upd) $ foldl' xor 0 cts where
   pts = map eightByteArray $ zipWith xor (repeat pt) (map (.<<. (b .<<. 3)) [0..255])
   cts = map makeArrayInt $ map (enc w) pts
 
-integralHisto :: Crypt -> Wring -> Int -> Histo
-integralHisto enc w b = foldl' hCountBits (emptyHisto 64)
+integralHisto :: Crypt -> Wring -> IO () -> Int -> Histo
+integralHisto enc w upd b = foldl' hCountBits (emptyHisto 64)
   (take (div samples 256)
-  (map ((\pt -> sum1Wring enc w pt b) . ((priminal 64) *)) [0..])
+  (map ((\pt -> sum1Wring enc w upd pt b) . ((priminal 64) *)) [0..])
   `using` parListDeal numCapabilities rdeepseq)
 
-integralStat :: Crypt -> Wring -> Int -> Double
-integralStat enc w b = binomial (integralHisto enc w b) (div samples 256)
+integralStat :: Crypt -> Wring -> IO () -> Int -> Double
+integralStat enc w upd b = binomial (integralHisto enc w upd b) (div samples 256)
 
-eightStats :: Crypt -> Wring -> [Double]
-eightStats enc w =
+eightStats :: Crypt -> Wring -> IO () -> [Double]
+eightStats enc w upd =
   par s0 $ par s1 $ par s2 $ par s3 $ par s4 $ par s5 $ par s6 $ par s7 $
   [s0,s1,s2,s3,s4,s5,s6,s7] where
-    s0 = integralStat enc w 0
-    s1 = integralStat enc w 1
-    s2 = integralStat enc w 2
-    s3 = integralStat enc w 3
-    s4 = integralStat enc w 4
-    s5 = integralStat enc w 5
-    s6 = integralStat enc w 6
-    s7 = integralStat enc w 7
+    s0 = integralStat enc w upd 0
+    s1 = integralStat enc w upd 1
+    s2 = integralStat enc w upd 2
+    s3 = integralStat enc w upd 3
+    s4 = integralStat enc w upd 4
+    s5 = integralStat enc w upd 5
+    s6 = integralStat enc w upd 6
+    s7 = integralStat enc w upd 7
 
 integral1 :: Crypt -> Wring -> IO ()
 integral1 enc w = do
-  let eightS = eightStats enc w
+  pb <- newProgressBar defStyle 10 (Progress 0 (div samples 32) ())
+  let eightS = eightStats enc w (incProgress pb 1)
   putStrLn (show eightS)
   putStrLn ("Byte 0: " ++ tellStat64 (eightS !! 0))
   putStrLn ("Byte 1: " ++ tellStat64 (eightS !! 1))
@@ -478,9 +483,9 @@ integralCr = do
   putStrLn "Linear key, 8-byte data:"
   integral1 encrypt linearWring
   putStrLn "96-byte key, byte 7:" -- This byte came out as "too much variation".
-  putStrLn $ show $ integralHisto encrypt wring96_0 7
+  putStrLn $ show $ integralHisto encrypt wring96_0 nopio 7
   putStrLn "Linear key, byte 3:" -- This byte came out as "low-discrepancy".
-  putStrLn $ show $ integralHisto encrypt linearWring 3
+  putStrLn $ show $ integralHisto encrypt linearWring nopio 3
 
 integralCrFixed :: IO ()
 integralCrFixed = do
