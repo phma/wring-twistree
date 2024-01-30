@@ -556,7 +556,7 @@ hashCollLinear = do
 -- Clutch cryptanalysis: find out how often two messages are rotated together
 
 clutchSamples = 256
-clutchMsgLen = 10000--00
+clutchMsgLen = 10000
 clutchRounds = 8
 clutchParNum = 2 + numCapabilities `div` 256 -- this 256 is from rotations256
 
