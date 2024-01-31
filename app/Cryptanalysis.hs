@@ -306,13 +306,16 @@ name2 w0 s w1 = (wringName w0) ++ s ++ (wringName w1)
 
 {-# NOINLINE diff1Related #-}
 diff1Related :: Wring -> Wring -> IO () -> Word64 -> Word64
-diff1Related w0 w1 upd pt = seq (unsafePerformIO upd) $ ct0 .^. ct1 where
+diff1Related w0 w1 upd pt = seq
+  (if mod pt 256 == 0 then unsafePerformIO upd else ()) $ ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
 
 {-# NOINLINE conDiff1Related #-}
 conDiff1Related :: Wring -> Wring -> IO () -> Word64 -> Double
-conDiff1Related w0 w1 upd pt = seq (unsafePerformIO upd) $ par ct0 $ convolveDiff ct0 ct1 where
+conDiff1Related w0 w1 upd pt = seq
+  (if mod pt 256 == 0 then unsafePerformIO upd else ()) $
+  par ct0 $ convolveDiff ct0 ct1 where
   ct0 = V.toList $ encrypt w0 $ eightByteArray pt
   ct1 = V.toList $ encrypt w1 $ eightByteArray pt
 
@@ -388,7 +391,7 @@ tellStatμσ (mean,var)
 
 relatedKey4Bit :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4Bit w0 w1 w2 w3 = do
-  pb <- newProgressBar defStyle 3 (Progress 0 (samples*3) ())
+  pb <- newProgressBar defStyle 3 (Progress 0 (div (samples*3) 256) ())
   let sixS = sixStatsBit w0 w1 w2 w3 (incProgress pb 1)
   putStrLn (show sixS)
   putStrLn ("0,1: " ++ tellStat64 (sixS !! 0))
@@ -400,7 +403,7 @@ relatedKey4Bit w0 w1 w2 w3 = do
 
 relatedKey4Conv :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4Conv w0 w1 w2 w3 = do
-  pb <- newProgressBar defStyle 3 (Progress 0 (samples*3) ())
+  pb <- newProgressBar defStyle 3 (Progress 0 (div (samples*3) 256) ())
   let sixS = sixStatsConv w0 w1 w2 w3 (incProgress pb 1)
   putStrLn (show sixS)
   putStrLn ("0,1: " ++ tellStatμσ (sixS !! 0))
