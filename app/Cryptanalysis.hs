@@ -304,58 +304,65 @@ varConvolveDiff b = sum (map (\x -> (x-1)^2) sims) / 4096 where
 name2 :: Wring -> String -> Wring -> String
 name2 w0 s w1 = (wringName w0) ++ s ++ (wringName w1)
 
-diff1Related :: Wring -> Wring -> Word64 -> Word64
-diff1Related w0 w1 pt = ct0 .^. ct1 where
+{-# NOINLINE diff1Related #-}
+diff1Related :: Wring -> Wring -> IO () -> Word64 -> Word64
+diff1Related w0 w1 upd pt = seq (unsafePerformIO upd) $ ct0 .^. ct1 where
   ct0 = makeArrayInt $ encrypt w0 $ eightByteArray pt
   ct1 = makeArrayInt $ encrypt w1 $ eightByteArray pt
 
-conDiff1Related :: Wring -> Wring -> Word64 -> Double
-conDiff1Related w0 w1 pt = par ct0 $ convolveDiff ct0 ct1 where
+{-# NOINLINE conDiff1Related #-}
+conDiff1Related :: Wring -> Wring -> IO () -> Word64 -> Double
+conDiff1Related w0 w1 upd pt = seq (unsafePerformIO upd) $ par ct0 $ convolveDiff ct0 ct1 where
   ct0 = V.toList $ encrypt w0 $ eightByteArray pt
   ct1 = V.toList $ encrypt w1 $ eightByteArray pt
 
-diffRelated :: Wring -> Wring -> [Word64]
-diffRelated w0 w1 = traceEvent (name2 w0 "-diff-" w1) $ map ((diff1Related w0 w1) . ((priminal 64) *)) [0..]
+diffRelated :: Wring -> Wring -> IO () -> [Word64]
+diffRelated w0 w1 upd = traceEvent (name2 w0 "-diff-" w1) $
+  map ((diff1Related w0 w1 upd) . ((priminal 64) *)) [0..]
 
-conDiffRelated :: Wring -> Wring -> [Double]
-conDiffRelated w0 w1 = traceEvent (name2 w0 "-con-" w1) $ map ((conDiff1Related w0 w1) . ((priminal 64) *)) [0..]
+conDiffRelated :: Wring -> Wring -> IO () -> [Double]
+conDiffRelated w0 w1 upd = traceEvent (name2 w0 "-con-" w1) $
+  map ((conDiff1Related w0 w1 upd) . ((priminal 64) *)) [0..]
 
 plaintextHisto :: Histo
 plaintextHisto = foldl' hCountBits (emptyHisto 64)
   (take (div samples 2) (map ((priminal 64) *) [0..]))
 
-relatedKeyHisto :: Wring -> Wring -> Histo
-relatedKeyHisto w0 w1 = foldl' hCountBits (emptyHisto 64)
-  (take (div samples 2) (diffRelated w0 w1) `using` parListDeal numCapabilities rdeepseq)
+relatedKeyHisto :: Wring -> Wring -> IO () -> Histo
+relatedKeyHisto w0 w1 upd = foldl' hCountBits (emptyHisto 64)
+  (take (div samples 2) (diffRelated w0 w1 upd)
+  `using` parListDeal numCapabilities rdeepseq)
 
-relatedKeyStatBit :: Wring -> Wring -> Double
-relatedKeyStatBit w0 w1 = binomial (relatedKeyHisto w0 w1) (div samples 2)
+relatedKeyStatBit :: Wring -> Wring -> IO () -> Double
+relatedKeyStatBit w0 w1 upd = binomial (relatedKeyHisto w0 w1 upd) (div samples 2)
 
-relatedKeyStatConv :: Wring -> Wring -> (Double,Double)
-relatedKeyStatConv w0 w1 = normμσ 1 (sqrt (1/32))
-  (take (div samples 2) (conDiffRelated w0 w1) `using` parListDeal numCapabilities rdeepseq)
+relatedKeyStatConv :: Wring -> Wring -> IO () -> (Double,Double)
+relatedKeyStatConv w0 w1 upd = normμσ 1 (sqrt (1/32))
+  (take (div samples 2) (conDiffRelated w0 w1 upd)
+  `using` parListDeal numCapabilities rdeepseq)
 
-sixStatsBit :: Wring -> Wring -> Wring -> Wring -> [Double]
-sixStatsBit w0 w1 w2 w3 = par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
+sixStatsBit :: Wring -> Wring -> Wring -> Wring -> IO () -> [Double]
+sixStatsBit w0 w1 w2 w3 upd =
+  par s01 $ par s23 $ par s02 $ par s13 $ par s03 $ par s12 $
   [s01,s23,s02,s13,s03,s12] where
-    s01 = relatedKeyStatBit w0 w1
-    s23 = relatedKeyStatBit w2 w3
-    s02 = relatedKeyStatBit w0 w2
-    s13 = relatedKeyStatBit w1 w3
-    s03 = relatedKeyStatBit w0 w3
-    s12 = relatedKeyStatBit w1 w2
+    s01 = relatedKeyStatBit w0 w1 upd
+    s23 = relatedKeyStatBit w2 w3 upd
+    s02 = relatedKeyStatBit w0 w2 upd
+    s13 = relatedKeyStatBit w1 w3 upd
+    s03 = relatedKeyStatBit w0 w3 upd
+    s12 = relatedKeyStatBit w1 w2 upd
 
-sixStatsConv :: Wring -> Wring -> Wring -> Wring -> [(Double,Double)]
-sixStatsConv w0 w1 w2 w3 =
+sixStatsConv :: Wring -> Wring -> Wring -> Wring -> IO () -> [(Double,Double)]
+sixStatsConv w0 w1 w2 w3 upd =
   par (force s01) $ par (force s23) $ par (force s02) $
   par (force s13) $ par (force s03) $ par (force s12) $
   [s01,s23,s02,s13,s03,s12] where
-    s01 = relatedKeyStatConv w0 w1
-    s23 = relatedKeyStatConv w2 w3
-    s02 = relatedKeyStatConv w0 w2
-    s13 = relatedKeyStatConv w1 w3
-    s03 = relatedKeyStatConv w0 w3
-    s12 = relatedKeyStatConv w1 w2
+    s01 = relatedKeyStatConv w0 w1 upd
+    s23 = relatedKeyStatConv w2 w3 upd
+    s02 = relatedKeyStatConv w0 w2 upd
+    s13 = relatedKeyStatConv w1 w3 upd
+    s03 = relatedKeyStatConv w0 w3 upd
+    s12 = relatedKeyStatConv w1 w2 upd
 
 tellStat64 :: Double -> String
 -- 0.635 and 1.456 are 1% tails at 64 degrees of freedom, divided by 64.
@@ -381,7 +388,8 @@ tellStatμσ (mean,var)
 
 relatedKey4Bit :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4Bit w0 w1 w2 w3 = do
-  let sixS = sixStatsBit w0 w1 w2 w3
+  pb <- newProgressBar defStyle 3 (Progress 0 (samples*3) ())
+  let sixS = sixStatsBit w0 w1 w2 w3 (incProgress pb 1)
   putStrLn (show sixS)
   putStrLn ("0,1: " ++ tellStat64 (sixS !! 0))
   putStrLn ("2,3: " ++ tellStat64 (sixS !! 1))
@@ -392,7 +400,8 @@ relatedKey4Bit w0 w1 w2 w3 = do
 
 relatedKey4Conv :: Wring -> Wring -> Wring -> Wring -> IO ()
 relatedKey4Conv w0 w1 w2 w3 = do
-  let sixS = sixStatsConv w0 w1 w2 w3
+  pb <- newProgressBar defStyle 3 (Progress 0 (samples*3) ())
+  let sixS = sixStatsConv w0 w1 w2 w3 (incProgress pb 1)
   putStrLn (show sixS)
   putStrLn ("0,1: " ++ tellStatμσ (sixS !! 0))
   putStrLn ("2,3: " ++ tellStatμσ (sixS !! 1))
