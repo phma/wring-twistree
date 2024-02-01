@@ -68,6 +68,7 @@ module Cryptanalysis
   , cumRot
   , rotations1
   , rotations256
+  , clutch1
   , clutch
   ) where
 
@@ -601,23 +602,32 @@ rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
   map (xor pt) $ map (.<<. (8*n)) [0..255])
   `using` parListDeal numCapabilities rdeepseq
 
+type Jiggle =
+  ( Integer -- plaintext
+  , Int     -- byte which is changed
+  , Int     -- two byte values which give the same sum of first and second
+  , Int     -- rotations, but different first and second rotations
+  )
+
 {-# NOINLINE clutch1 #-}
-clutch1 :: Fractional a => Wring -> IO () -> (Integer,Int) -> ([a],[a])
-clutch1 wring upd (pt,n) = (totalRotStats,togetherRotStats) where
+clutch1 :: Fractional a => Wring -> IO () -> (Integer,Int) -> ([a],[a],[Jiggle])
+clutch1 wring upd (pt,n) = (totalRotStats,togetherRotStats,jiggle) where
   rotations = seq (unsafePerformIO upd) $ rotations256 wring pt n
   rotTogether = map (tail . inits) rotations
   totalRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotations
   togetherRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotTogether
+  jiggle=[]
 
-addClutch :: Num a => ([a],[a]) -> ([a],[a]) -> ([a],[a])
-addClutch (a,b) (m,n) = (zipWith (+) a m,zipWith (+) b n)
+addClutch :: Num a => ([a],[a],[b]) -> ([a],[a],[b]) -> ([a],[a],[b])
+addClutch (a,b,c) (m,n,o) = (zipWith (+) a m,zipWith (+) b n,c ++ o)
 
-divClutch :: Fractional a => ([a],[a]) -> ([a],[a])
-divClutch (a,b) = (map (/(fromIntegral clutchSamples)) a,
-		   map (/(fromIntegral clutchSamples)) b)
+divClutch :: Fractional a => ([a],[a],[b]) -> ([a],[a],[b])
+divClutch (a,b,c) = (map (/(fromIntegral clutchSamples)) a,
+		     map (/(fromIntegral clutchSamples)) b,
+		     c)
 
-clutchStats :: Fractional a => Wring -> ProgressBar s -> ([a],[a])
-clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0) $
+clutchStats :: Fractional a => Wring -> ProgressBar s -> ([a],[a],[Jiggle])
+clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
   map (clutch1 wring (incProgress pb 1)) $
   map (\x -> ((priminal (8*clutchMsgLen))^2*(fromIntegral x),
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
