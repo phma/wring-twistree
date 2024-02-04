@@ -617,6 +617,12 @@ pairs1 (x:xs) = zip (repeat x) xs
 pairs :: [a] -> [(a,a)]
 pairs xs = concatMap pairs1 (tails xs)
 
+isJiggly :: (Eq b,Eq c) => ((a,b,c),(a,b,c)) -> Bool
+isJiggly ((inx0,each0,sum0),(inx1,each1,sum1)) = (sum0 == sum1) && (each0 /= each1)
+
+jigglize :: Integer -> Int -> ((Int,b,c),(Int,b,c)) -> Jiggle
+jigglize pt n ((inx0,each0,sum0),(inx1,each1,sum1)) = (pt,n,inx0,inx1)
+
 {-# NOINLINE clutch1 #-}
 clutch1 :: Fractional a => Wring -> IO () -> (Integer,Int) -> ([a],[a],[Jiggle])
 clutch1 wring upd (pt,n) = (totalRotStats,togetherRotStats,jiggle) where
@@ -624,7 +630,8 @@ clutch1 wring upd (pt,n) = (totalRotStats,togetherRotStats,jiggle) where
   rotTogether = map (tail . inits) rotations
   totalRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotations
   togetherRotStats = map (/(256*255)) $ map (fromIntegral . countPairs) $ transpose rotTogether
-  jiggle=[]
+  jiggle = map (jigglize pt n) $ filter isJiggly $ pairs $
+    zip3 [0..255] (map (!! 1) rotTogether) (map (!! 1) rotations)
 
 addClutch :: Num a => ([a],[a],[b]) -> ([a],[a],[b]) -> ([a],[a],[b])
 addClutch (a,b,c) (m,n,o) = (zipWith (+) a m,zipWith (+) b n,c ++ o)
