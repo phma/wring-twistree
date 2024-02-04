@@ -68,13 +68,14 @@ module Cryptanalysis
   , cumRot
   , rotations1
   , rotations256
+  , pairs
   , clutch1
   , clutch
   ) where
 
 import Data.Word
 import Data.Bits
-import Data.List (sort,sortOn,group,inits,transpose)
+import Data.List (sort,sortOn,group,inits,tails,transpose)
 import Math.NumberTheory.Primes
 import Data.Array.Unboxed
 import qualified Data.Sequence as Seq
@@ -608,6 +609,13 @@ type Jiggle =
   , Int     -- two byte values which give the same sum of first and second
   , Int     -- rotations, but different first and second rotations
   )
+
+pairs1 :: [a] -> [(a,a)]
+pairs1 [] = []
+pairs1 (x:xs) = zip (repeat x) xs
+
+pairs :: [a] -> [(a,a)]
+pairs xs = concatMap pairs1 (tails xs)
 
 {-# NOINLINE clutch1 #-}
 clutch1 :: Fractional a => Wring -> IO () -> (Integer,Int) -> ([a],[a],[Jiggle])
