@@ -651,4 +651,11 @@ clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
 clutch :: IO ()
 clutch = do
   pb <- newProgressBar defStyle 10 (Progress 0 clutchSamples ())
-  putStrLn $ show $ clutchStats wring96_0 pb
+  let (statsTotal,statsTogether,jiggles) = clutchStats wring96_0 pb
+  seq (length statsTotal) nopio
+  putStrLn "Same total rotation after n rounds:"
+  putStrLn $ show statsTotal
+  putStrLn "Rotated together for n rounds:"
+  putStrLn $ show statsTogether
+  putStr "Number of 2-round jiggles: "
+  putStrLn $ show $ length jiggles
