@@ -34,6 +34,7 @@ module Cryptanalysis
   , convolve
   , unbiasedConvolve
   , convolveDiff
+  , big3Power
   , thueMorse
   , priminal
   , byteArray
@@ -188,6 +189,13 @@ convolveDiff :: [Word8] -> [Word8] -> Double
 convolveDiff as bs = if (scale == 0) then 1 else
   (sum $ map (^2) $ unbiasedConvolve as bs) / scale where
   scale = ((1+(bias as))*(1+(bias bs))*(1-(bias as))*(1-(bias bs)))
+
+-- Big numbers used for generating plaintext sequences
+
+-- Big power of 3
+
+big3Power :: Integral a => Int -> a
+big3Power n = 3 ^ (n * 53 `div` 84)
 
 -- Thue-Morse word
 
