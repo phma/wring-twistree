@@ -601,7 +601,7 @@ rotations1 wring pt = cumRot $ snd $ encryptN wring clutchRounds $ messageArray 
 
 rotations256 :: Wring -> Integer -> Int -> [[Int]]
 rotations256 wring pt n = (map (rotations1 wring) $ map (xor pt) $
-  map (xor pt) $ map (.<<. (8*n)) [0..255])
+  map (.<<. (8*n)) [0..255])
   `using` parListDeal numCapabilities rdeepseq
 
 type Jiggle =
