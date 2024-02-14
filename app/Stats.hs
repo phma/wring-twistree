@@ -11,12 +11,15 @@ module Stats
   , bitFold
   , sacStats
   , normμσ
+  , jhCount
+  , emptyJiggleHisto
   ) where
 
 import Data.Bits
 import Data.Word
 import qualified Data.Sequence as Seq
 import Data.Sequence ((><), (<|), (|>), Seq((:<|)), Seq((:|>)))
+import qualified Data.IntMap.Strict as Map
 import Data.Foldable (toList,foldl')
 import Control.Parallel
 import Control.Parallel.Strategies
@@ -122,3 +125,12 @@ normμσ μ σ devs = (mean,var) where
   (n,total,total2) = pairwiseSumCount ndevsqs
   mean = total / (fromIntegral n)
   var = total2 / (fromIntegral n)
+
+type JiggleHisto = Map.IntMap [Int]
+-- The key is sideways; the value is the list of matches from jiggleMatch.
+
+jhCount :: JiggleHisto -> (Int,Int) -> JiggleHisto
+jhCount jh (sideways,matches) = Map.insertWith (++) sideways [matches] jh
+
+emptyJiggleHisto :: JiggleHisto
+emptyJiggleHisto = Map.empty
