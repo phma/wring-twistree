@@ -13,6 +13,7 @@ module Stats
   , normμσ
   , jhCount
   , emptyJiggleHisto
+  , listStats
   ) where
 
 import Data.Bits
@@ -134,3 +135,13 @@ jhCount jh (sideways,matches) = Map.insertWith (++) sideways [matches] jh
 
 emptyJiggleHisto :: JiggleHisto
 emptyJiggleHisto = Map.empty
+
+listStats :: (Real a,Bounded a) => [a] -> (Double,Double,a,a)
+listStats xs = (mean,sqrt var,minxs,maxxs) where
+  minxs = if null xs then maxBound else minimum xs
+  maxxs = if null xs then minBound else maximum xs
+  devs = map realToFrac xs
+  devsqs = map (\x -> (1,x,x^2)) devs
+  (n,total,total2) = pairwiseSumCount devsqs
+  mean = total / (fromIntegral n)
+  var = (total2 - total * mean) / (fromIntegral n-1)
