@@ -13,6 +13,7 @@ module Stats
   , normμσ
   , jhCount
   , emptyJiggleHisto
+  , jiggleHisto
   , listStats
   ) where
 
@@ -135,6 +136,9 @@ jhCount jh (sideways,matches) = Map.insertWith (++) sideways [matches] jh
 
 emptyJiggleHisto :: JiggleHisto
 emptyJiggleHisto = Map.empty
+
+jiggleHisto :: [(Int,Int)] -> JiggleHisto
+jiggleHisto sidematches = foldl' jhCount emptyJiggleHisto sidematches
 
 listStats :: (Real a,Bounded a) => [a] -> (Int,Double,Double,a,a)
 listStats xs = (n,mean,sqrt var,minxs,maxxs) where
