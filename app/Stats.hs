@@ -136,8 +136,8 @@ jhCount jh (sideways,matches) = Map.insertWith (++) sideways [matches] jh
 emptyJiggleHisto :: JiggleHisto
 emptyJiggleHisto = Map.empty
 
-listStats :: (Real a,Bounded a) => [a] -> (Double,Double,a,a)
-listStats xs = (mean,sqrt var,minxs,maxxs) where
+listStats :: (Real a,Bounded a) => [a] -> (Int,Double,Double,a,a)
+listStats xs = (n,mean,sqrt var,minxs,maxxs) where
   minxs = if null xs then maxBound else minimum xs
   maxxs = if null xs then minBound else maximum xs
   devs = map realToFrac xs
