@@ -679,4 +679,4 @@ clutch = do
   putStr "Number of 2-round jiggles: "
   putStrLn $ show $ length jiggles
   let jh = jiggleHisto $ map (jiggleMatch wring96_0) jiggles
-  putStrLn $ show $ jh
+  putStrLn $ show $ jiggleStats jh

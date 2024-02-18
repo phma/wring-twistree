@@ -15,6 +15,7 @@ module Stats
   , emptyJiggleHisto
   , jiggleHisto
   , listStats
+  , jiggleStats
   ) where
 
 import Data.Bits
@@ -149,3 +150,6 @@ listStats xs = (n,mean,sqrt var,minxs,maxxs) where
   (n,total,total2) = pairwiseSumCount devsqs
   mean = total / (fromIntegral n)
   var = (total2 - total * mean) / (fromIntegral n-1)
+
+jiggleStats :: JiggleHisto -> [(Int,(Int,Double,Double,Int,Int))]
+jiggleStats jh = Map.toList $ Map.map listStats jh
