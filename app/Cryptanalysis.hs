@@ -657,15 +657,15 @@ clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
   ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
 
-jiggleMatch :: Wring -> Jiggle -> (Int,Int)
-jiggleMatch wring (pt,byte,b0,b1) = (sideways,matches) where
+jiggleMatch :: Wring -> IO () -> Jiggle -> (Int,Int)
+jiggleMatch wring upd (pt,byte,b0,b1) = (sideways,matches) where
   (ct0,r0) = encryptN wring 2 $ messageArray (pt .^. ((fromIntegral b0) .<<. (8*byte)))
   (ct1,r1) = encryptN wring 2 $ messageArray (pt .^. ((fromIntegral b1) .<<. (8*byte)))
   sideways' = ((head r1) - (head r0)) `mod` (8*clutchMsgLen)
   sideways = if (sideways' > 4*clutchMsgLen)
 		then (sideways' - 8*clutchMsgLen)
 		else sideways'
-  matches = match (V.toList ct0) (V.toList ct1)
+  matches = seq (unsafePerformIO upd) $ match (V.toList ct0) (V.toList ct1)
 
 clutch :: IO ()
 clutch = do
@@ -678,5 +678,6 @@ clutch = do
   putStrLn $ show statsTogether
   putStr "Number of 2-round jiggles: "
   putStrLn $ show $ length jiggles
-  let jh = jiggleHisto $ map (jiggleMatch wring96_0) jiggles
+  pbj <- newProgressBar defStyle 10 (Progress 0 (length jiggles) ())
+  let jh = jiggleHisto $ map (jiggleMatch wring96_0 (incProgress pbj 1)) jiggles
   putStrLn $ show $ jiggleStats jh
