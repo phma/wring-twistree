@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Cryptanalysis
   ( key96_0
   , key96_1
