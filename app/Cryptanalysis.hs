@@ -654,7 +654,7 @@ divClutch (a,b,c) = (map (/(fromIntegral clutchSamples)) a,
 clutchStats :: Fractional a => Wring -> ProgressBar s -> ([a],[a],[Jiggle])
 clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
   map (clutch1 wring (incProgress pb 1)) $
-  map (\x -> ((priminal (8*clutchMsgLen))^2*(fromIntegral x),
+  map (\x -> ((big3Power (8*clutchMsgLen))*(fromIntegral x),
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
   ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
 
