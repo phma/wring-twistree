@@ -588,7 +588,7 @@ hashCollLinear = do
 
 -- Clutch cryptanalysis: find out how often two messages are rotated together
 
-clutchSamples = 256
+clutchSamples = 1
 clutchMsgLen = 10000
 clutchRounds = 8
 clutchParNum = 2 + numCapabilities `div` 256 -- this 256 is from rotations256
@@ -658,6 +658,7 @@ clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
 	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
   ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
 
+{-# NOINLINE jiggleMatch #-}
 jiggleMatch :: Wring -> IO () -> Jiggle -> (Int,Int)
 jiggleMatch wring upd (pt,byte,b0,b1) = (sideways,matches) where
   (ct0,r0) = encryptN wring 2 $ messageArray (pt .^. ((fromIntegral b0) .<<. (8*byte)))
@@ -681,4 +682,6 @@ clutch = do
   putStrLn $ show $ length jiggles
   pbj <- newProgressBar defStyle 10 (Progress 0 (length jiggles) ())
   let jh = jiggleHisto $ map (jiggleMatch wring96_0 (incProgress pbj 1)) jiggles
-  putStrLn $ show $ jiggleStats jh
+  let jStats = jiggleStats jh
+  seq (sum (map (\(a,(b,c,d,e,f)) -> c) jStats)) nopio
+  putStrLn $ show jStats
