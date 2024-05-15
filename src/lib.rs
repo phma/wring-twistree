@@ -27,8 +27,8 @@ use crate::sboxes::*; // uses keyschedule and permute
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;
   let mut m=n;
-  while m>=3 {
-    m/=3;
+  while m>=2 {
+    m/=2;
     ret+=1;
   }
   ret

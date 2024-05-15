@@ -15,6 +15,10 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 - Progress bar for cryptanalysis
 - In Rust, initialize sbox of new Wring and Twistree
 
+### Changed
+
+- Increased number of rounds in Wring, because cryptanalysis showed it was not sufficient for security of large messages
+
 ## 0.0.1.1 - 0.1.0 - 2024-01-11
 
 ### Removed

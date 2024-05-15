@@ -5,7 +5,7 @@ cabal-version: 1.18
 -- see: https://github.com/sol/hpack
 
 name:           WringTwistree
-version:        0.0.2.0
+version:        0.1.0.0
 synopsis:       Whole-message cipher and tree hash
 description:    Please see the README on GitHub at <https://github.com/phma/wring-twistree#readme>
 category:       Cryptography

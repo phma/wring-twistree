@@ -52,8 +52,8 @@ wringName wring = printf "%02x-%02x-%02x-%02x"
 
 nRounds :: Integral a => a -> a
 nRounds len
-  | len < 3 = 3
-  | otherwise = (nRounds (len `div` 3)) +1
+  | len < 2 = 3
+  | otherwise = (nRounds (len `div` 2)) +1
 
 -- | Exclusive-ors all bytes in a nonnegative number. The only reason this
 -- function is public is that it's used to generate a long `ByteString`
