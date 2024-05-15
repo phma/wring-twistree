@@ -72,8 +72,6 @@ module Cryptanalysis
   , rotations256
   , pairs
   , jiggleMatch
-  , clutch1
-  , clutch
   ) where
 
 import Data.Word

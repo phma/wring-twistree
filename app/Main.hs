@@ -207,7 +207,7 @@ doCommandLine :: [WtOpt] -> IO ()
 doCommandLine parse = case action of
     Just Encrypt     -> encryptFile key infile outfile
     Just Decrypt     -> decryptFile key infile outfile
-    Just Test        -> clutch
+    Just Test        -> testNothing
     Just (Analyze a) -> cryptanalyze a
     Just Hash        -> hashFile key infile outfile
     Nothing          -> putStrLn "Please specify one of -e, -d, and -H"
