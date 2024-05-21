@@ -5,7 +5,6 @@ use wring_twistree::wring::*;
 use wring_twistree::twistree::*;
 use wring_twistree::blockize::*;
 use wring_twistree::compress::*;
-use num_bigint::BigUint;
 use clap::Parser;
 use std::io;
 use std::io::*;

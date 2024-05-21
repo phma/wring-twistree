@@ -15,7 +15,7 @@ pub fn rot_bitcount(src:&[u8], dst:&mut[u8], mult:isize) {
   assert_eq!(src.len(),dst.len());
   let bitcount = src.iter().fold(0, |acc,x| acc+x.count_ones()) as usize;
   let rotcount:usize;
-  if (src.len()>0) {
+  if src.len()>0 {
     let multmod = mult.rem_euclid((src.len() as isize)*8) as usize;
     rotcount = (bitcount*multmod)%(src.len()*8);
   } else {

@@ -53,11 +53,10 @@ pub fn blockize(bs:&[u8], part:&mut Vec<u8>) -> Vec<Vec<u8>> {
 }
 
 pub fn pad(part:&mut Vec<u8>) -> Vec<u8> {
-  let mut ret:Vec<u8> = Vec::new();
   for i in 0..BLOCKSIZE-part.len() {
     part.push(i as u8);
   }
-  ret=part.clone();
+  let ret=part.clone();
   part.clear();
   ret
 }
