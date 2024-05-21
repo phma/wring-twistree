@@ -38,7 +38,7 @@ rotBitcount src mult = V.fromListN len
     multmod = if len>0 then mult `mod` (len * 8) else mult
     bitcount = sum $ map popCount $ V.toList src
     rotcount = if len>0 then (bitcount * multmod) `mod` (len * 8)
-			else bitcount * multmod
+                        else bitcount * multmod
     !byte = rotcount .>>. 3
     !bit = rotcount .&. 7
 
@@ -52,7 +52,7 @@ rotBitcountN src mult = (V.fromListN len
     multmod = if len>0 then mult `mod` (len * 8) else mult
     bitcount = sum $ map popCount $ V.toList src
     rotcount = if len>0 then (bitcount * multmod) `mod` (len * 8)
-			else bitcount * multmod
+                        else bitcount * multmod
     !byte = rotcount .>>. 3
     !bit = rotcount .&. 7
 
@@ -62,7 +62,7 @@ rotBitcount' src mult dst = do
     let len = MV.length src
         !multmod = if len>0 then mult `mod` (len * 8) else mult
         rotcount = if len>0 then (bitcount * multmod) `rem` (len * 8)
-			    else bitcount * multmod
+                            else bitcount * multmod
         !byte = rotcount .>>. 3
         !bit = rotcount .&. 7
     forM_ [0..MV.length src - 1] $ \i -> do

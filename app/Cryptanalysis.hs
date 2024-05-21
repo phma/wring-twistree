@@ -646,14 +646,14 @@ addClutch (a,b,c) (m,n,o) = (zipWith (+) a m,zipWith (+) b n,c ++ o)
 
 divClutch :: Fractional a => ([a],[a],[b]) -> ([a],[a],[b])
 divClutch (a,b,c) = (map (/(fromIntegral clutchSamples)) a,
-		     map (/(fromIntegral clutchSamples)) b,
-		     c)
+                     map (/(fromIntegral clutchSamples)) b,
+                     c)
 
 clutchStats :: Fractional a => Wring -> ProgressBar s -> ([a],[a],[Jiggle])
 clutchStats wring pb = divClutch $ foldl' addClutch (repeat 0,repeat 0,[]) $
   map (clutch1 wring (incProgress pb 1)) $
   map (\x -> ((big3Power (8*clutchMsgLen))*(fromIntegral x),
-	      (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
+              (x*(fromIntegral (findMaxOrder (fromIntegral clutchMsgLen))) `mod` clutchMsgLen)))
   ([1..clutchSamples] `using` parListDeal clutchParNum rdeepseq)
 
 {-# NOINLINE jiggleMatch #-}
@@ -663,8 +663,8 @@ jiggleMatch wring upd (pt,byte,b0,b1) = (sideways,matches) where
   (ct1,r1) = encryptN wring 2 $ messageArray (pt .^. ((fromIntegral b1) .<<. (8*byte)))
   sideways' = ((head r1) - (head r0)) `mod` (8*clutchMsgLen)
   sideways = if (sideways' > 4*clutchMsgLen)
-		then (sideways' - 8*clutchMsgLen)
-		else sideways'
+                then (sideways' - 8*clutchMsgLen)
+                else sideways'
   matches = seq (unsafePerformIO upd) $ match (V.toList ct0) (V.toList ct1)
 
 clutch :: IO ()
