@@ -29,7 +29,7 @@ import Cryptography.WringTwistree.Permute
 import Cryptography.WringTwistree.KeySchedule
 import qualified Data.Vector.Unboxed as V
 
--- | Three 8×8 S-boxes used alternatively to substitute bytes
+-- | Three 8×8 S-boxes used alternately to substitute bytes
 type SBox = V.Vector Word8
 
 {-# SPECIALIZE sboxInx :: Word8 -> Word8 -> Int #-}

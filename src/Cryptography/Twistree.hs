@@ -60,7 +60,14 @@ data Twistree = Twistree
 
 deal n = transpose . chunksOf n -- to be used as a parallel strategy
 
-parListDeal :: Int -> Strategy a -> Strategy [a]
+-- | Deals a list among threads; each thread evaluates the items of its part
+-- of the list in sequence, and all the threads run in parallel. If n is 12,
+-- the 0th, 12th, 24th, ... items are evaluated by one thread, the 1st, 13rd,
+-- 25th, ... items are evaluated by another thread, and so on.
+parListDeal
+  :: Int -- ^ n, the number of threads
+  -> Strategy a
+  -> Strategy [a]
 parListDeal n strat xs
   | n <= 1    = evalList strat xs
   | otherwise = concat `fmap` parList (evalList strat) (deal n xs)

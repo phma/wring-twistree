@@ -74,9 +74,11 @@ searchSeq = map (\n -> if (odd n) then (n `div` 2 + 1) else (-n `div` 2)) [0..]
 searchFrom :: (Integer,Int) -> [Integer]
 searchFrom (start,dir) = map (\x -> x*(fromIntegral dir)+start) searchSeq
 
-findMaxOrder :: Integer -> Integer
--- n must be positive.
--- Returns the number of maximum multiplicative order mod n closest to n/φ.
+findMaxOrder
+  :: Integer -- ^ n must be positive.
+  -> Integer -- ^ A number relatively prime to n
+-- ^ Returns the number of maximum multiplicative order mod n closest to n/φ.
+-- This is a primitive root, if there are any.
 -- n=1 is a special case, as (isMaxOrder 1 1 [] i) returns False for all i>=0.
 findMaxOrder 1 = 1
 findMaxOrder n = head $ filter (isMaxOrder n car fac) $ searchFrom $ searchDir n
