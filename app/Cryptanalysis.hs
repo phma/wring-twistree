@@ -591,7 +591,7 @@ clutchMsgLen = 10000
 clutchRounds = 8
 clutchParNum = 2 + numCapabilities `div` 256 -- this 256 is from rotations256
 
-countPairs :: (Ord a, Eq a) => [a] -> Int
+countPairs :: Ord a => [a] -> Int
 -- Given a list of numbers representing the amount by which a message has been
 -- rotated by some number of rounds, returns the number of pairs of
 -- equal numbers.
