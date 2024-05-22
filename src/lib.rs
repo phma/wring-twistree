@@ -6,15 +6,15 @@
 //! `twistree`; the others are internals.
 
 // Used by both wring and twistree
-pub mod mix3;
-pub mod rotbitcount;
-pub mod permute;
-pub mod keyschedule;
-pub mod sboxes;
+mod mix3;
+mod rotbitcount;
+mod permute;
+mod keyschedule;
+mod sboxes;
 
 // Used by twistree
-pub mod blockize;
-pub mod compress; // uses mix3 and rotbitcount
+mod blockize;
+mod compress; // uses mix3 and rotbitcount
 
 pub mod wring {
 //! Wring is a whole-message cipher. All the user interface is in the
@@ -23,6 +23,7 @@ pub mod wring {
 use crate::mix3::*;
 use crate::rotbitcount::*;
 use crate::sboxes::*; // uses keyschedule and permute
+pub use crate::mix3::carmichael;
 
 fn n_rounds(n: usize) -> u32 {
   let mut ret=3;

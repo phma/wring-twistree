@@ -1,10 +1,10 @@
-use wring_twistree::mix3::*;
-use wring_twistree::rotbitcount::*;
-use wring_twistree::keyschedule::*;
+//use wring_twistree::mix3::*;
+//use wring_twistree::rotbitcount::*;
+//use wring_twistree::keyschedule::*;
 use wring_twistree::wring::*;
 use wring_twistree::twistree::*;
-use wring_twistree::blockize::*;
-use wring_twistree::compress::*;
+//use wring_twistree::blockize::*;
+//use wring_twistree::compress::*;
 use clap::Parser;
 use std::io;
 use std::io::*;
@@ -71,16 +71,6 @@ fn printvec16(k:&[u16]) {
   }
 }
 
-fn test_compress() {
-  let mut buf:Vec<u8> = Vec::new();
-  let mut wring=Wring::new();
-  wring.set_key_linear();
-  buf.extend_from_slice(&EXP4_2ADIC);
-  buf.extend_from_slice(&EXP4_BASE2);
-  compress(&wring.sbox,&mut buf,0);
-  printvec(&buf);
-}
-
 fn test_hash() {
   let part0=[105;105];
   let part1=[150;150];
@@ -115,33 +105,6 @@ fn hash_file(key:&str, plainname:&str, outname:&str) -> io::Result<()> {
 }
 
 fn test_new_code() {
-  let mut buf:Vec<u8> = Vec::new();
-  let mut src=vec!(0u8; 16);
-  let mut dst=vec!(0u8; 16);
-  let mut sched=vec!(0u16; 96);
-  let mut wring=Wring::new();
-  wring.set_key_linear();
-  for i in 0..=15 {
-    buf.push(i*13);
-  }
-  //printvec(&buf);
-  mix3parts(&mut buf,5,3);
-  //printvec(&buf);
-  buf.clear();
-  buf.extend([0; 256]);
-  wring.encrypt(&mut buf);
-  //printvec(&buf);
-  wring.decrypt(&mut buf);
-  //printvec(&buf);
-  src[0]=225;
-  rot_bitcount(&src,&mut dst,1);
-  //printvec(&dst);
-  key_schedule("roygbiv".as_bytes(),&mut sched);
-  //printvec16(&sched);
-  key_schedule("aerate".as_bytes(),&mut sched);
-  //printvec16(&sched);
-  //encrypt_file("aerate","/tmp/1meg","/tmp/1meg.crypt");
-  test_hash();
 }
 
 fn main() {

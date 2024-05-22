@@ -25,12 +25,12 @@ use num_prime::nt_funcs::factorize64;
 use mod_exp::*;
 use std::mem::replace;
 
-pub fn mix(a: u8, b: u8, c: u8) -> (u8,u8,u8) {
+fn mix(a: u8, b: u8, c: u8) -> (u8,u8,u8) {
   let mask:u8=(a|b|c)-(a&b&c);
   (a^mask,b^mask,c^mask)
 }
 
-pub fn fibo_pair(n: BigUint) -> (BigUint,BigUint) {
+fn fibo_pair(n: BigUint) -> (BigUint,BigUint) {
   let mut f0: BigUint = Zero::zero();
   let mut f1: BigUint = One::one();
   while f0<=n {
@@ -40,7 +40,7 @@ pub fn fibo_pair(n: BigUint) -> (BigUint,BigUint) {
   (f0,f1)
 }
 
-pub fn search_dir(n: BigUint) -> (BigUint,i8) {
+fn search_dir(n: BigUint) -> (BigUint,i8) {
   let (num,den)=fibo_pair(BigUint::from(2u8)*&n);
   let (q,r)=div_rem(n*num,den.clone());
   if r*BigUint::from(2u8)<den {
@@ -50,6 +50,9 @@ pub fn search_dir(n: BigUint) -> (BigUint,i8) {
   }
 }
 
+/// Computes the Carmichael function, a number-theoretic function.
+/// The Carmichael function equals the totient iff there are primitive roots.
+/// Exported because I didn't find it in Rust, unlike Haskell.
 pub fn carmichael(n: usize) -> usize {
   let facs = factorize64(n as u64);
   let mut ret:usize=1;
@@ -64,7 +67,7 @@ pub fn carmichael(n: usize) -> usize {
   ret
 }
 
-pub fn is_max_order(modl: u64, car: u64, fac: &BTreeMap<u64,usize>, n: u64) -> bool {
+fn is_max_order(modl: u64, car: u64, fac: &BTreeMap<u64,usize>, n: u64) -> bool {
 // modl is the modulus, car is its Carmichael function,
 // fac is the set of prime factors of car,
 // and n is the number being tested.

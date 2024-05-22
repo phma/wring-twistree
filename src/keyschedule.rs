@@ -3,7 +3,7 @@
 // It converts a slice of bytes of arbitrary length, which should not exceed 96,
 // into an array of 96 u16. Then it reschedules the array for the next s-box.
 
-pub fn extend_key(str:&[u8]) -> Vec<u16> {
+fn extend_key(str:&[u8]) -> Vec<u16> {
   let mut ret:Vec<u16> = Vec::new();
   let mut n:u16 = if str.len()>0 {(384/str.len() as isize) as u16} else {0};
   if (n as usize)*str.len()<384 {
