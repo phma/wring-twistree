@@ -50,8 +50,8 @@ pub fn xorn(n: u64) -> u8 { // used for big hash test
 
 #[derive(Clone)]
 pub struct Wring {
-  pub sbox: [[u8; 256]; 3],
-  pub inv_sbox: [[u8; 256]; 3],
+  sbox: [[u8; 256]; 3],
+  inv_sbox: [[u8; 256]; 3],
 }
 
 impl Wring {
@@ -269,7 +269,7 @@ use crate::compress::*; // uses mix3 and rot_bitcount
 
 #[derive(Clone)]
 pub struct Twistree {
-  pub sbox: [[u8; 256]; 3],
+  sbox: [[u8; 256]; 3],
   tree2: Vec<Vec<u8>>,
   tree3: Vec<Vec<u8>>,
   partial_block: Vec<u8>,
