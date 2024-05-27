@@ -18,6 +18,7 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 ### Changed
 
 - Increased number of rounds in Wring, because cryptanalysis showed it was not sufficient for security of large messages
+- Make Rust modules and functions private
 
 ## 0.0.1.1 - 0.1.0 - 2024-01-11
 
