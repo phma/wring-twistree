@@ -12,8 +12,9 @@ A round consists of four operations:
 2. The three key-dependent 8×8 S-boxes provide confusion and 
 resist linear cryptanalysis.
 3. Rotating by the population count thwarts integral and differential cryptanalysis by moving the difference around to a different part of the message.
-4. Wring's round constant, which is dependent on the byte position as well as the round number, is added to every byte to prevent slide attacks and ensure that an all-zero message doesn't stay that way.
-4. Twistree runs a CRC backwards to make the four bytes about to be dropped affect all the other bytes.
+4.  
+    * Wring's round constant, which is dependent on the byte position as well as the round number, is added to every byte to prevent slide attacks and ensure that an all-zero message doesn't stay that way.
+    * Twistree runs a CRC backwards to make the four bytes about to be dropped affect all the other bytes.
 
 # Rust
 To run the program, type `cargo run`. The first time you run it, Cargo may download a quarter-gigabyte of data, which is the index to all crates. You can also test the program with `cargo test`.
@@ -30,7 +31,7 @@ If you develop this using Cabal, please edit `package.yaml` to match any changes
 
 `stack run -- -k key -H plaintext -o hash` hashes a file. Omit `-o hash` to output the hash to stdout.
 
-`stack run -- -c foo` runs cryptanalysis of type `foo`, which is currently `relkey` for related-key cryptanalysis. This option is not available in the Rust implementation.
+`stack run -- -c foo` runs cryptanalysis of type `foo`, which is currently `relkey` for related-key cryptanalysis, `integral` for integral cryptanalysis, `hashcoll` for hash collisions, or `integral-fixed` or `hashcoll-linear` for variants of the preceding. This option is not available in the Rust implementation.
 
 `cargo` instead of `stack` runs the Rust implementation; the options are the same, except that hash is `-h`.
 
