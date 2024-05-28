@@ -14,6 +14,7 @@ and [Semantic Versioning](https://semver.org/) for Rust.
 - -O2 option
 - Progress bar for cryptanalysis
 - In Rust, initialize sbox of new Wring and Twistree
+- 15-byte test vectors
 
 ### Changed
 

@@ -88,6 +88,10 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "lin9AllOrNone" $
       (encrypt linearWring (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0xc1,0xd8,0x4e,0x09,0xea,0x44,0xf3,0x0d,0x19]
+  , testCase "lin15Encipher" $
+      (encrypt linearWring (fromListN 15 $ stringToBytes "EncipherMessage"))
+      @?= fromListN 15 [ 0xc5, 0x0e, 0xc1, 0x88, 0xfd, 0x97, 0x89, 0x2d
+                       , 0xa3, 0xdf, 0x58, 0x15, 0xd3, 0xf4, 0x8c]
   , testCase "null8nulls" $
       (encrypt wring0 (fromListN 8 [0,0,0,0,0,0,0,0]))
       @?= fromListN 8 [0x61,0x4b,0xf3,0x34,0x9e,0x21,0xd1,0x21]
@@ -106,6 +110,10 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "null9AllOrNone" $
       (encrypt wring0 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0x06,0x15,0xaf,0x81,0x8b,0x63,0x9c,0xa2,0x9e]
+  , testCase "null15Encipher" $
+      (encrypt wring0 (fromListN 15 $ stringToBytes "EncipherMessage"))
+      @?= fromListN 15 [ 0x29, 0xb5, 0x8f, 0xd1, 0x67, 0xa7, 0xb3, 0xf6
+                       , 0x99, 0x33, 0xa8, 0x47, 0x3c, 0xb4, 0xcf]
   , testCase "aerate8nulls" $
       (encrypt wring6 (fromListN 8 [0,0,0,0,0,0,0,0]))
       @?= fromListN 8 [0x7d,0x9b,0x65,0x67,0xe8,0xa3,0xd2,0x7d]
@@ -124,6 +132,10 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "aerate9AllOrNone" $
       (encrypt wring6 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0xe8,0x23,0xcd,0x4d,0x80,0x5f,0xdb,0xb4,0x0a]
+  , testCase "aerate15Encipher" $
+      (encrypt wring6 (fromListN 15 $ stringToBytes "EncipherMessage"))
+      @?= fromListN 15 [ 0x17, 0x95, 0x06, 0x84, 0x85, 0x6c, 0x0e, 0xed
+                       , 0x68, 0x70, 0xe4, 0xdd, 0xeb, 0xd1, 0x92]
   , testCase "χαίρετε8nulls" $
       (encrypt wring30 (fromListN 8 [0,0,0,0,0,0,0,0]))
       @?= fromListN 8 [0xa3,0x5d,0x2e,0x41,0xf3,0x20,0x9e,0x5c]
@@ -142,6 +154,10 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "χαίρετε9AllOrNone" $
       (encrypt wring30 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0xa3,0xab,0x75,0x4b,0xea,0x16,0x54,0xd6,0xa7]
+  , testCase "χαίρετε15Encipher" $
+      (encrypt wring30 (fromListN 15 $ stringToBytes "EncipherMessage"))
+      @?= fromListN 15 [ 0x9b, 0x21, 0x52, 0x31, 0x35, 0x7c, 0xb4, 0x51
+                       , 0x85, 0x6d, 0xbd, 0x1b, 0xf0, 0xf6, 0x4d]
   , testCase "двор8nulls" $
       (encrypt wring96 (fromListN 8 [0,0,0,0,0,0,0,0]))
       @?= fromListN 8 [0xb3,0x8c,0xb4,0x4e,0x32,0xef,0xd7,0xc8]
@@ -160,6 +176,10 @@ testVectorsWring = testGroup "Test vectors for Wring"
   , testCase "двор9AllOrNone" $
       (encrypt wring96 (fromListN 9 $ stringToBytes "AllOrNone"))
       @?= fromListN 9 [0x21,0x15,0x76,0xbc,0x8b,0x29,0x18,0x92,0x21]
+  , testCase "двор15Encipher" $
+      (encrypt wring96 (fromListN 15 $ stringToBytes "EncipherMessage"))
+      @?= fromListN 15 [ 0x5d, 0x6d, 0x0c, 0xa5, 0xfb, 0x0d, 0x38, 0x74
+                       , 0x6b, 0xd0, 0x41, 0x10, 0x80, 0xf3, 0x78]
   , testCase "searchDir" $
       (encrypt wring96 (fromList $ stringToBytes key96))
       -- This comes from a typo when translating to Julia. All the 8- and 9-byte
