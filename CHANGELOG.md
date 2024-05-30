@@ -7,7 +7,7 @@ and this project adheres to the
 [Haskell Package Versioning Policy](https://pvp.haskell.org/) for Haskell
 and [Semantic Versioning](https://semver.org/) for Rust.
 
-## Unreleased
+## 0.1.0.0 - 1.0.0 - 2024-05-30
 
 ### Added
 
